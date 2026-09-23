@@ -8,8 +8,11 @@ const port = Number(process.env.PORT || 4210);
 const assets = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
+  ['/participant.html', ['participant.html', 'text/html; charset=utf-8']],
   ['/proof-client.bundle.js', ['proof-client.bundle.js', 'text/javascript; charset=utf-8']],
+  ['/participant-exchange.bundle.js', ['participant-exchange.bundle.js', 'text/javascript; charset=utf-8']],
   ['/midnight-runtime.wasm', ['midnight-runtime.wasm', 'application/wasm']],
+  ['/veil-consent-mvp.mp4', ['veil-consent-mvp.mp4', 'video/mp4']],
 ]);
 
 http.createServer((request, response) => {

@@ -7,7 +7,7 @@
 - A document or transcript that requires consent from several people
 - A clear description of the AI task, model, recipients, and retention period
 
-The browser demonstration can be completed without spending test tokens. Connecting a compatible wallet shows that it is on the expected network; the generated Compact contract executes locally for a quick review. The demo creates sample one-time participant credentials in the browser. A deployed integration gives each participant a separate client that creates its own secret and shares only the commitment until approval.
+The browser demonstration can be completed without spending test tokens. Connecting a compatible wallet shows that it is on the expected network; the generated Compact contract executes locally for a quick review. Choose **Local walkthrough** for the short reviewer path or **Independent participants** to use separate participant browsers and encrypted response packets.
 
 ## Step-by-Step Guide
 
@@ -19,6 +19,16 @@ The browser demonstration can be completed without spending test tokens. Connect
 6. Try the action again. Contract state rejects the replay because the capability has already been consumed.
 
 Before capability issuance, an organizer can choose **Revoke**. Expired or revoked requests cannot authorize processing.
+
+## Independent Participant Workflow
+
+1. Each participant opens **Participant portal**, chooses their assigned slot, and creates an enrollment. They return the enrollment packet to the organizer and keep the same browser storage for the response step.
+2. The organizer chooses **Independent participants**, imports the three enrollment packets into the matching slots, and creates the request.
+3. The organizer copies each generated invitation to its participant. The participant pastes it into the portal and checks the task, model, recipients, retention term, expiry, and shortened request commitment.
+4. The participant approves or declines and returns the encrypted response packet.
+5. The organizer imports all three response packets. VeilConsent verifies the request and enrolled credential for each response, then enables **Prove consent**.
+
+Packets are transport-neutral strings. For the MVP, exchange them through an agreed authenticated channel; they are not uploaded by the static site.
 
 ## What Gets Proved (and What Stays Private)
 

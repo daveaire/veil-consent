@@ -13,11 +13,15 @@ VeilConsent is a Preprod MVP. It is suitable for testing the consent protocol wi
 - Response and capability replay protection
 - One-time approval credentials verified by private preimage proofs
 - AES-256-GCM encryption for sample documents and response records
+- Independent participant enrollment and ephemeral ECDH-encrypted response packets
+- Request-bound authenticated encryption and enrolled-credential verification
 - Owner-only, ignored wallet and private-state credentials
 
 ## Known limitations
 
-- The demonstration generates all sample credentials in one organizer-controlled client. Real participants must generate their secrets independently, provide only commitments during enrollment, and release a secret only to approve the bound request.
+- The quick local walkthrough generates sample credentials in one organizer-controlled client. Use the independent participant workflow to generate secrets in separate browsers and exchange encrypted response packets.
+- Packet exchange has no authenticated delivery service in the static MVP. Organizers and participants must confirm their communication channel and invitation source out of band.
+- Participants authenticate the exact purpose terms inside their encrypted response, but cannot independently open the full private on-chain request commitment. The MVP therefore trusts the organizer to construct the invitation from the same private purpose used by the Compact witness.
 - The browser holds the sample encryption key. A production gateway must use KMS or an HSM and release a key only after finalized contract-state verification and capability consumption.
 - The contract cannot erase plaintext copied after authorized release or prove that an external model provider followed its retention policy.
 

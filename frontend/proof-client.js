@@ -14,7 +14,7 @@ async function digest(value) {
   return new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(value)));
 }
 
-export async function browserConsentInput({ document, purpose, threshold, decisions, expiry }) {
+export async function browserConsentInput({ document, purpose, threshold, decisions, expiry, credentials = [] }) {
   const approvalSecretA = random32(), approvalSecretB = random32(), approvalSecretC = random32();
   return {
     contentHash: await digest(document),
@@ -23,9 +23,9 @@ export async function browserConsentInput({ document, purpose, threshold, decisi
     threshold: BigInt(threshold),
     organizerSecret: random32(),
     requestNonce: random32(),
-    credentialA: pureCircuits.participantCredential(approvalSecretA),
-    credentialB: pureCircuits.participantCredential(approvalSecretB),
-    credentialC: pureCircuits.participantCredential(approvalSecretC),
+    credentialA: credentials[0] ?? pureCircuits.participantCredential(approvalSecretA),
+    credentialB: credentials[1] ?? pureCircuits.participantCredential(approvalSecretB),
+    credentialC: credentials[2] ?? pureCircuits.participantCredential(approvalSecretC),
     approvalSecretA, approvalSecretB, approvalSecretC,
     decisionA: decisions[0] ? 1n : 0n,
     decisionB: decisions[1] ? 1n : 0n,
@@ -34,6 +34,8 @@ export async function browserConsentInput({ document, purpose, threshold, decisi
     expiry: BigInt(expiry),
   };
 }
+
+export { pureCircuits };
 
 const witnesses = {
   privateContentHash: ({ privateState }) => [privateState, privateState.contentHash],

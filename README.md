@@ -30,20 +30,21 @@ The final request state is consumed. Participant identity, individual decision, 
 
 VeilConsent prevents an AI gateway from processing shared private material until the people represented in that material have authorized one exact use. A request binds an encrypted document to a task, model, recipient class, retention term, consent policy, and expiry.
 
-Participants respond with one-time credentials. A Compact circuit proves that the private consent rule passed and issues a single-use capability. The gateway consumes that capability before decrypting the document; the public lifecycle then blocks replay.
+Participants create one-time credentials in a separate portal and return ECDH-encrypted, request-bound response packets. A Compact circuit proves that the private consent rule passed and issues a single-use capability. The gateway consumes that capability before decrypting the document; the public lifecycle then blocks replay.
 
 Midnight is used because the authorization decision must be verifiable without publishing participant identities, individual decisions, or the threshold. A conventional public contract would reveal the very consent record VeilConsent is designed to protect.
 
 **Vision:** make consent a machine-verifiable prerequisite for sensitive AI workflows, while keeping the consent record private by default.
 
-**Key features:** private threshold and unanimous policies, one-time participant credentials, local document encryption, purpose-bound capabilities, expiry, organizer revocation, replay prevention, compatible Midnight wallet selection, and a small consent-gated AI adapter.
+**Key features:** private threshold and unanimous policies, independent participant enrollment, encrypted response handoff, one-time participant credentials, local document encryption, purpose-bound capabilities, expiry, organizer revocation, replay prevention, compatible Midnight wallet selection, and a small consent-gated AI adapter.
 
 ```mermaid
 flowchart LR
   O[Organizer browser] -->|encrypts document| E[Encrypted object]
   O -->|private witnesses| C[Compact contract on Preprod]
-  P[Participants] -->|one response per credential| V[Encrypted response vault]
-  V -->|private decisions| C
+  P[Participant portal] -->|credential commitment| O
+  O -->|purpose-bound invitation| P
+  P -->|encrypted response packet| O
   C -->|single-use capability| G[AI gateway]
   E --> G
   G -->|consume before decrypting| C
@@ -105,7 +106,7 @@ Expiry is enforced with Compact's `blockTimeLte` predicate, so Preprod evaluates
    npm run dashboard
    ```
 
-3. Open <http://127.0.0.1:4210>, create a request, prove the sample consent policy, and process the encrypted document once.
+3. Open <http://127.0.0.1:4210>, create a request, prove the sample consent policy, and process the encrypted document once. Choose **Independent participants** to test enrollment and encrypted response handoff across separate browser contexts.
 
 4. To exercise the Preprod deployment workflow:
 
@@ -126,7 +127,7 @@ Wallet recovery material, the generated private-state password, and private-stat
 npm run check
 ```
 
-The suite covers threshold and unanimous policies, expiry, revocation, replay prevention, commitment binding, encrypted response storage, and the one-use AI gateway. The command-line lifecycle is available through `npm run demo`.
+The suite covers threshold and unanimous policies, expiry, revocation, replay prevention, commitment binding, encrypted participant exchange, encrypted response storage, and the one-use AI gateway. The command-line lifecycle is available through `npm run demo`.
 
 ## CI/CD
 

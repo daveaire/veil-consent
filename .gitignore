@@ -9,4 +9,5 @@ dist/
 .DS_Store
 *.log
 frontend/proof-client.bundle.js
+frontend/participant-exchange.bundle.js
 frontend/midnight-runtime.wasm
