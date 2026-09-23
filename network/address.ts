@@ -35,6 +35,8 @@ async function main(): Promise<void> {
     console.log(`tNIGHT:  ${balance}`);
     console.log(`DUST:    ${dustBalance}`);
     console.log(`DUST-registered UTXOs: ${registeredUtxos}/${state.unshielded.availableCoins.length}`);
+    console.log(`DUST stream connected: ${Boolean(state.dust.state.progress.isConnected)}`);
+    console.log(`DUST coins: ${state.dust.availableCoins.length}`);
     if (networkConfig.faucet) console.log(`Faucet:  ${networkConfig.faucet}`);
     if (walletRecord.created) {
       console.log('Recovery material was created in the owner-only, gitignored .midnight-state.json file.');

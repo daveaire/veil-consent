@@ -35,12 +35,6 @@ import { getPrivateStatePassword } from './private-state-password';
 // @ts-expect-error Required for wallet sync
 globalThis.WebSocket = WebSocket;
 
-// Upper bound on the DUST wait. A healthy local devnet produces DUST within
-// seconds of registration; anything approaching this means the node, the
-// wallet's NIGHT balance, or the faucet is the real problem, and failing with
-// that message beats hanging.
-const DUST_WAIT_TIMEOUT_MS = 5 * 60 * 1000;
-
 function progressComplete(progress: unknown): boolean {
   if (!progress || typeof progress !== 'object') return false;
   const check = (progress as { isStrictlyComplete?: () => boolean }).isStrictlyComplete;
@@ -53,6 +47,10 @@ function progressComplete(progress: unknown): boolean {
 // 'undeployed' (local devnet). Switch networks with: npm run network <name>
 
 const { network, config: networkConfig } = resolveNetwork();
+const configuredDustTimeout = Number(process.env.MIDNIGHT_DUST_TIMEOUT_MS);
+const DUST_WAIT_TIMEOUT_MS = Number.isFinite(configuredDustTimeout) && configuredDustTimeout > 0
+  ? configuredDustTimeout
+  : network === 'undeployed' ? 5 * 60 * 1000 : 30 * 60 * 1000;
 const WALLET = getOrCreateWallet(network);
 const SEED = WALLET.seed;
 {
