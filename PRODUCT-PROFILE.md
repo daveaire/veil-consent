@@ -10,33 +10,51 @@ VeilConsent
 
 ## Bio
 
-Private multi-party consent for AI processing. Purpose-bound, single-use capabilities on Midnight. Building on Preprod.
+Private consent for AI processing on @MidnightNtwrk.
+Purpose-bound. Multi-party. Single-use.
+Live Preprod MVP ↓
 
-## Launch posts
+Website: `https://tinyurl.com/23osgbz7`
 
-### 1 — Product
+## Posting approach
 
-VeilConsent lets a group authorize AI processing without publishing who participated, how each person responded, or the consent threshold.
+Active Midnight product accounts lead with the use case, name the privacy property in plain language, state whether the product is live on Preprod, and end with one clear action. VeilConsent posts should follow that structure, use one concrete claim per post, and tag only the accounts directly related to that claim.
 
-The MVP binds an encrypted document to one exact task, model, recipient class, and retention period. A Midnight proof issues a capability only when the private policy passes, and the AI gateway can consume it once.
+## Launch drafts
 
-Preprod demo: https://daveaire.github.io/veil-consent/
-Source: https://github.com/daveaire/veil-consent
+### 1 — Product outcome
 
-### 2 — Privacy model
+AI should not process shared private data until everyone who matters has agreed to that exact use.
 
-Consent records can be sensitive too. VeilConsent publishes the minimum needed to verify authorization: commitments, lifecycle state, expiry, and replay protection.
+VeilConsent turns private multi-party consent into a single-use capability on @MidnightNtwrk.
 
-Participant identities, individual decisions, the threshold, document, and purpose details stay private. The proof answers one question: may this exact processing request proceed?
+Live Preprod MVP: https://tinyurl.com/23osgbz7
+Built through @riseinweb3.
 
-### 3 — Preprod demo
+### 2 — Verified lifecycle
 
-The VeilConsent Preprod MVP is live.
+VeilConsent is live on Midnight Preprod.
 
-Create a purpose-bound request, satisfy a private multi-party consent rule, and consume the resulting capability once. Then test revocation, expiry, and replay rejection yourself.
+• Private multi-party consent
+• Purpose-bound authorization
+• Single-use capability
+• Replay protection
 
-Demo: https://daveaire.github.io/veil-consent/
-Source: https://github.com/daveaire/veil-consent
+The contract completed create → issue → consume on-chain.
+
+Try it: https://tinyurl.com/23osgbz7
+@MidnightNtwrk @riseinweb3
+
+### 3 — Privacy model
+
+Consent records can be sensitive too.
+
+VeilConsent proves an AI request is authorized without publishing participant identities, individual decisions, or the threshold. The resulting capability works once.
+
+Live on @MidnightNtwrk Preprod: https://tinyurl.com/23osgbz7
+@riseinweb3
+
+All three drafts fit within X's standard post limit. Draft 1 is the recommended first post because it starts with the user problem, explains the product in one sentence, and gives one action.
 
 ## Visual direction
 
