@@ -68,8 +68,8 @@ async function main(): Promise<void> {
     console.log(`VeilConsent · ${network}`);
     console.log(`Contract: ${deployment.address}`);
     const created = await deployed.callTx.createRequest(expiry);
-    const issued = await deployed.callTx.issueCapability(now);
-    const consumed = await deployed.callTx.consumeCapability(now + 1n);
+    const issued = await deployed.callTx.issueCapability();
+    const consumed = await deployed.callTx.consumeCapability();
     const state = await providers.publicDataProvider.queryContractState(deployment.address);
     if (!state) throw new Error('Finalized contract state was not returned by the indexer.');
     const publicLedger = VeilConsent.ledger(state.data);

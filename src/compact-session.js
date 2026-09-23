@@ -56,8 +56,8 @@ export class ConsentSession {
     return session;
   }
 
-  context(privateState) {
-    return createCircuitContext(this.address, this.zswapState, this.contractState, privateState);
+  context(privateState, blockTime) {
+    return createCircuitContext(this.address, this.zswapState, this.contractState, privateState, undefined, undefined, blockTime);
   }
 
   apply(result) {
@@ -72,11 +72,11 @@ export class ConsentSession {
   }
 
   issueCapability(input, observedAt) {
-    return this.apply(this.contract.impureCircuits.issueCapability(this.context(input), BigInt(observedAt)));
+    return this.apply(this.contract.impureCircuits.issueCapability(this.context(input, observedAt)));
   }
 
   consumeCapability(input, observedAt) {
-    return this.apply(this.contract.impureCircuits.consumeCapability(this.context(input), BigInt(observedAt)));
+    return this.apply(this.contract.impureCircuits.consumeCapability(this.context(input, observedAt)));
   }
 
   revoke(input) {

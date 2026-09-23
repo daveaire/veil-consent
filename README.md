@@ -62,7 +62,7 @@ flowchart LR
 - The capability matches the committed content and purpose
 - The same responses and capability cannot be reused
 
-The MVP accepts `observedAt` as a public circuit input for expiry. A production release must bind that value to a network-attested time source before treating expiry as trustless.
+Expiry is enforced with Compact's `blockTimeLte` predicate, so Preprod evaluates the deadline against the block that includes the transaction.
 
 ## Tech Stack
 

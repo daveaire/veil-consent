@@ -47,9 +47,9 @@ export circuit createRequest(expiry: Uint<64>): Bytes<32> {
   return disclose(commitment);
 }
 
-export circuit issueCapability(observedAt: Uint<64>): Bytes<32> {
+export circuit issueCapability(): Bytes<32> {
   assert(requestStatus == 1, "Request is not awaiting consent");
-  assert(observedAt <= activeExpiry, "Consent request has expired");
+  assert(blockTimeLte(activeExpiry), "Consent request has expired");
   const threshold = privateThreshold();
   const credentialA = privateCredentialA();
   const credentialB = privateCredentialB();
@@ -76,9 +76,9 @@ export circuit issueCapability(observedAt: Uint<64>): Bytes<32> {
   return disclose(capability);
 }
 
-export circuit consumeCapability(observedAt: Uint<64>): Bytes<32> {
+export circuit consumeCapability(): Bytes<32> {
   assert(requestStatus == 2, "Capability is unavailable or already consumed");
-  assert(observedAt <= activeExpiry, "Capability has expired");
+  assert(blockTimeLte(activeExpiry), "Capability has expired");
   const capability = capabilityFor(activeRequest, privateContentHash(), privatePurposeHash(), privateCapabilitySecret());
   assert(capability == activeCapability, "Capability does not match this content and purpose");
   requestStatus = 4;

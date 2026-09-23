@@ -18,19 +18,15 @@ export type Witnesses<PS> = {
 
 export type ImpureCircuits<PS> = {
   createRequest(context: __compactRuntime.CircuitContext<PS>, expiry_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
-  issueCapability(context: __compactRuntime.CircuitContext<PS>,
-                  observedAt_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
-  consumeCapability(context: __compactRuntime.CircuitContext<PS>,
-                    observedAt_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  issueCapability(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  consumeCapability(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
   revokeRequest(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
 }
 
 export type ProvableCircuits<PS> = {
   createRequest(context: __compactRuntime.CircuitContext<PS>, expiry_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
-  issueCapability(context: __compactRuntime.CircuitContext<PS>,
-                  observedAt_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
-  consumeCapability(context: __compactRuntime.CircuitContext<PS>,
-                    observedAt_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  issueCapability(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  consumeCapability(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
   revokeRequest(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
 }
 
@@ -57,10 +53,8 @@ export type PureCircuits = {
 
 export type Circuits<PS> = {
   createRequest(context: __compactRuntime.CircuitContext<PS>, expiry_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
-  issueCapability(context: __compactRuntime.CircuitContext<PS>,
-                  observedAt_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
-  consumeCapability(context: __compactRuntime.CircuitContext<PS>,
-                    observedAt_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  issueCapability(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  consumeCapability(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
   revokeRequest(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
   requestCommitment(context: __compactRuntime.CircuitContext<PS>,
                     contentHash_0: Uint8Array,

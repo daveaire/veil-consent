@@ -26,13 +26,6 @@
       "pure": false,
       "proof": true,
       "arguments": [
-        {
-          "name": "observedAt",
-          "type": {
-            "type-name": "Uint",
-            "maxval": 18446744073709551615
-          }
-        }
       ],
       "result-type": {
         "type-name": "Bytes",
@@ -44,13 +37,6 @@
       "pure": false,
       "proof": true,
       "arguments": [
-        {
-          "name": "observedAt",
-          "type": {
-            "type-name": "Uint",
-            "maxval": 18446744073709551615
-          }
-        }
       ],
       "result-type": {
         "type-name": "Bytes",

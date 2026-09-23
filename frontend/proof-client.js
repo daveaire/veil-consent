@@ -66,11 +66,11 @@ export class BrowserConsentSession {
     return session;
   }
 
-  call(name, input, argument) {
-    const context = createCircuitContext(this.address, this.zswapState, this.contractState, input);
-    const result = argument === undefined
-      ? this.contract.impureCircuits[name](context)
-      : this.contract.impureCircuits[name](context, BigInt(argument));
+  call(name, input, blockTime) {
+    const context = createCircuitContext(this.address, this.zswapState, this.contractState, input, undefined, undefined, blockTime);
+    const result = name === 'createRequest'
+      ? this.contract.impureCircuits[name](context, input.expiry)
+      : this.contract.impureCircuits[name](context);
     this.contractState = result.context.currentQueryContext.state;
     this.zswapState = result.context.currentZswapLocalState;
     const state = ledger(this.contractState);
@@ -85,7 +85,7 @@ export class BrowserConsentSession {
     };
   }
 
-  createRequest(input) { return this.call('createRequest', input, input.expiry); }
+  createRequest(input) { return this.call('createRequest', input); }
   issueCapability(input, observedAt) { return this.call('issueCapability', input, observedAt); }
   consumeCapability(input, observedAt) { return this.call('consumeCapability', input, observedAt); }
   revoke(input) { return this.call('revokeRequest', input); }

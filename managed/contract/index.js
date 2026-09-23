@@ -139,11 +139,10 @@ export class Contract {
         return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
       },
       issueCapability: (...args_1) => {
-        if (args_1.length !== 2) {
-          throw new __compactRuntime.CompactError(`issueCapability: expected 2 arguments (as invoked from Typescript), received ${args_1.length}`);
+        if (args_1.length !== 1) {
+          throw new __compactRuntime.CompactError(`issueCapability: expected 1 argument (as invoked from Typescript), received ${args_1.length}`);
         }
         const contextOrig_0 = args_1[0];
-        const observedAt_0 = args_1[1];
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('issueCapability',
                                      'argument 1 (as invoked from Typescript)',
@@ -151,35 +150,22 @@ export class Contract {
                                      'CircuitContext',
                                      contextOrig_0)
         }
-        if (!(typeof(observedAt_0) === 'bigint' && observedAt_0 >= 0n && observedAt_0 <= 18446744073709551615n)) {
-          __compactRuntime.typeError('issueCapability',
-                                     'argument 1 (argument 2 as invoked from Typescript)',
-                                     'veil-consent.compact line 50 char 1',
-                                     'Uint<0..18446744073709551616>',
-                                     observedAt_0)
-        }
         const context = { ...contextOrig_0, gasCost: __compactRuntime.emptyRunningCost() };
         const partialProofData = {
-          input: {
-            value: _descriptor_3.toValue(observedAt_0),
-            alignment: _descriptor_3.alignment()
-          },
+          input: { value: [], alignment: [] },
           output: undefined,
           publicTranscript: [],
           privateTranscriptOutputs: []
         };
-        const result_0 = this._issueCapability_0(context,
-                                                 partialProofData,
-                                                 observedAt_0);
+        const result_0 = this._issueCapability_0(context, partialProofData);
         partialProofData.output = { value: _descriptor_0.toValue(result_0), alignment: _descriptor_0.alignment() };
         return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
       },
       consumeCapability: (...args_1) => {
-        if (args_1.length !== 2) {
-          throw new __compactRuntime.CompactError(`consumeCapability: expected 2 arguments (as invoked from Typescript), received ${args_1.length}`);
+        if (args_1.length !== 1) {
+          throw new __compactRuntime.CompactError(`consumeCapability: expected 1 argument (as invoked from Typescript), received ${args_1.length}`);
         }
         const contextOrig_0 = args_1[0];
-        const observedAt_0 = args_1[1];
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('consumeCapability',
                                      'argument 1 (as invoked from Typescript)',
@@ -187,26 +173,14 @@ export class Contract {
                                      'CircuitContext',
                                      contextOrig_0)
         }
-        if (!(typeof(observedAt_0) === 'bigint' && observedAt_0 >= 0n && observedAt_0 <= 18446744073709551615n)) {
-          __compactRuntime.typeError('consumeCapability',
-                                     'argument 1 (argument 2 as invoked from Typescript)',
-                                     'veil-consent.compact line 79 char 1',
-                                     'Uint<0..18446744073709551616>',
-                                     observedAt_0)
-        }
         const context = { ...contextOrig_0, gasCost: __compactRuntime.emptyRunningCost() };
         const partialProofData = {
-          input: {
-            value: _descriptor_3.toValue(observedAt_0),
-            alignment: _descriptor_3.alignment()
-          },
+          input: { value: [], alignment: [] },
           output: undefined,
           publicTranscript: [],
           privateTranscriptOutputs: []
         };
-        const result_0 = this._consumeCapability_0(context,
-                                                   partialProofData,
-                                                   observedAt_0);
+        const result_0 = this._consumeCapability_0(context, partialProofData);
         partialProofData.output = { value: _descriptor_0.toValue(result_0), alignment: _descriptor_0.alignment() };
         return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
       },
@@ -414,6 +388,27 @@ export class Contract {
       currentPrivateState: context.currentPrivateState,
       currentZswapLocalState: context.currentZswapLocalState
     }
+  }
+  _blockTimeGt_0(context, partialProofData, time_0) {
+    return _descriptor_6.fromValue(__compactRuntime.queryLedgerState(context,
+                                                                     partialProofData,
+                                                                     [
+                                                                      { push: { storage: false,
+                                                                                value: __compactRuntime.StateValue.newCell({ value: _descriptor_3.toValue(time_0),
+                                                                                                                             alignment: _descriptor_3.alignment() }).encode() } },
+                                                                      { dup: { n: 3 } },
+                                                                      { idx: { cached: true,
+                                                                               pushPath: false,
+                                                                               path: [
+                                                                                      { tag: 'value',
+                                                                                        value: { value: _descriptor_1.toValue(2n),
+                                                                                                 alignment: _descriptor_1.alignment() } }] } },
+                                                                      'lt',
+                                                                      { popeq: { cached: true,
+                                                                                 result: undefined } }]).value);
+  }
+  _blockTimeLte_0(context, partialProofData, time_0) {
+    return !this._blockTimeGt_0(context, partialProofData, time_0);
   }
   _persistentHash_0(value_0) {
     const result_0 = __compactRuntime.persistentHash(_descriptor_4, value_0);
@@ -757,7 +752,7 @@ export class Contract {
                                        { ins: { cached: true, n: 1 } }]);
     return commitment_0;
   }
-  _issueCapability_0(context, partialProofData, observedAt_0) {
+  _issueCapability_0(context, partialProofData) {
     __compactRuntime.assert(this._equal_3(_descriptor_1.fromValue(__compactRuntime.queryLedgerState(context,
                                                                                                     partialProofData,
                                                                                                     [
@@ -772,20 +767,20 @@ export class Contract {
                                                                                                                 result: undefined } }]).value),
                                           1n),
                             'Request is not awaiting consent');
-    __compactRuntime.assert(observedAt_0
-                            <=
-                            _descriptor_3.fromValue(__compactRuntime.queryLedgerState(context,
-                                                                                      partialProofData,
-                                                                                      [
-                                                                                       { dup: { n: 0 } },
-                                                                                       { idx: { cached: false,
-                                                                                                pushPath: false,
-                                                                                                path: [
-                                                                                                       { tag: 'value',
-                                                                                                         value: { value: _descriptor_1.toValue(5n),
-                                                                                                                  alignment: _descriptor_1.alignment() } }] } },
-                                                                                       { popeq: { cached: false,
-                                                                                                  result: undefined } }]).value),
+    __compactRuntime.assert(this._blockTimeLte_0(context,
+                                                 partialProofData,
+                                                 _descriptor_3.fromValue(__compactRuntime.queryLedgerState(context,
+                                                                                                           partialProofData,
+                                                                                                           [
+                                                                                                            { dup: { n: 0 } },
+                                                                                                            { idx: { cached: false,
+                                                                                                                     pushPath: false,
+                                                                                                                     path: [
+                                                                                                                            { tag: 'value',
+                                                                                                                              value: { value: _descriptor_1.toValue(5n),
+                                                                                                                                       alignment: _descriptor_1.alignment() } }] } },
+                                                                                                            { popeq: { cached: false,
+                                                                                                                       result: undefined } }]).value)),
                             'Consent request has expired');
     const threshold_0 = this._privateThreshold_0(context, partialProofData);
     const credentialA_0 = this._privateCredentialA_0(context, partialProofData);
@@ -934,7 +929,7 @@ export class Contract {
                                        { ins: { cached: true, n: 1 } }]);
     return capability_0;
   }
-  _consumeCapability_0(context, partialProofData, observedAt_0) {
+  _consumeCapability_0(context, partialProofData) {
     __compactRuntime.assert(this._equal_9(_descriptor_1.fromValue(__compactRuntime.queryLedgerState(context,
                                                                                                     partialProofData,
                                                                                                     [
@@ -949,20 +944,20 @@ export class Contract {
                                                                                                                 result: undefined } }]).value),
                                           2n),
                             'Capability is unavailable or already consumed');
-    __compactRuntime.assert(observedAt_0
-                            <=
-                            _descriptor_3.fromValue(__compactRuntime.queryLedgerState(context,
-                                                                                      partialProofData,
-                                                                                      [
-                                                                                       { dup: { n: 0 } },
-                                                                                       { idx: { cached: false,
-                                                                                                pushPath: false,
-                                                                                                path: [
-                                                                                                       { tag: 'value',
-                                                                                                         value: { value: _descriptor_1.toValue(5n),
-                                                                                                                  alignment: _descriptor_1.alignment() } }] } },
-                                                                                       { popeq: { cached: false,
-                                                                                                  result: undefined } }]).value),
+    __compactRuntime.assert(this._blockTimeLte_0(context,
+                                                 partialProofData,
+                                                 _descriptor_3.fromValue(__compactRuntime.queryLedgerState(context,
+                                                                                                           partialProofData,
+                                                                                                           [
+                                                                                                            { dup: { n: 0 } },
+                                                                                                            { idx: { cached: false,
+                                                                                                                     pushPath: false,
+                                                                                                                     path: [
+                                                                                                                            { tag: 'value',
+                                                                                                                              value: { value: _descriptor_1.toValue(5n),
+                                                                                                                                       alignment: _descriptor_1.alignment() } }] } },
+                                                                                                            { popeq: { cached: false,
+                                                                                                                       result: undefined } }]).value)),
                             'Capability has expired');
     const capability_0 = this._capabilityFor_0(_descriptor_0.fromValue(__compactRuntime.queryLedgerState(context,
                                                                                                          partialProofData,

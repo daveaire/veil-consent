@@ -18,7 +18,6 @@ VeilConsent is a Preprod MVP. It is suitable for testing the consent protocol wi
 
 - The demonstration gathers participant decisions in one organizer-controlled client. Independent participant attestations are required before an organizer can be prevented from fabricating approvals.
 - The browser holds the sample encryption key. A production gateway must use KMS or an HSM and release a key only after finalized contract-state verification and capability consumption.
-- The expiry input is public but supplied by the caller. It is not yet bound to network-attested time.
 - The contract cannot erase plaintext copied after authorized release or prove that an external model provider followed its retention policy.
 
 ## Reporting a vulnerability
