@@ -21,7 +21,7 @@ This checklist mirrors the live Rise In **Level 4 — Waxing Gibbous Submission*
 | Contract address | Add the address emitted by `npm run network:deploy -- --network preprod` |
 | CI/CD evidence | `https://github.com/daveaire/veil-consent/actions/runs/35909058271` |
 | Product X profile | Add the live profile URL to this file and `README.md` |
-| Demo video | Upload `demo-output/veil-consent-mvp.mp4` and add its public URL |
+| Demo video | `https://daveaire.github.io/veil-consent/veil-consent-mvp.mp4` |
 | Commit evidence | `https://github.com/daveaire/veil-consent/commits/main/` |
 
 ## Final review

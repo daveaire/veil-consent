@@ -13,3 +13,4 @@ The walkthrough is designed for a two-minute review.
 
 The submission video uses captions and recorded product behavior. It contains no synthetic narration, stock avatar, or simulated chain confirmation.
 
+[Watch the published walkthrough](https://daveaire.github.io/veil-consent/veil-consent-mvp.mp4).

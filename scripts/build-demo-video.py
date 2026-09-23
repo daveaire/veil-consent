@@ -142,7 +142,9 @@ def main() -> None:
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    print(OUT / "veil-consent-mvp.mp4")
+    video = OUT / "veil-consent-mvp.mp4"
+    shutil.copy2(video, ROOT / "frontend" / video.name)
+    print(video)
 
 
 if __name__ == "__main__":

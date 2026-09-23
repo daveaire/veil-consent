@@ -10,6 +10,8 @@
 
 [Open the live VeilConsent demo](https://daveaire.github.io/veil-consent/). The same interface runs locally with `npm run dashboard`.
 
+[Watch the captioned 20-second product walkthrough](https://daveaire.github.io/veil-consent/veil-consent-mvp.mp4).
+
 ## Contract Address
 
 | Network | Address |

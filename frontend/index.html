@@ -14,7 +14,7 @@
     nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:68px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:650;font-size:17px;letter-spacing:-.02em}
     .mark{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#1d1d1f;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
-    .network{padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.62);color:var(--muted);font-size:12px;backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%)}
+    .nav-actions{display:flex;align-items:center;gap:8px}.network,.demo-link{padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.62);color:var(--muted);font-size:12px;backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%)}.demo-link{color:var(--blue);font-weight:600;text-decoration:none}.demo-link:hover{background:#fff}
     .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:64px;align-items:end;margin:0 auto 42px;padding:0 18px}
     h1{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",sans-serif;font-size:clamp(52px,6.5vw,84px);font-weight:700;letter-spacing:-.065em;line-height:.95}
     .accent{color:var(--blue)}
@@ -53,7 +53,7 @@
 </head>
 <body>
 <main>
-  <nav><div class="brand"><span class="mark">V</span>VeilConsent</div><span class="network">Midnight · Preprod MVP</span></nav>
+  <nav><div class="brand"><span class="mark">V</span>VeilConsent</div><div class="nav-actions"><a class="demo-link" href="veil-consent-mvp.mp4">Watch demo</a><span class="network">Midnight · Preprod MVP</span></div></nav>
   <section class="hero"><h1>AI may proceed.<br><span class="accent">Consent stays private.</span></h1><p class="lede">Bind an encrypted document to one exact AI purpose. Midnight reveals that the consent rule passed while hiding who participated, how each person voted, and the policy threshold.</p></section>
   <section class="panel wallet"><div><div class="eyebrow">Midnight wallet</div><div class="wallet-state" id="walletState">Checking for compatible wallets…</div><div class="wallet-detail" id="walletDetail">No permission requested.</div></div><div class="actions"><select class="wallet-provider" id="walletProvider" aria-label="Wallet provider" hidden></select><button class="secondary" id="refreshWallet">Refresh</button><button id="connectWallet">Connect wallet</button></div></section>
   <section class="grid">
