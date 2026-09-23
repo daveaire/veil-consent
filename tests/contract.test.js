@@ -59,13 +59,39 @@ test('content, purpose, organizer secret, credentials, and capability secret are
   const session = await ConsentSession.create();
   const original = input();
   session.createRequest(original);
-  for (const field of ['contentHash', 'purposeHash', 'organizerSecret', 'credentialA']) {
+  for (const field of ['contentHash', 'purposeHash', 'organizerSecret']) {
     const changed = { ...original, [field]: new Uint8Array(32).fill(9) };
     assert.throws(() => session.issueCapability(changed, now), /does not match/);
   }
+  assert.throws(
+    () => session.issueCapability({ ...original, credentialA: new Uint8Array(32).fill(9) }, now),
+    /approval is not authentic/,
+  );
+  assert.throws(
+    () => session.issueCapability({ ...original, approvalSecretA: new Uint8Array(32).fill(7) }, now),
+    /approval is not authentic/,
+  );
   session.issueCapability(original, now);
   assert.throws(
     () => session.consumeCapability({ ...original, capabilitySecret: new Uint8Array(32).fill(8) }, now),
     /does not match/,
   );
+});
+
+test('revealed approval credentials cannot authorize a later request', async () => {
+  const session = await ConsentSession.create();
+  const first = input();
+  session.createRequest(first);
+  session.issueCapability(first, now);
+  session.consumeCapability(first, now + 1);
+
+  const second = {
+    ...first,
+    requestNonce: new Uint8Array(32).fill(4),
+    policySalt: new Uint8Array(32).fill(5),
+    capabilitySecret: new Uint8Array(32).fill(6),
+    expiry: BigInt(now + 7200),
+  };
+  session.createRequest(second);
+  assert.throws(() => session.issueCapability(second, now + 2), /response was already used/);
 });

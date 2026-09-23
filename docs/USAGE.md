@@ -7,7 +7,7 @@
 - A document or transcript that requires consent from several people
 - A clear description of the AI task, model, recipients, and retention period
 
-The browser demonstration can be completed without spending test tokens. Connecting Lace shows that the wallet is on the expected network; the generated Compact contract executes locally for a quick review.
+The browser demonstration can be completed without spending test tokens. Connecting a compatible wallet shows that it is on the expected network; the generated Compact contract executes locally for a quick review. The demo creates sample one-time participant credentials in the browser. A deployed integration gives each participant a separate client that creates its own secret and shares only the commitment until approval.
 
 ## Step-by-Step Guide
 

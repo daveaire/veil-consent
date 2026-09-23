@@ -17,6 +17,9 @@ export interface ConsentPrivateState {
   credentialA: Uint8Array;
   credentialB: Uint8Array;
   credentialC: Uint8Array;
+  approvalSecretA: Uint8Array;
+  approvalSecretB: Uint8Array;
+  approvalSecretC: Uint8Array;
   decisionA: bigint;
   decisionB: bigint;
   decisionC: bigint;
@@ -25,6 +28,10 @@ export interface ConsentPrivateState {
 
 export const PRIVATE_STATE_ID = 'veilConsentPrivateState';
 
+const approvalSecretA = hash('preprod-participant-a-approval');
+const approvalSecretB = hash('preprod-participant-b-approval');
+const approvalSecretC = hash('preprod-participant-c-approval');
+
 export const INITIAL_PRIVATE_STATE: ConsentPrivateState = {
   contentHash: hash('VeilConsent encrypted Preprod sample'),
   purposeHash: hash('summarize|model:veil-demo-v1|recipients:project-members|retention:24-hours'),
@@ -32,9 +39,12 @@ export const INITIAL_PRIVATE_STATE: ConsentPrivateState = {
   threshold: 2n,
   organizerSecret: hash('preprod-organizer-secret'),
   requestNonce: hash('preprod-request-nonce'),
-  credentialA: hash('preprod-participant-a'),
-  credentialB: hash('preprod-participant-b'),
-  credentialC: hash('preprod-participant-c'),
+  credentialA: VeilConsent.pureCircuits.participantCredential(approvalSecretA),
+  credentialB: VeilConsent.pureCircuits.participantCredential(approvalSecretB),
+  credentialC: VeilConsent.pureCircuits.participantCredential(approvalSecretC),
+  approvalSecretA,
+  approvalSecretB,
+  approvalSecretC,
   decisionA: 1n,
   decisionB: 1n,
   decisionC: 0n,
@@ -51,6 +61,9 @@ export const consentWitnesses: VeilConsent.Witnesses<ConsentPrivateState> = {
   privateCredentialA: ({ privateState }) => [privateState, privateState.credentialA],
   privateCredentialB: ({ privateState }) => [privateState, privateState.credentialB],
   privateCredentialC: ({ privateState }) => [privateState, privateState.credentialC],
+  privateApprovalSecretA: ({ privateState }) => [privateState, privateState.approvalSecretA],
+  privateApprovalSecretB: ({ privateState }) => [privateState, privateState.approvalSecretB],
+  privateApprovalSecretC: ({ privateState }) => [privateState, privateState.approvalSecretC],
   privateDecisionA: ({ privateState }) => [privateState, privateState.decisionA],
   privateDecisionB: ({ privateState }) => [privateState, privateState.decisionB],
   privateDecisionC: ({ privateState }) => [privateState, privateState.decisionC],

@@ -1,4 +1,4 @@
-import { Contract, ledger } from '../managed/contract/index.js';
+import { Contract, ledger, pureCircuits } from '../managed/contract/index.js';
 import {
   createCircuitContext,
   createConstructorContext,
@@ -15,6 +15,7 @@ async function digest(value) {
 }
 
 export async function browserConsentInput({ document, purpose, threshold, decisions, expiry }) {
+  const approvalSecretA = random32(), approvalSecretB = random32(), approvalSecretC = random32();
   return {
     contentHash: await digest(document),
     purposeHash: await digest(purpose),
@@ -22,9 +23,10 @@ export async function browserConsentInput({ document, purpose, threshold, decisi
     threshold: BigInt(threshold),
     organizerSecret: random32(),
     requestNonce: random32(),
-    credentialA: random32(),
-    credentialB: random32(),
-    credentialC: random32(),
+    credentialA: pureCircuits.participantCredential(approvalSecretA),
+    credentialB: pureCircuits.participantCredential(approvalSecretB),
+    credentialC: pureCircuits.participantCredential(approvalSecretC),
+    approvalSecretA, approvalSecretB, approvalSecretC,
     decisionA: decisions[0] ? 1n : 0n,
     decisionB: decisions[1] ? 1n : 0n,
     decisionC: decisions[2] ? 1n : 0n,
@@ -43,6 +45,9 @@ const witnesses = {
   privateCredentialA: ({ privateState }) => [privateState, privateState.credentialA],
   privateCredentialB: ({ privateState }) => [privateState, privateState.credentialB],
   privateCredentialC: ({ privateState }) => [privateState, privateState.credentialC],
+  privateApprovalSecretA: ({ privateState }) => [privateState, privateState.approvalSecretA],
+  privateApprovalSecretB: ({ privateState }) => [privateState, privateState.approvalSecretB],
+  privateApprovalSecretC: ({ privateState }) => [privateState, privateState.approvalSecretC],
   privateDecisionA: ({ privateState }) => [privateState, privateState.decisionA],
   privateDecisionB: ({ privateState }) => [privateState, privateState.decisionB],
   privateDecisionC: ({ privateState }) => [privateState, privateState.decisionC],
@@ -58,6 +63,7 @@ export class BrowserConsentSession {
       contentHash: empty, purposeHash: empty, policySalt: empty, threshold: 1n,
       organizerSecret: empty, requestNonce: empty, credentialA: empty,
       credentialB: new Uint8Array(32).fill(1), credentialC: new Uint8Array(32).fill(2),
+      approvalSecretA: empty, approvalSecretB: empty, approvalSecretC: empty,
       decisionA: 0n, decisionB: 0n, decisionC: 0n, capabilitySecret: empty,
     };
     const initial = await session.contract.initialState(createConstructorContext(base, '00'.repeat(32)));

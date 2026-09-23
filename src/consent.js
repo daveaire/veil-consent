@@ -1,4 +1,5 @@
 import { hashText, randomSecret } from './crypto.js';
+import { pureCircuits } from '../managed/contract/index.js';
 
 export const STATUS = Object.freeze({ EMPTY: 0, AWAITING: 1, ISSUED: 2, REVOKED: 3, CONSUMED: 4 });
 
@@ -27,6 +28,9 @@ export function createConsentInput({
   }
   const expiresAt = BigInt(expiry ?? Math.floor(Date.now() / 1000) + 3600);
   const purposeStatement = `${purpose}|recipients:${recipients}|retention:${retention}`;
+  const approvalSecretA = secrets.approvalSecretA ?? randomSecret();
+  const approvalSecretB = secrets.approvalSecretB ?? randomSecret();
+  const approvalSecretC = secrets.approvalSecretC ?? randomSecret();
   return {
     contentHash: hashText(document),
     purposeHash: hashText(purposeStatement),
@@ -34,9 +38,12 @@ export function createConsentInput({
     threshold: BigInt(threshold),
     organizerSecret: secrets.organizerSecret ?? randomSecret(),
     requestNonce: secrets.requestNonce ?? randomSecret(),
-    credentialA: secrets.credentialA ?? randomSecret(),
-    credentialB: secrets.credentialB ?? randomSecret(),
-    credentialC: secrets.credentialC ?? randomSecret(),
+    credentialA: secrets.credentialA ?? pureCircuits.participantCredential(approvalSecretA),
+    credentialB: secrets.credentialB ?? pureCircuits.participantCredential(approvalSecretB),
+    credentialC: secrets.credentialC ?? pureCircuits.participantCredential(approvalSecretC),
+    approvalSecretA,
+    approvalSecretB,
+    approvalSecretC,
     decisionA: asDecision(decisions[0]),
     decisionB: asDecision(decisions[1]),
     decisionC: asDecision(decisions[2]),
@@ -45,4 +52,3 @@ export function createConsentInput({
     purposeStatement,
   };
 }
-

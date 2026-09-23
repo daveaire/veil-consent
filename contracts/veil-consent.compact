@@ -11,6 +11,7 @@ export ledger activeExpiry: Uint<64>;
 export ledger requestStatus: Uint<8>;
 export ledger activeCapability: Bytes<32>;
 export ledger lastResponseNullifier: Bytes<32>;
+export ledger usedResponseNullifiers: Set<Bytes<32>>;
 
 constructor() {
   requestStatus = 0;
@@ -26,6 +27,9 @@ witness privateRequestNonce(): Bytes<32>;
 witness privateCredentialA(): Bytes<32>;
 witness privateCredentialB(): Bytes<32>;
 witness privateCredentialC(): Bytes<32>;
+witness privateApprovalSecretA(): Bytes<32>;
+witness privateApprovalSecretB(): Bytes<32>;
+witness privateApprovalSecretC(): Bytes<32>;
 witness privateDecisionA(): Uint<64>;
 witness privateDecisionB(): Uint<64>;
 witness privateDecisionC(): Uint<64>;
@@ -58,7 +62,19 @@ export circuit issueCapability(): Bytes<32> {
   const decisionA = privateDecisionA();
   const decisionB = privateDecisionB();
   const decisionC = privateDecisionC();
+  const approvalSecretA = privateApprovalSecretA();
+  const approvalSecretB = privateApprovalSecretB();
+  const approvalSecretC = privateApprovalSecretC();
   assert(decisionA <= 1 && decisionB <= 1 && decisionC <= 1, "Consent decisions must be binary");
+  if (decisionA == 1) {
+    assert(participantCredential(approvalSecretA) == credentialA, "Participant A approval is not authentic");
+  }
+  if (decisionB == 1) {
+    assert(participantCredential(approvalSecretB) == credentialB, "Participant B approval is not authentic");
+  }
+  if (decisionC == 1) {
+    assert(participantCredential(approvalSecretC) == credentialC, "Participant C approval is not authentic");
+  }
   assert(decisionA + decisionB + decisionC >= threshold, "Private consent policy is not satisfied");
   const expectedRequest = requestCommitment(
     privateContentHash(), privatePurposeHash(), privatePolicySalt(), threshold,
@@ -66,8 +82,22 @@ export circuit issueCapability(): Bytes<32> {
     credentialA, credentialB, credentialC, activeExpiry
   );
   assert(expectedRequest == activeRequest, "Private request data does not match the active commitment");
+  const markerA = decisionA == 1
+    ? approvalNullifier(approvalSecretA)
+    : responseMarker(privateRequestNonce(), privatePolicySalt(), 1);
+  const markerB = decisionB == 1
+    ? approvalNullifier(approvalSecretB)
+    : responseMarker(privateRequestNonce(), privatePolicySalt(), 2);
+  const markerC = decisionC == 1
+    ? approvalNullifier(approvalSecretC)
+    : responseMarker(privateRequestNonce(), privatePolicySalt(), 3);
+  assert(!usedResponseNullifiers.member(disclose(markerA)), "Participant A response was already used");
+  assert(!usedResponseNullifiers.member(disclose(markerB)), "Participant B response was already used");
+  assert(!usedResponseNullifiers.member(disclose(markerC)), "Participant C response was already used");
+  usedResponseNullifiers.insert(disclose(markerA));
+  usedResponseNullifiers.insert(disclose(markerB));
+  usedResponseNullifiers.insert(disclose(markerC));
   const nullifier = responseNullifier(privateRequestNonce(), credentialA, credentialB, credentialC);
-  assert(nullifier != lastResponseNullifier, "Consent responses were already used");
   const capability = capabilityFor(activeRequest, privateContentHash(), privatePurposeHash(), privateCapabilitySecret());
   lastResponseNullifier = disclose(nullifier);
   activeCapability = disclose(capability);
@@ -116,6 +146,25 @@ export circuit responseNullifier(
 ): Bytes<32> {
   return persistentHash<Vector<5, Bytes<32>>>([
     pad(32, "veil-consent:responses:v1"), requestNonce, credentialA, credentialB, credentialC
+  ]);
+}
+
+export circuit participantCredential(secret: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([
+    pad(32, "veil-consent:participant:v1"), secret
+  ]);
+}
+
+export circuit approvalNullifier(secret: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([
+    pad(32, "veil-consent:approval-null:v1"), secret
+  ]);
+}
+
+export circuit responseMarker(requestNonce: Bytes<32>, policySalt: Bytes<32>, slot: Uint<8>): Bytes<32> {
+  return persistentHash<Vector<4, Bytes<32>>>([
+    pad(32, "veil-consent:response-marker:v1"), requestNonce, policySalt,
+    slot as Field as Bytes<32>
   ]);
 }
 

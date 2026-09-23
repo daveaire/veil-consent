@@ -10,6 +10,9 @@ export type Witnesses<PS> = {
   privateCredentialA(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
   privateCredentialB(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
   privateCredentialC(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
+  privateApprovalSecretA(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
+  privateApprovalSecretB(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
+  privateApprovalSecretC(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
   privateDecisionA(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, bigint];
   privateDecisionB(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, bigint];
   privateDecisionC(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, bigint];
@@ -45,6 +48,11 @@ export type PureCircuits = {
                     credentialA_0: Uint8Array,
                     credentialB_0: Uint8Array,
                     credentialC_0: Uint8Array): Uint8Array;
+  participantCredential(secret_0: Uint8Array): Uint8Array;
+  approvalNullifier(secret_0: Uint8Array): Uint8Array;
+  responseMarker(requestNonce_0: Uint8Array,
+                 policySalt_0: Uint8Array,
+                 slot_0: bigint): Uint8Array;
   capabilityFor(request_0: Uint8Array,
                 contentHash_0: Uint8Array,
                 purposeHash_0: Uint8Array,
@@ -72,6 +80,14 @@ export type Circuits<PS> = {
                     credentialA_0: Uint8Array,
                     credentialB_0: Uint8Array,
                     credentialC_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  participantCredential(context: __compactRuntime.CircuitContext<PS>,
+                        secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  approvalNullifier(context: __compactRuntime.CircuitContext<PS>,
+                    secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  responseMarker(context: __compactRuntime.CircuitContext<PS>,
+                 requestNonce_0: Uint8Array,
+                 policySalt_0: Uint8Array,
+                 slot_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
   capabilityFor(context: __compactRuntime.CircuitContext<PS>,
                 request_0: Uint8Array,
                 contentHash_0: Uint8Array,
@@ -89,6 +105,12 @@ export type Ledger = {
   readonly requestStatus: bigint;
   readonly activeCapability: Uint8Array;
   readonly lastResponseNullifier: Uint8Array;
+  usedResponseNullifiers: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(elem_0: Uint8Array): boolean;
+    [Symbol.iterator](): Iterator<Uint8Array>
+  };
 }
 
 export type ContractReferenceLocations = any;

@@ -49,7 +49,7 @@ It assumes the organizer distributed the committed credentials to the intended p
 
 The Level 4 browser flow demonstrates the generated Compact circuits and privacy lifecycle in one client. It does not yet separate the organizer, participants, gateway, and key custodian into independent security domains. In particular:
 
-- The organizer-facing demo supplies all participant witnesses. Production participants must sign the request commitment independently, with those signatures verified inside the proof.
+- The organizer-facing demo generates sample participant credentials in one client. In a real deployment, each participant generates a one-time secret, shares only its commitment during request setup, and releases the secret only when approving. The circuit verifies each approving preimage and publishes a domain-separated nullifier so a revealed approval cannot authorize a later request.
 - The sample document key exists in the browser. Production ciphertext belongs in object storage and its key belongs in KMS or an HSM.
 - The sample gateway consumes local generated-contract state. Production processing must wait for finalized Preprod state and atomically consume the capability before requesting key release.
 
