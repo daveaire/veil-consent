@@ -1,0 +1,9 @@
+node_modules/
+.midnight-state.json
+.midnight-wallet-state/
+midnight-level-db/
+demo-output/
+dist/
+.DS_Store
+*.log
+
