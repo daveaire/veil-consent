@@ -2,7 +2,7 @@
 import { WebSocket } from 'ws';
 
 import { getOrCreateWallet, resolveNetwork } from './network';
-import { createWallet, persistWalletState, unshieldedToken } from './wallet';
+import { createWallet, persistWalletState, unshieldedToken, waitForCoreWalletState } from './wallet';
 
 // @ts-expect-error wallet sync requires a global WebSocket implementation
 globalThis.WebSocket = WebSocket;
@@ -20,7 +20,7 @@ async function main(): Promise<void> {
     const rawTimeout = Number(process.env.MIDNIGHT_SYNC_TIMEOUT_MS);
     const timeoutMs = Number.isFinite(rawTimeout) && rawTimeout > 0 ? rawTimeout : 180_000;
     const state = await Promise.race([
-      walletCtx.wallet.waitForSyncedState(),
+      waitForCoreWalletState(walletCtx.wallet),
       new Promise<never>((_, reject) => setTimeout(
         () => reject(new Error(`Wallet sync did not complete within ${Math.round(timeoutMs / 1000)} seconds. The address above is still valid and can be funded before retrying.`)),
         timeoutMs,

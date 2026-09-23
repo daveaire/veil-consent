@@ -5,6 +5,7 @@
 // this file is the glue between that format and the wallet SDK.
 
 import { Buffer } from 'buffer';
+import * as Rx from 'rxjs';
 
 // Ledger types now come from the midnight-js-protocol barrel, which re-exports
 // ledger-v8 (8.1.0) under a stable subpath instead of depending on it directly.
@@ -87,7 +88,9 @@ function warnRestoreFailure(kind: ChildKind, err: unknown): void {
  * available and falling back to a from-seed start when not (or when restore
  * throws, e.g. after an SDK upgrade with an incompatible state format).
  *
- * Caller is responsible for `await wallet.waitForSyncedState()` afterwards.
+ * Caller is responsible for waiting on `waitForCoreWalletState()` afterwards.
+ * Public-network DUST progress may never report strictly complete, so the
+ * facade's all-component `waitForSyncedState()` can block indefinitely.
  */
 export async function createWallet(opts: CreateWalletOptions): Promise<WalletContext> {
   setNetworkId(opts.networkConfig.networkId);
@@ -162,6 +165,29 @@ export async function createWallet(opts: CreateWalletOptions): Promise<WalletCon
   await wallet.start(shieldedSecretKeys, dustSecretKey);
 
   return { wallet, shieldedSecretKeys, dustSecretKey, unshieldedKeystore, restored };
+}
+
+type WalletState = Awaited<ReturnType<WalletContext['wallet']['waitForSyncedState']>>;
+
+function progressComplete(progress: unknown): boolean {
+  if (!progress || typeof progress !== 'object') return false;
+  const check = (progress as { isStrictlyComplete?: () => boolean }).isStrictlyComplete;
+  return typeof check === 'function' && check.call(progress);
+}
+
+/**
+ * Require the spend-bearing channels to reach the chain tip and DUST to be
+ * connected. On public networks the live DUST stream may never report itself
+ * strictly complete, even though registration and balance tracking work.
+ */
+export function coreWalletReady(state: WalletState): boolean {
+  return progressComplete(state.shielded.state.progress)
+    && progressComplete(state.unshielded.progress)
+    && Boolean(state.dust.state.progress.isConnected);
+}
+
+export async function waitForCoreWalletState(wallet: WalletContext['wallet']): Promise<WalletState> {
+  return Rx.firstValueFrom(wallet.state().pipe(Rx.filter(coreWalletReady)));
 }
 
 /**

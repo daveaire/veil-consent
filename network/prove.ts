@@ -7,7 +7,7 @@ import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config
 
 import { compiledContract, INITIAL_PRIVATE_STATE, PRIVATE_STATE_ID, VeilConsent, zkConfigPath, type ConsentPrivateState } from './contract';
 import { getDeployment, getOrCreateWallet, resolveNetwork } from './network';
-import { createWallet, persistWalletState, type WalletContext } from './wallet';
+import { createWallet, persistWalletState, waitForCoreWalletState, type WalletContext } from './wallet';
 import { submitTransactionOnce } from './submit';
 import { getPrivateStatePassword } from './private-state-password';
 
@@ -52,7 +52,7 @@ async function main(): Promise<void> {
   if (!deployment) throw new Error(`No ${network} deployment found. Run npm run network:deploy first.`);
   const walletCtx = await createWallet({ network, networkConfig, seed: walletRecord.seed });
   try {
-    await walletCtx.wallet.waitForSyncedState();
+    await waitForCoreWalletState(walletCtx.wallet);
     await persistWalletState(network, walletCtx);
     const providers = await createProviders(walletCtx);
     const deployed = await findDeployedContract(providers, {
