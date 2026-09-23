@@ -1,7 +1,7 @@
 import {
   Contract,
   ledger,
-} from '../contract/src/managed/contract/index.js';
+} from '../managed/contract/index.js';
 import {
   createCircuitContext,
   createConstructorContext,
@@ -102,4 +102,3 @@ export class ConsentSession {
     };
   }
 }
-

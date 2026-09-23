@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'web');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'frontend');
 const port = Number(process.env.PORT || 4210);
 const assets = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],

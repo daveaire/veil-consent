@@ -28,7 +28,7 @@ This checklist mirrors the live Rise In **Level 4 — Waxing Gibbous Submission*
 
 - Confirm the demo URL loads in a private browser window.
 - Confirm the contract address resolves against the Preprod indexer.
-- Run `npm ci && npm run check && npm run build:web` from a clean checkout.
+- Run `npm ci && npm run check && npm run build` from a clean checkout.
 - Watch the uploaded video once with sound muted; all essential information must remain in captions.
 - Confirm the README contains the final X profile, contract, demo, and video links.
 - Paste the public repository URL into Rise In only after the checks above pass.

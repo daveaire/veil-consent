@@ -5,9 +5,10 @@
   "type": "module",
   "description": "Privacy-preserving multi-party consent capabilities for AI processing on Midnight.",
   "scripts": {
-    "compile": "compact compile contract/src/veil-consent.compact contract/src/managed",
+    "compile": "compact compile contracts/veil-consent.compact managed",
+    "build": "npm run build:web",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.js",
+    "test": "node --test tests/*.test.js",
     "check": "node --check src/*.js && npm run typecheck && npm test",
     "build:web": "node scripts/build-web.js",
     "demo": "node src/demo.js",

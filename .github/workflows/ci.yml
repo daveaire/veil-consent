@@ -19,6 +19,13 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Setup Compact compiler
+        uses: midnightntwrk/setup-compact-action@v1
+        with:
+          compact-version: '0.31.1'
+      - name: Compile Compact contract
+        run: |
+          npm run compile
+          git diff --exit-code -- managed
       - run: npm run check
-      - run: npm run build:web
-
+      - run: npm run build

@@ -2,112 +2,145 @@
 
 [![CI](https://github.com/daveaire/veil-consent/actions/workflows/ci.yml/badge.svg)](https://github.com/daveaire/veil-consent/actions/workflows/ci.yml)
 
-VeilConsent is a privacy-preserving consent gate for AI processing. It binds an encrypted document to one exact purpose and issues a single-use processing capability only after a private multi-party consent rule has been satisfied.
+> Private multi-party consent for purpose-bound AI processing.
 
 ![VeilConsent request screen](docs/veil-consent-product.png)
 
-A public verifier sees a request commitment, its expiry, lifecycle status, and aggregate counters. Participant identities, individual approve/decline responses, the threshold, document contents, model, recipients, and retention terms remain private.
+## Live Demo
 
-## The problem
+The public Preprod demo URL will be added after the first GitHub Pages deployment. The same interface runs locally with `npm run dashboard`.
 
-A meeting recording, interview, group transcript, or shared document can contain information belonging to several people. Most AI tools let one organizer submit that material. Consent from everyone else is often assumed, recorded in a database visible to an administrator, or detached from the exact purpose that was approved.
+## Contract Address
 
-VeilConsent makes authorization a prerequisite for processing:
+| Network | Address |
+| --- | --- |
+| Preprod | Deployment in progress |
 
-1. The organizer encrypts the document locally.
-2. A Compact contract commits to the content, purpose, eligible credentials, private policy, expiry, and organizer authority.
-3. Participants submit one response per credential. The response vault stores those responses encrypted.
-4. A zero-knowledge circuit proves that the committed policy is satisfied without publishing identities, decisions, or threshold.
-5. The contract issues a capability bound to the same content and purpose.
-6. The AI gateway consumes the capability before decrypting and processing the document.
-7. Consumption changes public contract state, so the capability cannot be replayed.
+## What This Product Does
 
-## Level 4 MVP
+VeilConsent prevents an AI gateway from processing shared private material until the people represented in that material have authorized one exact use. A request binds an encrypted document to a task, model, recipient class, retention term, consent policy, and expiry.
 
-- Generated Compact 0.23 circuits for request creation, issuance, consumption, and revocation
-- Threshold policies for one, two, or three participants, including unanimous consent
-- One-time participant credentials and encrypted response storage
-- AES-256-GCM document encryption before consent collection
-- Capability binding to content and exact processing purpose
-- Expiry checks, organizer-authorized revocation, and replay protection
-- In-browser circuit execution and a Lace connector restricted to Midnight Preprod
-- Midnight.js deployment and three-transaction proof workflow
-- Automated privacy and lifecycle tests
+Participants respond with one-time credentials. A Compact circuit proves that the private consent rule passed and issues a single-use capability. The gateway consumes that capability before decrypting the document; the public lifecycle then blocks replay.
 
-The browser demonstration uses a local generated-contract session so reviewers can exercise every branch without spending test tokens. The repository also includes the Midnight.js workflow used to deploy the same generated contract and submit cryptographic proof transactions on Preprod.
+Midnight is used because the authorization decision must be verifiable without publishing participant identities, individual decisions, or the threshold. A conventional public contract would reveal the very consent record VeilConsent is designed to protect.
 
-## Run locally
+**Vision:** make consent a machine-verifiable prerequisite for sensitive AI workflows, while keeping the consent record private by default.
 
-Requirements: Node.js 22 or later, npm 10 or later, and Compact toolchain 0.31.1. Docker is needed only for network proof generation.
+**Key features:** private threshold and unanimous policies, one-time participant credentials, local document encryption, purpose-bound capabilities, expiry, organizer revocation, replay prevention, compatible Midnight wallet selection, and a small consent-gated AI adapter.
+
+```mermaid
+flowchart LR
+  O[Organizer browser] -->|encrypts document| E[Encrypted object]
+  O -->|private witnesses| C[Compact contract on Preprod]
+  P[Participants] -->|one response per credential| V[Encrypted response vault]
+  V -->|private decisions| C
+  C -->|single-use capability| G[AI gateway]
+  E --> G
+  G -->|consume before decrypting| C
+  G --> A[Configured AI adapter]
+```
+
+## Privacy Model
+
+**Public on-chain**
+
+- Request and capability commitments
+- Expiry and lifecycle status
+- Aggregate request, issue, consumption, and revocation counters
+- A response nullifier that prevents reuse
+
+**Private witness or local data**
+
+- Document, encryption key, and exact processing purpose
+- Participant identities, credentials, and individual decisions
+- Consent threshold, organizer secret, and capability secret
+
+**Proved without revealing**
+
+- The committed policy has enough valid approvals
+- The request has not expired or been revoked
+- The capability matches the committed content and purpose
+- The same responses and capability cannot be reused
+
+The MVP accepts `observedAt` as a public circuit input for expiry. A production release must bind that value to a network-attested time source before treating expiry as trustless.
+
+## Tech Stack
+
+- Compact language 0.23 and toolchain 0.31.1
+- Midnight.js 4.1.1 and Compact runtime 0.16.0
+- Midnight proof server 8.1.0
+- Plain browser JavaScript bundled with esbuild
+- Node.js test runner and GitHub Actions
+- AES-256-GCM for local document and response encryption
+
+## Prerequisites
+
+- Node.js 22 or later and npm 10 or later
+- A compatible Midnight wallet, such as Lace, configured for Preprod
+- Compact toolchain 0.31.1
+- Docker only for proof generation and Preprod deployment
+
+## Setup & Run Locally
+
+1. Install dependencies and build the browser bundle.
+
+   ```sh
+   npm ci
+   npm run build
+   ```
+
+2. Start the local product interface.
+
+   ```sh
+   npm run dashboard
+   ```
+
+3. Open <http://127.0.0.1:4210>, create a request, prove the sample consent policy, and process the encrypted document once.
+
+4. To exercise the Preprod deployment workflow:
+
+   ```sh
+   npm run network:select -- preprod
+   npm run network:address -- --network preprod
+   npm run proof-server:start
+   npm run compile
+   npm run network:deploy -- --network preprod
+   npm run network:prove -- --network preprod
+   ```
+
+Wallet recovery material, the generated private-state password, and private-state databases are owner-only and excluded from version control.
+
+## Run Tests
 
 ```sh
-npm ci
 npm run check
-npm run build:web
-npm run dashboard
 ```
 
-Open <http://127.0.0.1:4210>. Create a request, change the private responses, prove consent, and process the encrypted sample once. Repeating the final action is rejected by contract state.
+The suite covers threshold and unanimous policies, expiry, revocation, replay prevention, commitment binding, encrypted response storage, and the one-use AI gateway. The command-line lifecycle is available through `npm run demo`.
 
-The command-line demonstration runs the same lifecycle:
+## CI/CD
 
-```sh
-npm run demo
-```
+`.github/workflows/ci.yml` installs dependencies, compiles the Compact contract, runs the checks, and builds the browser interface on every push to `main` and every pull request. `.github/workflows/pages.yml` publishes the built demo to GitHub Pages.
 
-Build the 20-second captioned product walkthrough from the real browser interface:
+Build the captioned 20-second reviewer video from the real interface with:
 
 ```sh
 npm run demo:video
 ```
 
-The rendered file is written to `demo-output/veil-consent-mvp.mp4`. It is silent by design so the review remains clear without synthetic narration.
+The silent MP4 is written to `demo-output/veil-consent-mvp.mp4`; all essential explanation is on screen.
 
-## Preprod
+## Usage Guide
 
-The contract targets the ledger-v8 Preprod stack used by Midnight.js 4.1.1:
+See [docs/USAGE.md](docs/USAGE.md).
 
-- Compact toolchain 0.31.1
-- Compact language 0.23
-- Compact runtime 0.16.0
-- Midnight.js 4.1.1
-- proof server 8.1.0
+## Product X Profile
 
-Select Preprod, obtain the wallet address, fund it with test NIGHT, start the proof server, and deploy:
+The public profile URL will be added after the product account is created. Launch copy is ready in [PRODUCT-PROFILE.md](PRODUCT-PROFILE.md).
 
-```sh
-npm run network:select -- preprod
-npm run network:address -- --network preprod
-npm run proof-server:start
-npm run compile
-npm run network:deploy -- --network preprod
-npm run network:prove -- --network preprod
-```
+## Security Boundary
 
-Wallet recovery material, the generated private-state password, and private-state databases are owner-only and excluded from version control.
-
-## Public and private data
-
-| Public ledger data | Private witness or local data |
-| --- | --- |
-| Request commitment | Document and encryption key |
-| Expiry | Exact purpose, model, recipients, retention |
-| Request status | Participant identities and credentials |
-| Lifecycle counters | Individual consent decisions |
-| Capability commitment | Policy threshold and organizer secret |
-| Response nullifier | Capability secret |
-
-The current MVP accepts an `observedAt` value as a public circuit input for expiry enforcement. A production release must bind this value to a network-attested time source or ledger primitive before treating expiry as trustless. The demo and gateway use the current clock and expose the value in the circuit transcript.
-
-## Security boundary
-
-VeilConsent proves authorization to process committed data for a committed purpose. It does not prove that an AI response is correct, erase copies made outside the gateway, or control a model provider after plaintext has been released. The gateway is intentionally small so deployments can place it inside their own trusted environment.
-
-See [ARCHITECTURE.md](ARCHITECTURE.md) for the protocol and threat model and [DEMO.md](DEMO.md) for the review walkthrough.
-
-## Product profile
-
-The product X profile and public URL will be added here before the Level 4 submission is sent for review.
+VeilConsent proves authorization to process committed data for a committed purpose. It cannot prove that an AI response is correct, erase copies made outside the gateway, or control a model provider after plaintext has been released. See [ARCHITECTURE.md](ARCHITECTURE.md) for the protocol and threat model, [SECURITY.md](SECURITY.md) for the MVP trust assumptions, and [DEMO.md](DEMO.md) for the reviewer walkthrough.
 
 ## License
 

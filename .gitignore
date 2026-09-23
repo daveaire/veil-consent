@@ -8,5 +8,5 @@ demo-output/
 dist/
 .DS_Store
 *.log
-web/proof-client.bundle.js
-web/midnight-runtime.wasm
+frontend/proof-client.bundle.js
+frontend/midnight-runtime.wasm

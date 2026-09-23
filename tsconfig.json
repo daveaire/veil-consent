@@ -12,5 +12,5 @@
     "allowSyntheticDefaultImports": true
   },
   "include": ["network/**/*.ts"],
-  "exclude": ["node_modules", "dist", "contract/src/managed"]
+  "exclude": ["node_modules", "dist", "managed"]
 }

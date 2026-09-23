@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-js';
-import * as VeilConsent from '../contract/src/managed/contract/index.js';
+import * as VeilConsent from '../managed/contract/index.js';
 
 const hash = (value: string): Uint8Array => new Uint8Array(createHash('sha256').update(value).digest());
 
@@ -58,7 +58,7 @@ export const consentWitnesses: VeilConsent.Witnesses<ConsentPrivateState> = {
 };
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-export const zkConfigPath = path.resolve(dirname, '..', 'contract', 'src', 'managed');
+export const zkConfigPath = path.resolve(dirname, '..', 'managed');
 
 export const compiledContract = CompiledContract.make('VeilConsent', VeilConsent.Contract).pipe(
   CompiledContract.withWitnesses(consentWitnesses),
@@ -66,4 +66,3 @@ export const compiledContract = CompiledContract.make('VeilConsent', VeilConsent
 );
 
 export { VeilConsent };
-

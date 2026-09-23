@@ -1,4 +1,4 @@
-import { Contract, ledger } from '../contract/src/managed/contract/index.js';
+import { Contract, ledger } from '../managed/contract/index.js';
 import {
   createCircuitContext,
   createConstructorContext,
@@ -90,4 +90,3 @@ export class BrowserConsentSession {
   consumeCapability(input, observedAt) { return this.call('consumeCapability', input, observedAt); }
   revoke(input) { return this.call('revokeRequest', input); }
 }
-

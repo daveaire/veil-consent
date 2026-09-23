@@ -45,3 +45,13 @@ The MVP protects against public disclosure of participant identities, decisions,
 
 It assumes the organizer distributed the committed credentials to the intended participants, the response vault and gateway protect their local keys, and the AI adapter receives plaintext only after successful consumption. Network-attested time remains a production requirement, as documented in the README.
 
+## MVP trust assumptions
+
+The Level 4 browser flow demonstrates the generated Compact circuits and privacy lifecycle in one client. It does not yet separate the organizer, participants, gateway, and key custodian into independent security domains. In particular:
+
+- The organizer-facing demo supplies all participant witnesses. Production participants must sign the request commitment independently, with those signatures verified inside the proof.
+- The sample document key exists in the browser. Production ciphertext belongs in object storage and its key belongs in KMS or an HSM.
+- The sample gateway consumes local generated-contract state. Production processing must wait for finalized Preprod state and atomically consume the capability before requesting key release.
+- Expiry currently uses a public caller-supplied timestamp. Production expiry requires ledger-attested time.
+
+These are explicit boundaries of the MVP rather than properties claimed by it. The contract lifecycle, commitment scheme, encrypted storage, deployment path, and rejection tests are the foundation for the separated architecture.
