@@ -41,7 +41,7 @@ export circuit createRequest(expiry: Uint<64>): Bytes<32> {
     privateCredentialA(), privateCredentialB(), privateCredentialC(), expiry
   );
   activeRequest = disclose(commitment);
-  activeExpiry = expiry;
+  activeExpiry = disclose(expiry);
   requestStatus = 1;
   requestsCreated.increment(1);
   return disclose(commitment);
