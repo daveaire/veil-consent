@@ -16,7 +16,15 @@
 
 | Network | Address |
 | --- | --- |
-| Preprod | Deployment in progress |
+| Preprod | `34ee0e9eca8646508c89f6f829bdb7d4ac653d8b1f7acca53874e50b0c774840` |
+
+The deployed contract completed a full request lifecycle on Preprod at block `2680940`:
+
+- Create: `00439acbb13bf353b72abb81b6799bbf5fa9bb67d8f3f9177c9215cb88d056edb4`
+- Issue: `0033c4886154753095b97c79a839ee2f09b006b8f4da84fff010182e637f544cad`
+- Consume: `00d2939336889430c7d84375246985788c83bc6dae2a5bf9a023b4967b86b4b7bf`
+
+The final request state is consumed. Participant identity, individual decision, threshold, purpose, and document data were not published. See the [Preprod deployment record](docs/PREPROD.md) for the commitments and validation method.
 
 ## What This Product Does
 
@@ -138,7 +146,7 @@ See [docs/USAGE.md](docs/USAGE.md).
 
 ## Product X Profile
 
-The public profile URL will be added after the product account is created. Launch copy is ready in [PRODUCT-PROFILE.md](PRODUCT-PROFILE.md).
+[Follow VeilConsent on X](https://x.com/VeilConsent). Product copy and publishing notes are maintained in [PRODUCT-PROFILE.md](PRODUCT-PROFILE.md).
 
 ## Security Boundary
 

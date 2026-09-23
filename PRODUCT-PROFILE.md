@@ -4,11 +4,9 @@
 
 VeilConsent
 
-## Handle options
+## Public profile
 
-1. `@VeilConsent`
-2. `@UseVeilConsent`
-3. `@VeilConsentHQ`
+[@VeilConsent](https://x.com/VeilConsent)
 
 ## Bio
 
@@ -42,4 +40,4 @@ Source: https://github.com/daveaire/veil-consent
 
 ## Visual direction
 
-Use [`docs/brand/veil-consent-mark.svg`](docs/brand/veil-consent-mark.svg) as the profile image and [`docs/brand/veil-consent-social.svg`](docs/brand/veil-consent-social.svg) as the header. Keep the system plain and typographic. Avoid blockchain motifs, robots, gradients in text, and generic generated illustrations.
+Use [`docs/brand/veil-consent-profile.png`](docs/brand/veil-consent-profile.png) as the profile image and [`docs/brand/veil-consent-header.png`](docs/brand/veil-consent-header.png) as the header. Editable SVG sources live beside them. Keep the system plain and typographic. Avoid blockchain motifs, robots, gradients in text, and generic generated illustrations.
