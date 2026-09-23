@@ -1,0 +1,128 @@
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+export ledger requestsCreated: Counter;
+export ledger capabilitiesIssued: Counter;
+export ledger capabilitiesConsumed: Counter;
+export ledger revocations: Counter;
+export ledger activeRequest: Bytes<32>;
+export ledger activeExpiry: Uint<64>;
+export ledger requestStatus: Uint<8>;
+export ledger activeCapability: Bytes<32>;
+export ledger lastResponseNullifier: Bytes<32>;
+
+constructor() {
+  requestStatus = 0;
+  activeExpiry = 0;
+}
+
+witness privateContentHash(): Bytes<32>;
+witness privatePurposeHash(): Bytes<32>;
+witness privatePolicySalt(): Bytes<32>;
+witness privateThreshold(): Uint<64>;
+witness privateOrganizerSecret(): Bytes<32>;
+witness privateRequestNonce(): Bytes<32>;
+witness privateCredentialA(): Bytes<32>;
+witness privateCredentialB(): Bytes<32>;
+witness privateCredentialC(): Bytes<32>;
+witness privateDecisionA(): Uint<64>;
+witness privateDecisionB(): Uint<64>;
+witness privateDecisionC(): Uint<64>;
+witness privateCapabilitySecret(): Bytes<32>;
+
+export circuit createRequest(expiry: Uint<64>): Bytes<32> {
+  assert(requestStatus == 0 || requestStatus == 3 || requestStatus == 4, "Previous request is still active");
+  const threshold = privateThreshold();
+  assert(threshold >= 1 && threshold <= 3, "Threshold must be between one and three");
+  const commitment = requestCommitment(
+    privateContentHash(), privatePurposeHash(), privatePolicySalt(), threshold,
+    privateOrganizerSecret(), privateRequestNonce(),
+    privateCredentialA(), privateCredentialB(), privateCredentialC(), expiry
+  );
+  activeRequest = disclose(commitment);
+  activeExpiry = expiry;
+  requestStatus = 1;
+  requestsCreated.increment(1);
+  return disclose(commitment);
+}
+
+export circuit issueCapability(observedAt: Uint<64>): Bytes<32> {
+  assert(requestStatus == 1, "Request is not awaiting consent");
+  assert(observedAt <= activeExpiry, "Consent request has expired");
+  const threshold = privateThreshold();
+  const credentialA = privateCredentialA();
+  const credentialB = privateCredentialB();
+  const credentialC = privateCredentialC();
+  assert(credentialA != credentialB && credentialA != credentialC && credentialB != credentialC, "Consent credentials must be unique");
+  const decisionA = privateDecisionA();
+  const decisionB = privateDecisionB();
+  const decisionC = privateDecisionC();
+  assert(decisionA <= 1 && decisionB <= 1 && decisionC <= 1, "Consent decisions must be binary");
+  assert(decisionA + decisionB + decisionC >= threshold, "Private consent policy is not satisfied");
+  const expectedRequest = requestCommitment(
+    privateContentHash(), privatePurposeHash(), privatePolicySalt(), threshold,
+    privateOrganizerSecret(), privateRequestNonce(),
+    credentialA, credentialB, credentialC, activeExpiry
+  );
+  assert(expectedRequest == activeRequest, "Private request data does not match the active commitment");
+  const nullifier = responseNullifier(privateRequestNonce(), credentialA, credentialB, credentialC);
+  assert(nullifier != lastResponseNullifier, "Consent responses were already used");
+  const capability = capabilityFor(activeRequest, privateContentHash(), privatePurposeHash(), privateCapabilitySecret());
+  lastResponseNullifier = disclose(nullifier);
+  activeCapability = disclose(capability);
+  requestStatus = 2;
+  capabilitiesIssued.increment(1);
+  return disclose(capability);
+}
+
+export circuit consumeCapability(observedAt: Uint<64>): Bytes<32> {
+  assert(requestStatus == 2, "Capability is unavailable or already consumed");
+  assert(observedAt <= activeExpiry, "Capability has expired");
+  const capability = capabilityFor(activeRequest, privateContentHash(), privatePurposeHash(), privateCapabilitySecret());
+  assert(capability == activeCapability, "Capability does not match this content and purpose");
+  requestStatus = 4;
+  capabilitiesConsumed.increment(1);
+  return disclose(capability);
+}
+
+export circuit revokeRequest(): Bytes<32> {
+  assert(requestStatus == 1 || requestStatus == 2, "Request cannot be revoked");
+  const expectedRequest = requestCommitment(
+    privateContentHash(), privatePurposeHash(), privatePolicySalt(), privateThreshold(),
+    privateOrganizerSecret(), privateRequestNonce(),
+    privateCredentialA(), privateCredentialB(), privateCredentialC(), activeExpiry
+  );
+  assert(expectedRequest == activeRequest, "Only the committed organizer can revoke");
+  requestStatus = 3;
+  revocations.increment(1);
+  return disclose(activeRequest);
+}
+
+export circuit requestCommitment(
+  contentHash: Bytes<32>, purposeHash: Bytes<32>, policySalt: Bytes<32>, threshold: Uint<64>,
+  organizerSecret: Bytes<32>, requestNonce: Bytes<32>,
+  credentialA: Bytes<32>, credentialB: Bytes<32>, credentialC: Bytes<32>, expiry: Uint<64>
+): Bytes<32> {
+  return persistentHash<Vector<11, Bytes<32>>>([
+    pad(32, "veil-consent:request:v1"), contentHash, purposeHash, policySalt,
+    threshold as Field as Bytes<32>, organizerSecret, requestNonce,
+    credentialA, credentialB, credentialC, expiry as Field as Bytes<32>
+  ]);
+}
+
+export circuit responseNullifier(
+  requestNonce: Bytes<32>, credentialA: Bytes<32>, credentialB: Bytes<32>, credentialC: Bytes<32>
+): Bytes<32> {
+  return persistentHash<Vector<5, Bytes<32>>>([
+    pad(32, "veil-consent:responses:v1"), requestNonce, credentialA, credentialB, credentialC
+  ]);
+}
+
+export circuit capabilityFor(
+  request: Bytes<32>, contentHash: Bytes<32>, purposeHash: Bytes<32>, secret: Bytes<32>
+): Bytes<32> {
+  return persistentHash<Vector<5, Bytes<32>>>([
+    pad(32, "veil-consent:capability:v1"), request, contentHash, purposeHash, secret
+  ]);
+}
