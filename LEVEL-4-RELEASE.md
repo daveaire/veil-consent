@@ -8,21 +8,21 @@ This checklist mirrors the live Rise In **Level 4 — Waxing Gibbous Submission*
 | --- | --- | --- |
 | Working MVP live on Preprod with a verifiable address | Contract deployment record and successful lifecycle transaction IDs | In progress |
 | README, setup, and usage documentation | `README.md`, `ARCHITECTURE.md`, and `DEMO.md` | Ready |
-| CI/CD running on the product repository | `.github/workflows/ci.yml` and `.github/workflows/pages.yml` | Ready locally; passing public run required |
+| CI/CD running on the product repository | [Passing CI](https://github.com/daveaire/veil-consent/actions/runs/35909058271) and [passing Pages deployment](https://github.com/daveaire/veil-consent/actions/runs/35909058252) | Ready |
 | Public product X profile linked in README | Copy and launch plan in `PRODUCT-PROFILE.md` | Profile URL required |
-| At least 15 meaningful commits | More than 24 scoped commits on `main` | Ready |
+| At least 15 meaningful commits | 32 scoped commits on `main` before release-link updates | Ready |
 
 ## Submission checklist
 
 | Required field | Final value |
 | --- | --- |
 | Public GitHub repository | `https://github.com/daveaire/veil-consent` |
-| Live Preprod demo | Add the deployed Pages URL after the first passing workflow |
+| Live Preprod demo | `https://daveaire.github.io/veil-consent/` |
 | Contract address | Add the address emitted by `npm run network:deploy -- --network preprod` |
-| CI/CD evidence | Link the passing `CI` workflow run |
+| CI/CD evidence | `https://github.com/daveaire/veil-consent/actions/runs/35909058271` |
 | Product X profile | Add the live profile URL to this file and `README.md` |
 | Demo video | Upload `demo-output/veil-consent-mvp.mp4` and add its public URL |
-| Commit evidence | Link the repository commit history |
+| Commit evidence | `https://github.com/daveaire/veil-consent/commits/main/` |
 
 ## Final review
 

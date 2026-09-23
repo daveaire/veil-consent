@@ -8,7 +8,7 @@
 
 ## Live Demo
 
-The public Preprod demo URL will be added after the first GitHub Pages deployment. The same interface runs locally with `npm run dashboard`.
+[Open the live VeilConsent demo](https://daveaire.github.io/veil-consent/). The same interface runs locally with `npm run dashboard`.
 
 ## Contract Address
 

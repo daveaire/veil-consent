@@ -22,7 +22,8 @@ VeilConsent lets a group authorize AI processing without publishing who particip
 
 The MVP binds an encrypted document to one exact task, model, recipient class, and retention period. A Midnight proof issues a capability only when the private policy passes, and the AI gateway can consume it once.
 
-Preprod demo and source: [links added after deployment]
+Preprod demo: https://daveaire.github.io/veil-consent/
+Source: https://github.com/daveaire/veil-consent
 
 ### 2 — Privacy model
 
@@ -36,8 +37,8 @@ The VeilConsent Preprod MVP is live.
 
 Create a purpose-bound request, satisfy a private multi-party consent rule, and consume the resulting capability once. Then test revocation, expiry, and replay rejection yourself.
 
-Demo: [link]  
-Source: [link]
+Demo: https://daveaire.github.io/veil-consent/
+Source: https://github.com/daveaire/veil-consent
 
 ## Visual direction
 
