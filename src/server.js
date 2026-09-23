@@ -19,7 +19,7 @@ http.createServer((request, response) => {
   response.writeHead(200, {
     'Content-Type': contentType,
     'Cache-Control': 'no-store',
-    'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://indexer.preprod.midnight.network wss://indexer.preprod.midnight.network",
+    'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://indexer.preprod.midnight.network wss://indexer.preprod.midnight.network",
   });
   response.end(fs.readFileSync(path.join(root, file)));
 }).listen(port, '127.0.0.1', () => {
