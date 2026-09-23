@@ -34,6 +34,12 @@ globalThis.WebSocket = WebSocket;
 // that message beats hanging.
 const DUST_WAIT_TIMEOUT_MS = 5 * 60 * 1000;
 
+function progressComplete(progress: unknown): boolean {
+  if (!progress || typeof progress !== 'object') return false;
+  const check = (progress as { isStrictlyComplete?: () => boolean }).isStrictlyComplete;
+  return typeof check === 'function' && check.call(progress);
+}
+
 // ─── Network configuration ─────────────────────────────────────────────────────
 //
 // Resolved from --network flag, .midnight-state.json, or defaulting to
@@ -138,12 +144,15 @@ async function main() {
   console.log('  ℹ  This may take several minutes depending on network size.');
   console.log('     RPC disconnection messages during sync are normal and can be safely ignored.\n');
   const syncStart = Date.now();
-  const syncInterval = setInterval(() => {
+  const syncSubscription = walletCtx.wallet.state().pipe(Rx.throttleTime(15_000)).subscribe((walletState) => {
     const elapsed = Math.round((Date.now() - syncStart) / 1000);
-    process.stdout.write(`\r  ⏳ Still syncing... (${elapsed}s elapsed)   `);
-  }, 5000);
+    const shielded = progressComplete(walletState.shielded.state.progress) ? 'ready' : 'syncing';
+    const unshielded = progressComplete(walletState.unshielded.progress) ? 'ready' : 'syncing';
+    const dust = progressComplete(walletState.dust.state.progress) ? 'ready' : 'syncing';
+    process.stdout.write(`\r  ⏳ ${elapsed}s · shielded ${shielded} · unshielded ${unshielded} · DUST ${dust}   `);
+  });
   const state = await walletCtx.wallet.waitForSyncedState();
-  clearInterval(syncInterval);
+  syncSubscription.unsubscribe();
   process.stdout.write('\r  ✓ Synced with network.                                      \n');
 
   // Persist sync state now so a later deploy failure doesn't waste the sync work.
