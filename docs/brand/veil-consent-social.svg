@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 500" role="img" aria-labelledby="title desc">
+  <title id="title">VeilConsent social header</title>
+  <desc id="desc">VeilConsent wordmark and the phrase Private consent for AI processing on a dark background.</desc>
+  <rect width="1500" height="500" fill="#090810"/>
+  <circle cx="1250" cy="-40" r="420" fill="#241945" opacity=".72"/>
+  <rect x="110" y="124" width="132" height="132" rx="38" fill="#bdff63"/>
+  <path d="M144 158h20l12 39 12-39h20l-23 69h-18l-23-69Z" fill="#10140c"/>
+  <text x="286" y="196" fill="#f7f5ff" font-family="Inter, system-ui, sans-serif" font-size="64" font-weight="750">VeilConsent</text>
+  <text x="288" y="257" fill="#b9b3c8" font-family="Inter, system-ui, sans-serif" font-size="30">Private consent for AI processing.</text>
+  <text x="288" y="315" fill="#bdff63" font-family="ui-monospace, SFMono-Regular, monospace" font-size="20" letter-spacing="2">BUILT ON MIDNIGHT</text>
+</svg>

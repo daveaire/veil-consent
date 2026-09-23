@@ -41,4 +41,4 @@ Source: [link]
 
 ## Visual direction
 
-Use the lime `V` mark on a near-black square. Keep the header plain, with the product name and the line “Private consent for AI processing.” Avoid blockchain motifs, robots, gradients in text, and generic generated illustrations.
+Use [`docs/brand/veil-consent-mark.svg`](docs/brand/veil-consent-mark.svg) as the profile image and [`docs/brand/veil-consent-social.svg`](docs/brand/veil-consent-social.svg) as the header. Keep the system plain and typographic. Avoid blockchain motifs, robots, gradients in text, and generic generated illustrations.
