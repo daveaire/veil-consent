@@ -76,6 +76,21 @@ function refresh(){ const found=findWallet(); $('walletState').textContent=found
 $('refreshWallet').onclick=refresh;
 $('connectWallet').onclick=async()=>{ const found=findWallet(); if(!found)return refresh(); try{ walletApi=await found[1].connect('preprod'); const state=await walletApi.getConnectionStatus(); if(state.status!=='connected'||state.networkId.toLowerCase()!=='preprod')throw new Error('Switch Lace to Midnight Preprod.'); const {unshieldedAddress}=await walletApi.getUnshieldedAddress(); $('walletState').textContent='Lace connected · Preprod'; $('walletDetail').textContent=unshieldedAddress; $('connectWallet').disabled=true; }catch(error){ $('walletState').textContent='Connection failed'; $('walletDetail').textContent=error.message; } };
 setTimeout(refresh,250);
+
+const demoStep = new URLSearchParams(location.search).get('demo');
+if (demoStep) {
+  await new Promise(resolve => setTimeout(resolve, 350));
+  $('create').click();
+  if (demoStep === 'issued' || demoStep === 'consumed') {
+    await new Promise(resolve => setTimeout(resolve, 250));
+    $('issue').click();
+  }
+  if (demoStep === 'consumed') {
+    await new Promise(resolve => setTimeout(resolve, 250));
+    $('process').click();
+  }
+  document.body.dataset.demoReady = demoStep;
+}
 </script>
 </body>
 </html>

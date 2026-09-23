@@ -13,7 +13,8 @@ const assets = new Map([
 ]);
 
 http.createServer((request, response) => {
-  const asset = assets.get(request.url);
+  const pathname = new URL(request.url, 'http://127.0.0.1').pathname;
+  const asset = assets.get(pathname);
   if (!asset) return response.writeHead(404).end('Not found');
   const [file, contentType] = asset;
   response.writeHead(200, {

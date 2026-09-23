@@ -4,6 +4,8 @@
 
 VeilConsent is a privacy-preserving consent gate for AI processing. It binds an encrypted document to one exact purpose and issues a single-use processing capability only after a private multi-party consent rule has been satisfied.
 
+![VeilConsent request screen](docs/veil-consent-product.png)
+
 A public verifier sees a request commitment, its expiry, lifecycle status, and aggregate counters. Participant identities, individual approve/decline responses, the threshold, document contents, model, recipients, and retention terms remain private.
 
 ## The problem
@@ -53,6 +55,14 @@ The command-line demonstration runs the same lifecycle:
 npm run demo
 ```
 
+Build the 20-second captioned product walkthrough from the real browser interface:
+
+```sh
+npm run demo:video
+```
+
+The rendered file is written to `demo-output/veil-consent-mvp.mp4`. It is silent by design so the review remains clear without synthetic narration.
+
 ## Preprod
 
 The contract targets the ledger-v8 Preprod stack used by Midnight.js 4.1.1:
@@ -74,7 +84,7 @@ npm run network:deploy -- --network preprod
 npm run network:prove -- --network preprod
 ```
 
-Wallet recovery material and private-state databases are owner-only and excluded from version control.
+Wallet recovery material, the generated private-state password, and private-state databases are owner-only and excluded from version control.
 
 ## Public and private data
 
@@ -102,4 +112,3 @@ The product X profile and public URL will be added here before the Level 4 submi
 ## License
 
 Apache-2.0
-
