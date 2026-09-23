@@ -2,6 +2,7 @@ node_modules/
 node_modules
 .midnight-state.json
 .midnight-wallet-state/
+.midnight-private-state-password
 midnight-level-db/
 demo-output/
 dist/

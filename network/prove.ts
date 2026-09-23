@@ -9,12 +9,13 @@ import { compiledContract, INITIAL_PRIVATE_STATE, PRIVATE_STATE_ID, VeilConsent,
 import { getDeployment, getOrCreateWallet, resolveNetwork } from './network';
 import { createWallet, persistWalletState, type WalletContext } from './wallet';
 import { submitTransactionOnce } from './submit';
+import { getPrivateStatePassword } from './private-state-password';
 
 // @ts-expect-error wallet sync requires a global WebSocket implementation
 globalThis.WebSocket = WebSocket;
 
 async function createProviders(walletCtx: WalletContext) {
-  const privateStatePassword = process.env.PRIVATE_STATE_PASSWORD?.trim() || 'Local-Devnet-Development-Placeholder-1';
+  const privateStatePassword = getPrivateStatePassword();
   const zkConfigProvider = new NodeZkConfigProvider<'createRequest' | 'issueCapability' | 'consumeCapability' | 'revokeRequest'>(zkConfigPath);
   const walletProvider = {
     getCoinPublicKey: () => walletCtx.shieldedSecretKeys.coinPublicKey,
