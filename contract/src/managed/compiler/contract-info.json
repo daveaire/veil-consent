@@ -1,0 +1,428 @@
+{
+  "compiler-version": "0.31.1",
+  "language-version": "0.23.0",
+  "runtime-version": "0.16.0",
+  "circuits": [
+    {
+      "name": "createRequest",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "expiry",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "issueCapability",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "observedAt",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "consumeCapability",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "observedAt",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "revokeRequest",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "requestCommitment",
+      "pure": true,
+      "proof": false,
+      "arguments": [
+        {
+          "name": "contentHash",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "purposeHash",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "policySalt",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "threshold",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "organizerSecret",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "requestNonce",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "credentialA",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "credentialB",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "credentialC",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "expiry",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "responseNullifier",
+      "pure": true,
+      "proof": false,
+      "arguments": [
+        {
+          "name": "requestNonce",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "credentialA",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "credentialB",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "credentialC",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "capabilityFor",
+      "pure": true,
+      "proof": false,
+      "arguments": [
+        {
+          "name": "request",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "contentHash",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "purposeHash",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "secret",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    }
+  ],
+  "witnesses": [
+    {
+      "name": "privateContentHash",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "privatePurposeHash",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "privatePolicySalt",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "privateThreshold",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Uint",
+        "maxval": 18446744073709551615
+      }
+    },
+    {
+      "name": "privateOrganizerSecret",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "privateRequestNonce",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "privateCredentialA",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "privateCredentialB",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "privateCredentialC",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "privateDecisionA",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Uint",
+        "maxval": 18446744073709551615
+      }
+    },
+    {
+      "name": "privateDecisionB",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Uint",
+        "maxval": 18446744073709551615
+      }
+    },
+    {
+      "name": "privateDecisionC",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Uint",
+        "maxval": 18446744073709551615
+      }
+    },
+    {
+      "name": "privateCapabilitySecret",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    }
+  ],
+  "contracts": [
+  ],
+  "ledger": [
+    {
+      "name": "requestsCreated",
+      "index": 0,
+      "exported": true,
+      "storage": "Counter"
+    },
+    {
+      "name": "capabilitiesIssued",
+      "index": 1,
+      "exported": true,
+      "storage": "Counter"
+    },
+    {
+      "name": "capabilitiesConsumed",
+      "index": 2,
+      "exported": true,
+      "storage": "Counter"
+    },
+    {
+      "name": "revocations",
+      "index": 3,
+      "exported": true,
+      "storage": "Counter"
+    },
+    {
+      "name": "activeRequest",
+      "index": 4,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "activeExpiry",
+      "index": 5,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Uint",
+        "maxval": 18446744073709551615
+      }
+    },
+    {
+      "name": "requestStatus",
+      "index": 6,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Uint",
+        "maxval": 255
+      }
+    },
+    {
+      "name": "activeCapability",
+      "index": 7,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "lastResponseNullifier",
+      "index": 8,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    }
+  ]
+}
