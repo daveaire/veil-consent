@@ -81,7 +81,7 @@ def capture(chrome: str, key: str) -> Path:
             "--headless=new",
             "--hide-scrollbars",
             "--window-size=1440,1000",
-            "--virtual-time-budget=2200",
+            "--virtual-time-budget=8000",
             f"--screenshot={target}",
             f"http://127.0.0.1:{PORT}/{query}",
         ],
@@ -93,20 +93,20 @@ def capture(chrome: str, key: str) -> Path:
 
 
 def compose(index: int, screenshot: Path, title: str, body: str) -> Path:
-    canvas = Image.new("RGB", (1920, 1080), "#090810")
+    canvas = Image.new("RGB", (1920, 1080), "#f5f5f7")
     shot = Image.open(screenshot).convert("RGB")
     shot.thumbnail((1260, 900), Image.Resampling.LANCZOS)
     canvas.paste(shot, (620, 90))
     draw = ImageDraw.Draw(canvas)
-    draw.rounded_rectangle((70, 70, 535, 1010), radius=28, fill="#14121d", outline="#2b2838", width=2)
-    draw.rounded_rectangle((110, 112, 178, 180), radius=17, fill="#bdff63")
-    draw.text((134, 121), "V", font=font(33, True), fill="#10140c")
-    draw.text((200, 124), "VeilConsent", font=font(30, True), fill="#f7f5ff")
-    draw.text((110, 275), f"0{index + 1}", font=font(24, True), fill="#9f85ff")
-    draw.multiline_text((110, 322), title, font=font(58, True), fill="#f7f5ff", spacing=4)
+    draw.rounded_rectangle((70, 70, 535, 1010), radius=28, fill="#ffffff", outline="#e2e2e7", width=2)
+    draw.rounded_rectangle((110, 112, 178, 180), radius=17, fill="#1d1d1f")
+    draw.text((134, 121), "V", font=font(33, True), fill="#ffffff")
+    draw.text((200, 124), "VeilConsent", font=font(30, True), fill="#1d1d1f")
+    draw.text((110, 275), f"0{index + 1}", font=font(24, True), fill="#0071e3")
+    draw.multiline_text((110, 322), title, font=font(58, True), fill="#1d1d1f", spacing=4)
     wrapped = "\n".join(textwrap.wrap(body, width=25))
-    draw.multiline_text((110, 475), wrapped, font=font(29), fill="#b9b3c8", spacing=12)
-    draw.text((110, 905), "MIDNIGHT PREPROD MVP", font=font(17, True), fill="#777185")
+    draw.multiline_text((110, 475), wrapped, font=font(29), fill="#6e6e73", spacing=12)
+    draw.text((110, 905), "MIDNIGHT PREPROD MVP", font=font(17, True), fill="#86868b")
     path = OUT / f"scene-{index + 1:02d}.png"
     canvas.save(path, optimize=True)
     return path

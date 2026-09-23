@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
   <title id="title">VeilConsent mark</title>
-  <desc id="desc">A black letter V on a lime rounded square.</desc>
-  <rect width="256" height="256" rx="72" fill="#bdff63"/>
-  <path d="M65 65h30l33 98 33-98h30l-48 132h-30L65 65Z" fill="#10140c"/>
+  <desc id="desc">A white letter V on a graphite rounded square.</desc>
+  <rect width="256" height="256" rx="72" fill="#1d1d1f"/>
+  <path d="M65 65h30l33 98 33-98h30l-48 132h-30L65 65Z" fill="#ffffff"/>
 </svg>
