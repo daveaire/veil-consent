@@ -11,6 +11,13 @@ The walkthrough is designed for a two-minute review.
 7. Process once. The adapter returns a short summary and generated contract state becomes consumed.
 8. Explain that a second consumption fails because the capability is single-use.
 
-The submission video uses captions and recorded local circuit behavior. It contains no synthetic narration, stock avatar, or simulated chain confirmation. Preprod confirmation is presented separately through the published transaction record and the read-only `network:verify` command.
+The submission video runs for more than one minute and uses a warm neural English narration with matching on-screen summaries. It is generated from the real organizer and participant interfaces, contains no stock avatar, and does not simulate a chain confirmation. The final scene identifies the separately finalized Preprod lifecycle, which reviewers can check through the published transaction record and the read-only `network:verify` command.
+
+Install the pinned video dependencies and rebuild it with:
+
+```sh
+python3 -m pip install -r requirements-demo.txt
+npm run demo:video
+```
 
 [Watch the published walkthrough](https://daveaire.github.io/veil-consent/veil-consent-mvp.mp4).

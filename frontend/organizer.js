@@ -4,7 +4,10 @@ const $ = (id) => document.querySelector('#' + id);
 const session = await BrowserConsentSession.create();
 const demoStep = new URLSearchParams(location.search).get('demo');
 const demoCapture = Boolean(demoStep);
-if (demoCapture) document.documentElement.classList.add('demo-capture');
+if (demoCapture) {
+  document.documentElement.classList.add('demo-capture');
+  document.querySelector('.wallet').style.display = 'none';
+}
 let input, encrypted, organizerEncryption, activeRequest, activePurpose;
 const enrollments = [null, null, null], independentResponses = [null, null, null];
 
@@ -58,13 +61,17 @@ $('refreshWallet').onclick=refresh;
 $('connectWallet').onclick=async()=>{ refresh(); const selected=$('walletProvider').value||walletProviders[0]?.[0]; const found=walletProviders.find(([key])=>key===selected); if(!found)return; $('connectWallet').disabled=true; $('connectWallet').textContent='Connecting…'; $('walletState').textContent=`Waiting for ${found[1].name||found[0]}`; $('walletDetail').textContent='Approve the Preprod connection in your wallet.'; try{ walletApi=await found[1].connect('preprod'); const state=await walletApi.getConnectionStatus(); if(state.status!=='connected'||state.networkId.toLowerCase()!=='preprod')throw new Error('Switch the selected wallet to Midnight Preprod.'); const {unshieldedAddress}=await walletApi.getUnshieldedAddress(); $('walletState').textContent=`${found[1].name||found[0]} connected · Preprod`; $('walletDetail').textContent=unshieldedAddress; $('walletProvider').disabled=true; $('connectWallet').textContent='Connected'; }catch(error){ $('walletState').textContent='Connection failed'; $('walletDetail').textContent=error.message; $('connectWallet').disabled=false; $('connectWallet').textContent='Connect wallet'; } };
 setTimeout(refresh,250);
 
-if (demoStep) {
+if (demoStep && demoStep !== 'initial') {
   await createRequest();
-  if (demoStep === 'issued' || demoStep === 'consumed') {
+  if (demoStep === 'issued' || demoStep === 'consumed' || demoStep === 'evidence') {
     await issueCapability();
   }
-  if (demoStep === 'consumed') {
+  if (demoStep === 'consumed' || demoStep === 'evidence') {
     await processOnce();
   }
-  document.body.dataset.demoReady = demoStep;
+  if (demoStep === 'evidence') {
+    document.querySelector('.hero').style.display = 'none';
+    document.querySelector('.grid').style.display = 'none';
+  }
 }
+if (demoStep) document.body.dataset.demoReady = demoStep;

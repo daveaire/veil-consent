@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""Build a silent, captioned product walkthrough from the real VeilConsent UI."""
+"""Build a narrated, captioned product walkthrough from the real VeilConsent UI."""
 
 from __future__ import annotations
 
+import asyncio
+import hashlib
+import math
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -16,18 +20,53 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "demo-output"
 PORT = 4211
-SCENE_SECONDS = 5
+NARRATOR = "en-US-AndrewMultilingualNeural"
 CHROME_CANDIDATES = [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     shutil.which("google-chrome"),
     shutil.which("chromium"),
 ]
 SCENES = [
-    ("initial", "/", "Private input", "The document and exact AI purpose begin in the organizer's browser."),
-    ("participant", "/participant.html?demo=review", "Independent review", "Each participant holds a one-time credential and reviews the exact purpose in a separate portal."),
-    ("created", "/?demo=created", "Request committed", "The plaintext is encrypted and cleared. The circuit exposes only a binding commitment."),
-    ("issued", "/?demo=issued", "Consent proven", "A 2-of-3 policy passes without revealing identities, decisions, or threshold."),
-    ("consumed", "/?demo=consumed", "Processed once", "The gateway decrypts after authorization. Generated contract state blocks replay."),
+    (
+        "intro", "/?demo=initial", "Private consent for AI",
+        "Authorize one exact use of shared data without exposing the consent record.",
+        "VeilConsent is a private consent gate for AI. It lets a team authorize one exact use of shared data, while keeping identities, individual decisions, and the consent threshold off the public ledger.",
+    ),
+    (
+        "purpose", "/?demo=initial", "Define one exact use",
+        "Task, model, recipients, retention, policy, and expiry are bound together.",
+        "The organizer starts with a document and defines the task, model, recipients, retention period, policy, and expiry. The browser encrypts the document before creating a commitment, so plaintext never becomes public chain data.",
+    ),
+    (
+        "participant", "/participant.html?demo=review", "Independent review",
+        "Each participant checks the purpose and returns an encrypted response.",
+        "Each participant works from a separate portal. They create a one-time credential, inspect the exact purpose, and approve or decline. Their response is encrypted to the organizer and bound to this request.",
+    ),
+    (
+        "created", "/?demo=created", "Commit before proof",
+        "Plaintext is cleared; only a binding commitment enters the lifecycle.",
+        "When the request is created, VeilConsent clears the visible plaintext and commits the document, purpose, policy, credentials, and expiry. Changing any of these values breaks the proof.",
+    ),
+    (
+        "issued", "/?demo=issued", "Prove the policy",
+        "A two-of-three rule passes without revealing votes or the threshold.",
+        "The Compact contract checks the private responses. Here, two of three approvals satisfy the hidden policy. It issues a purpose-bound capability without revealing who approved or which threshold was used.",
+    ),
+    (
+        "consumed", "/?demo=consumed", "Consume once",
+        "Authorization is consumed before decryption, and replay is blocked.",
+        "Processing happens only after the capability is consumed. The gateway then decrypts the document and calls the configured adapter. A second attempt fails because the contract state permanently blocks replay.",
+    ),
+    (
+        "preprod", "/?demo=evidence", "Verified on Preprod",
+        "Create, issue, and consume are finalized and independently verifiable.",
+        "This is not a mocked contract flow. The same compiled contract is deployed on Midnight Preprod, where create, issue, and consume were finalized. The public state and transaction hashes can be verified independently.",
+    ),
+    (
+        "complete", "/?demo=consumed", "Ready for review",
+        "A live privacy product with tests, CI, verifiable evidence, and clear limits.",
+        "VeilConsent turns consent into a machine-verifiable prerequisite for sensitive AI work. This Level Four MVP includes independent participants, clear failure states, automated tests, continuous delivery, and a live Preprod deployment.",
+    ),
 ]
 
 
@@ -113,6 +152,24 @@ def compose(index: int, screenshot: Path, title: str, body: str) -> Path:
     return path
 
 
+async def narrate(text: str, target: Path) -> None:
+    """Render one scene with a warm conversational neural voice."""
+    try:
+        import edge_tts
+    except ImportError as error:
+        raise SystemExit("Install demo dependencies with `python3 -m pip install -r requirements-demo.txt`") from error
+    await edge_tts.Communicate(text, NARRATOR, rate="+8%", volume="+0%", pitch="+0Hz").save(target)
+
+
+def media_duration(ffmpeg: str, source: Path) -> float:
+    probe = subprocess.run([ffmpeg, "-i", str(source)], capture_output=True, text=True)
+    match = re.search(r"Duration: (\d+):(\d+):(\d+(?:\.\d+)?)", probe.stderr)
+    if not match:
+        raise RuntimeError(f"Could not determine duration of {source}")
+    hours, minutes, seconds = match.groups()
+    return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+
+
 def main() -> None:
     chrome = next((path for path in CHROME_CANDIDATES if path and Path(path).exists()), None)
     if not chrome:
@@ -123,21 +180,49 @@ def main() -> None:
     server = subprocess.Popen(["node", "src/server.js"], cwd=ROOT, env=env, stdout=subprocess.DEVNULL)
     try:
         time.sleep(1)
-        slides = [compose(i, capture(chrome, key, route), title, body) for i, (key, route, title, body) in enumerate(SCENES)]
+        slides = [compose(i, capture(chrome, key, route), title, body) for i, (key, route, title, body, _) in enumerate(SCENES)]
     finally:
         server.terminate()
         server.wait(timeout=5)
 
     ffmpeg = find_ffmpeg()
 
-    concat = OUT / "scenes.txt"
-    concat.write_text("".join(f"file '{slide.name}'\nduration {SCENE_SECONDS}\n" for slide in slides) + f"file '{slides[-1].name}'\n")
+    audio_files = []
+    for index, (*_, narration) in enumerate(SCENES):
+        audio = OUT / f"narration-{index + 1:02d}.mp3"
+        stamp = OUT / f"narration-{index + 1:02d}.sha256"
+        fingerprint = hashlib.sha256(f"{NARRATOR}|+8%|{narration}".encode()).hexdigest()
+        if not audio.exists() or not stamp.exists() or stamp.read_text().strip() != fingerprint:
+            asyncio.run(narrate(narration, audio))
+            stamp.write_text(f"{fingerprint}\n")
+        audio_files.append(audio)
+
+    segments = []
+    for index, (slide, audio) in enumerate(zip(slides, audio_files, strict=True)):
+        duration = math.ceil(media_duration(ffmpeg, audio) + 0.5)
+        segment = OUT / f"segment-{index + 1:02d}.mp4"
+        subprocess.run(
+            [
+                ffmpeg, "-y", "-loop", "1", "-i", str(slide), "-i", str(audio),
+                "-t", str(duration), "-vf", "fps=30,format=yuv420p",
+                "-c:v", "libx264", "-crf", "18", "-c:a", "aac", "-b:a", "160k",
+                "-af", "apad,loudnorm=I=-16:TP=-1.5:LRA=11",
+                "-movflags", "+faststart", str(segment),
+            ],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        segments.append(segment)
+
+    concat = OUT / "segments.txt"
+    concat.write_text("".join(f"file '{segment.name}'\n" for segment in segments))
+    assembled = OUT / "veil-consent-assembled.mp4"
     subprocess.run(
         [
             ffmpeg, "-y", "-f", "concat", "-safe", "0", "-i", str(concat),
-            "-vf", "fps=30,format=yuv420p", "-c:v", "libx264", "-crf", "18",
-            "-t", str(len(slides) * SCENE_SECONDS),
-            "-movflags", "+faststart", str(OUT / "veil-consent-mvp.mp4"),
+            "-c", "copy",
+            "-movflags", "+faststart", str(assembled),
         ],
         cwd=OUT,
         check=True,
@@ -145,6 +230,16 @@ def main() -> None:
         stderr=subprocess.DEVNULL,
     )
     video = OUT / "veil-consent-mvp.mp4"
+    subprocess.run(
+        [
+            ffmpeg, "-y", "-i", str(assembled), "-c:v", "copy",
+            "-c:a", "aac", "-b:a", "160k", "-ar", "48000",
+            "-movflags", "+faststart", str(video),
+        ],
+        check=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
     shutil.copy2(video, ROOT / "frontend" / video.name)
     print(video)
 

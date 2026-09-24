@@ -10,7 +10,7 @@
 
 [Open the live VeilConsent demo](https://daveaire.github.io/veil-consent/). The same interface runs locally with `npm run dashboard`.
 
-[Watch the captioned 25-second product walkthrough](https://daveaire.github.io/veil-consent/veil-consent-mvp.mp4).
+[Watch the narrated, captioned product walkthrough](https://daveaire.github.io/veil-consent/veil-consent-mvp.mp4).
 
 ## Contract Address
 
@@ -97,6 +97,7 @@ Expiry is enforced with Compact's `blockTimeLte` predicate, so Preprod evaluates
 - A compatible Midnight wallet, such as Lace, configured for Preprod
 - Compact toolchain 0.31.1
 - Docker only for proof generation and Preprod deployment
+- Python 3.10+ and Chrome or Chromium only when rebuilding the narrated video
 
 ## Setup & Run Locally
 
@@ -140,13 +141,14 @@ The suite covers threshold and unanimous policies, expiry, revocation, replay pr
 
 `.github/workflows/ci.yml` installs locked dependencies, compiles the Compact contract, runs the tests and dependency audit, and builds the browser interface on every push to `main` and every pull request. `.github/workflows/pages.yml` publishes the built demo to GitHub Pages. `.github/workflows/preprod.yml` queries and decodes the deployed contract every day and on demand.
 
-Build the captioned 25-second reviewer video from the real interface with:
+Build the narrated reviewer video from the real interface with:
 
 ```sh
+python3 -m pip install -r requirements-demo.txt
 npm run demo:video
 ```
 
-The silent MP4 is written to `demo-output/veil-consent-mvp.mp4`; all essential explanation is on screen.
+The renderer captures the real organizer and participant interfaces, generates the published narration, and writes the MP4 to `demo-output/veil-consent-mvp.mp4`. Each scene also includes an on-screen summary.
 
 ## Usage Guide
 
