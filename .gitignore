@@ -9,6 +9,7 @@ demo-output/
 dist/
 .DS_Store
 *.log
+__pycache__/
 frontend/proof-client.bundle.js
 frontend/participant-exchange.bundle.js
 frontend/organizer.bundle.js
