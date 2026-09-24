@@ -16,6 +16,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "demo-output"
 PORT = 4211
+SCENE_SECONDS = 5
 CHROME_CANDIDATES = [
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     shutil.which("google-chrome"),
@@ -130,11 +131,12 @@ def main() -> None:
     ffmpeg = find_ffmpeg()
 
     concat = OUT / "scenes.txt"
-    concat.write_text("".join(f"file '{slide.name}'\nduration 5\n" for slide in slides) + f"file '{slides[-1].name}'\n")
+    concat.write_text("".join(f"file '{slide.name}'\nduration {SCENE_SECONDS}\n" for slide in slides) + f"file '{slides[-1].name}'\n")
     subprocess.run(
         [
             ffmpeg, "-y", "-f", "concat", "-safe", "0", "-i", str(concat),
             "-vf", "fps=30,format=yuv420p", "-c:v", "libx264", "-crf", "18",
+            "-t", str(len(slides) * SCENE_SECONDS),
             "-movflags", "+faststart", str(OUT / "veil-consent-mvp.mp4"),
         ],
         cwd=OUT,
