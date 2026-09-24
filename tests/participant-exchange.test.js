@@ -44,6 +44,16 @@ test('participant response is encrypted, request-bound, and credential-authentic
     openResponse(responsePacket, organizer.keyPair.privateKey, 'cd'.repeat(32), ['00'.repeat(32), enrollment.credential, '11'.repeat(32)], purpose),
     /different consent request/,
   );
+  await assert.rejects(
+    openResponse(
+      responsePacket,
+      organizer.keyPair.privateKey,
+      request,
+      ['00'.repeat(32), enrollment.credential, '11'.repeat(32)],
+      { ...purpose, retention: '7 days' },
+    ),
+    /purpose does not match/,
+  );
 });
 
 test('wrong credentials and modified response packets are rejected', async () => {

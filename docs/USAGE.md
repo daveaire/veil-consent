@@ -13,7 +13,7 @@ The browser demonstration can be completed without spending test tokens. Connect
 
 1. Open VeilConsent and review the document and the proposed AI use.
 2. Choose the consent rule and expiry. The sample supports one, two, or all three eligible participants.
-3. Select the participants who approve, then choose **Create request**. VeilConsent encrypts the document, clears the visible plaintext, and publishes a binding commitment.
+3. Select the participants who approve, then choose **Create request**. VeilConsent encrypts the document, clears the visible plaintext, and generates a binding commitment in the local circuit walkthrough.
 4. Choose **Prove consent**. The circuit checks the private responses and policy. If the rule is not satisfied, the interface shows the reason and no capability is issued.
 5. Choose **Process once**. The gateway consumes the capability, decrypts the bound document, and returns the sample AI output.
 6. Try the action again. Contract state rejects the replay because the capability has already been consumed.
