@@ -22,10 +22,11 @@ CHROME_CANDIDATES = [
     shutil.which("chromium"),
 ]
 SCENES = [
-    ("initial", "Private input", "The document and exact AI purpose begin in the organizer's browser."),
-    ("created", "Request committed", "The plaintext is encrypted and cleared. The circuit exposes only a binding commitment."),
-    ("issued", "Consent proven", "A 2-of-3 policy passes without revealing identities, decisions, or threshold."),
-    ("consumed", "Processed once", "The gateway decrypts after authorization. Generated contract state blocks replay."),
+    ("initial", "/", "Private input", "The document and exact AI purpose begin in the organizer's browser."),
+    ("participant", "/participant.html?demo=review", "Independent review", "Each participant holds a one-time credential and reviews the exact purpose in a separate portal."),
+    ("created", "/?demo=created", "Request committed", "The plaintext is encrypted and cleared. The circuit exposes only a binding commitment."),
+    ("issued", "/?demo=issued", "Consent proven", "A 2-of-3 policy passes without revealing identities, decisions, or threshold."),
+    ("consumed", "/?demo=consumed", "Processed once", "The gateway decrypts after authorization. Generated contract state blocks replay."),
 ]
 
 
@@ -72,9 +73,8 @@ def font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
     return ImageFont.load_default()
 
 
-def capture(chrome: str, key: str) -> Path:
+def capture(chrome: str, key: str, route: str) -> Path:
     target = OUT / f"capture-{key}.png"
-    query = "" if key == "initial" else f"?demo={key}"
     subprocess.run(
         [
             chrome,
@@ -83,7 +83,7 @@ def capture(chrome: str, key: str) -> Path:
             "--window-size=1440,1000",
             "--virtual-time-budget=8000",
             f"--screenshot={target}",
-            f"http://127.0.0.1:{PORT}/{query}",
+            f"http://127.0.0.1:{PORT}{route}",
         ],
         check=True,
         stdout=subprocess.DEVNULL,
@@ -122,7 +122,7 @@ def main() -> None:
     server = subprocess.Popen(["node", "src/server.js"], cwd=ROOT, env=env, stdout=subprocess.DEVNULL)
     try:
         time.sleep(1)
-        slides = [compose(i, capture(chrome, key), title, body) for i, (key, title, body) in enumerate(SCENES)]
+        slides = [compose(i, capture(chrome, key, route), title, body) for i, (key, route, title, body) in enumerate(SCENES)]
     finally:
         server.terminate()
         server.wait(timeout=5)
