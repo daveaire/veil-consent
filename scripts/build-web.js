@@ -10,6 +10,7 @@ await esbuild.build({
   format: 'esm',
   platform: 'browser',
   target: ['es2022'],
+  minify: true,
   outdir: 'frontend',
   assetNames: 'midnight-runtime',
   plugins: [wasmLoader({ mode: 'deferred' })],
