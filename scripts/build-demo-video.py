@@ -23,9 +23,9 @@ CHROME_CANDIDATES = [
 ]
 SCENES = [
     ("initial", "Private input", "The document and exact AI purpose begin in the organizer's browser."),
-    ("created", "Request committed", "The plaintext is encrypted and cleared. Only a binding commitment is public."),
+    ("created", "Request committed", "The plaintext is encrypted and cleared. The circuit exposes only a binding commitment."),
     ("issued", "Consent proven", "A 2-of-3 policy passes without revealing identities, decisions, or threshold."),
-    ("consumed", "Processed once", "The gateway decrypts after authorization. Contract state blocks replay."),
+    ("consumed", "Processed once", "The gateway decrypts after authorization. Generated contract state blocks replay."),
 ]
 
 

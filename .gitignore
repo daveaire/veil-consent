@@ -3,6 +3,7 @@ node_modules
 .midnight-state.json
 .midnight-wallet-state/
 .midnight-private-state-password
+.veil-consent-private.json
 midnight-level-db/
 demo-output/
 dist/
@@ -10,4 +11,6 @@ dist/
 *.log
 frontend/proof-client.bundle.js
 frontend/participant-exchange.bundle.js
+frontend/organizer.bundle.js
+frontend/participant.bundle.js
 frontend/midnight-runtime.wasm

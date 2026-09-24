@@ -3,8 +3,8 @@ import { wasmLoader } from 'esbuild-plugin-wasm';
 
 await esbuild.build({
   entryPoints: {
-    'proof-client.bundle': 'frontend/proof-client.js',
-    'participant-exchange.bundle': 'frontend/participant-exchange.js',
+    'organizer.bundle': 'frontend/organizer.js',
+    'participant.bundle': 'frontend/participant.js',
   },
   bundle: true,
   format: 'esm',

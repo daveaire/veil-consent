@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-js';
@@ -28,28 +28,29 @@ export interface ConsentPrivateState {
 
 export const PRIVATE_STATE_ID = 'veilConsentPrivateState';
 
-const approvalSecretA = hash('preprod-participant-a-approval');
-const approvalSecretB = hash('preprod-participant-b-approval');
-const approvalSecretC = hash('preprod-participant-c-approval');
-
-export const INITIAL_PRIVATE_STATE: ConsentPrivateState = {
-  contentHash: hash('VeilConsent encrypted Preprod sample'),
-  purposeHash: hash('summarize|model:veil-demo-v1|recipients:project-members|retention:24-hours'),
-  policySalt: hash('preprod-policy-salt'),
-  threshold: 2n,
-  organizerSecret: hash('preprod-organizer-secret'),
-  requestNonce: hash('preprod-request-nonce'),
-  credentialA: VeilConsent.pureCircuits.participantCredential(approvalSecretA),
-  credentialB: VeilConsent.pureCircuits.participantCredential(approvalSecretB),
-  credentialC: VeilConsent.pureCircuits.participantCredential(approvalSecretC),
-  approvalSecretA,
-  approvalSecretB,
-  approvalSecretC,
-  decisionA: 1n,
-  decisionB: 1n,
-  decisionC: 0n,
-  capabilitySecret: hash('preprod-one-use-capability'),
-};
+export function createConsentPrivateState(): ConsentPrivateState {
+  const approvalSecretA = new Uint8Array(randomBytes(32));
+  const approvalSecretB = new Uint8Array(randomBytes(32));
+  const approvalSecretC = new Uint8Array(randomBytes(32));
+  return {
+    contentHash: hash('VeilConsent encrypted Preprod sample'),
+    purposeHash: hash('summarize|model:veil-demo-v1|recipients:project-members|retention:24-hours'),
+    policySalt: new Uint8Array(randomBytes(32)),
+    threshold: 2n,
+    organizerSecret: new Uint8Array(randomBytes(32)),
+    requestNonce: new Uint8Array(randomBytes(32)),
+    credentialA: VeilConsent.pureCircuits.participantCredential(approvalSecretA),
+    credentialB: VeilConsent.pureCircuits.participantCredential(approvalSecretB),
+    credentialC: VeilConsent.pureCircuits.participantCredential(approvalSecretC),
+    approvalSecretA,
+    approvalSecretB,
+    approvalSecretC,
+    decisionA: 1n,
+    decisionB: 1n,
+    decisionC: 0n,
+    capabilitySecret: new Uint8Array(randomBytes(32)),
+  };
+}
 
 export const consentWitnesses: VeilConsent.Witnesses<ConsentPrivateState> = {
   privateContentHash: ({ privateState }) => [privateState, privateState.contentHash],

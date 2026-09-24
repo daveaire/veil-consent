@@ -20,4 +20,12 @@ VeilConsent was deployed to Midnight Preprod on 23 September 2026.
 
 The lifecycle was executed with `npm run network:prove -- --network preprod`. After the consume transaction finalized, the client queried the contract through the Preprod indexer and decoded status `4` from the public ledger.
 
+The same public state can be checked without wallet credentials or a proof server:
+
+```sh
+npm run network:verify -- --network preprod
+```
+
+The command reads the tracked deployment record in `deployments/preprod.json`, queries the Preprod indexer, decodes the generated ledger, and fails unless the current lifecycle status is `4` (consumed).
+
 Only commitments, lifecycle state, expiry, counters, and replay-prevention nullifiers are public. Participant identity, individual decisions, the consent threshold, the exact purpose, and document contents remain private.

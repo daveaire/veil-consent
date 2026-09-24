@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none'">
   <meta name="description" content="Review and answer a VeilConsent request without disclosing your response publicly.">
   <title>Participant · VeilConsent</title>
   <style>
@@ -20,14 +21,4 @@
   <section class="panel"><div class="step"><span class="number">2</span><div class="content"><h2>Review the request</h2><p class="hint">Paste the invitation supplied by the organizer. Check every purpose field before answering.</p><label>Invitation packet<textarea id="invitation" placeholder="veilconsent:…"></textarea></label><button id="review">Review invitation</button><div class="review" id="reviewCard"><dl><dt>Participant slot</dt><dd id="reviewSlot"></dd><dt>AI task</dt><dd id="reviewTask"></dd><dt>Model</dt><dd id="reviewModel"></dd><dt>Recipients</dt><dd id="reviewRecipients"></dd><dt>Retention</dt><dd id="reviewRetention"></dd><dt>Expires</dt><dd id="reviewExpiry"></dd><dt>Request</dt><dd id="reviewRequest"></dd></dl><div class="choice"><button id="approve">Approve</button><button class="decline" id="decline">Decline</button></div></div><div class="message" id="reviewMessage">Nothing is sent automatically.</div></div></div></section>
   <section class="panel"><div class="step"><span class="number">3</span><div class="content"><h2>Return the encrypted response</h2><p class="hint">The packet is encrypted to this request's organizer. Copy it back through your agreed channel.</p><label>Response packet<textarea id="response" readonly placeholder="Approve or decline a reviewed request first."></textarea></label><button id="copyResponse" disabled>Copy response</button><div class="privacy">The response is authenticated by your enrolled one-time secret and bound to one request commitment. It cannot be reused for another request.</div><div class="message" id="responseMessage"></div></div></div></section>
 </main>
-<script type="module">
-import { createEnrollment, createResponse, decodePacket } from './participant-exchange.bundle.js';
-const $=(id)=>document.querySelector('#'+id); let enrollment, invitation;
-const setMessage=(id,text,error=false)=>{$(id).textContent=text;$(id).classList.toggle('error',error);};
-async function copy(value,messageId){try{await navigator.clipboard.writeText(value);setMessage(messageId,'Copied to clipboard.');}catch{setMessage(messageId,'Copy was blocked. Select the packet and copy it manually.',true);}}
-$('enroll').onclick=()=>{try{enrollment=createEnrollment($('slot').value);localStorage.setItem(`veilconsent:${$('slot').value}:secret`,enrollment.secret);$('enrollment').value=enrollment.packet;$('copyEnrollment').disabled=false;setMessage('enrollMessage','Credential created. Keep this browser storage until you answer the invitation.');}catch(error){setMessage('enrollMessage',error.message,true);}};
-$('copyEnrollment').onclick=()=>copy($('enrollment').value,'enrollMessage');
-$('review').onclick=()=>{try{invitation=decodePacket($('invitation').value,'invitation');const purpose=invitation.purpose;$('reviewSlot').textContent=invitation.slot;$('reviewTask').textContent=purpose.task;$('reviewModel').textContent=purpose.model;$('reviewRecipients').textContent=purpose.recipients;$('reviewRetention').textContent=purpose.retention;$('reviewExpiry').textContent=new Date(Number(invitation.expiry)*1000).toLocaleString();$('reviewRequest').textContent=invitation.request.slice(0,16)+'…'+invitation.request.slice(-8);$('reviewCard').style.display='block';setMessage('reviewMessage','Verify these terms. Your response will be encrypted before it leaves this page.');}catch(error){$('reviewCard').style.display='none';setMessage('reviewMessage',error.message,true);}};
-async function answer(approved){try{if(!invitation)throw new Error('Review an invitation first');const secret=localStorage.getItem(`veilconsent:${invitation.slot}:secret`);if(!secret)throw new Error(`No local credential is available for participant ${invitation.slot}`);$('response').value=await createResponse($('invitation').value,secret,approved);$('copyResponse').disabled=false;setMessage('responseMessage',approved?'Approval encrypted.':'Decline encrypted.');}catch(error){setMessage('responseMessage',error.message,true);}}
-$('approve').onclick=()=>answer(true);$('decline').onclick=()=>answer(false);$('copyResponse').onclick=()=>copy($('response').value,'responseMessage');
-</script></body></html>
+<script type="module" src="./participant.bundle.js"></script></body></html>

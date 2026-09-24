@@ -26,6 +26,12 @@ The deployed contract completed a full request lifecycle on Preprod at block `26
 
 The final request state is consumed. Participant identity, individual decision, threshold, purpose, and document data were not published. See the [Preprod deployment record](docs/PREPROD.md) for the commitments and validation method.
 
+Verify the current public state directly against the Preprod indexer:
+
+```sh
+npm run network:verify -- --network preprod
+```
+
 ## What This Product Does
 
 VeilConsent prevents an AI gateway from processing shared private material until the people represented in that material have authorized one exact use. A request binds an encrypted document to a task, model, recipient class, retention term, consent policy, and expiry.
@@ -82,7 +88,8 @@ Expiry is enforced with Compact's `blockTimeLte` predicate, so Preprod evaluates
 - Midnight proof server 8.1.0
 - Plain browser JavaScript bundled with esbuild
 - Node.js test runner and GitHub Actions
-- AES-256-GCM for local document and response encryption
+- P-256 ECDH, HKDF-SHA-256, and AES-256-GCM for participant response encryption
+- AES-256-GCM for local document encryption
 
 ## Prerequisites
 
@@ -119,7 +126,7 @@ Expiry is enforced with Compact's `blockTimeLte` predicate, so Preprod evaluates
    npm run network:prove -- --network preprod
    ```
 
-Wallet recovery material, the generated private-state password, and private-state databases are owner-only and excluded from version control.
+Wallet recovery material, randomly generated consent witnesses, the private-state password, and private-state databases are owner-only and excluded from version control.
 
 ## Run Tests
 
@@ -127,11 +134,11 @@ Wallet recovery material, the generated private-state password, and private-stat
 npm run check
 ```
 
-The suite covers threshold and unanimous policies, expiry, revocation, replay prevention, commitment binding, encrypted participant exchange, encrypted response storage, and the one-use AI gateway. The command-line lifecycle is available through `npm run demo`.
+The suite covers threshold and unanimous policies, expiry, revocation, replay prevention, commitment binding, encrypted participant exchange, secure deployment-state persistence, and the one-use processing gateway. The command-line lifecycle is available through `npm run demo`.
 
 ## CI/CD
 
-`.github/workflows/ci.yml` installs dependencies, compiles the Compact contract, runs the checks, and builds the browser interface on every push to `main` and every pull request. `.github/workflows/pages.yml` publishes the built demo to GitHub Pages.
+`.github/workflows/ci.yml` installs locked dependencies, compiles the Compact contract, runs the tests and dependency audit, and builds the browser interface on every push to `main` and every pull request. `.github/workflows/pages.yml` publishes the built demo to GitHub Pages. `.github/workflows/preprod.yml` queries and decodes the deployed contract every day and on demand.
 
 Build the captioned 20-second reviewer video from the real interface with:
 
@@ -148,6 +155,10 @@ See [docs/USAGE.md](docs/USAGE.md).
 ## Product X Profile
 
 [Follow VeilConsent on X](https://x.com/VeilConsent). Product copy and publishing notes are maintained in [PRODUCT-PROFILE.md](PRODUCT-PROFILE.md).
+
+## Tester Feedback
+
+After trying the MVP, use the [structured feedback form](https://github.com/daveaire/veil-consent/issues/new?template=feedback.yml). Do not include private documents, consent packets, wallet recovery material, or other sensitive data. Feedback decisions and implemented improvements are tracked in [feedback/README.md](feedback/README.md).
 
 ## Security Boundary
 

@@ -16,10 +16,10 @@ import {
 } from './wallet';
 import {
   compiledContract,
-  INITIAL_PRIVATE_STATE,
   PRIVATE_STATE_ID,
   zkConfigPath,
 } from './contract';
+import { createAndSaveConsentPrivateState } from './consent-private-state';
 import { WebSocket } from 'ws';
 import * as Rx from 'rxjs';
 
@@ -47,6 +47,7 @@ function progressComplete(progress: unknown): boolean {
 // 'undeployed' (local devnet). Switch networks with: npm run network <name>
 
 const { network, config: networkConfig } = resolveNetwork();
+const PRIVATE_STATE = createAndSaveConsentPrivateState(network);
 const configuredDustTimeout = Number(process.env.MIDNIGHT_DUST_TIMEOUT_MS);
 const DUST_WAIT_TIMEOUT_MS = Number.isFinite(configuredDustTimeout) && configuredDustTimeout > 0
   ? configuredDustTimeout
@@ -318,7 +319,7 @@ async function main() {
         compiledContract: compiledContract as any,
         args: [],
         privateStateId: PRIVATE_STATE_ID,
-        initialPrivateState: INITIAL_PRIVATE_STATE,
+        initialPrivateState: PRIVATE_STATE,
       });
       break;
     } catch (err: any) {

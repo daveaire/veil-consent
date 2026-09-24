@@ -5,7 +5,8 @@ import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-p
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
 import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config-provider';
 
-import { compiledContract, INITIAL_PRIVATE_STATE, PRIVATE_STATE_ID, VeilConsent, zkConfigPath, type ConsentPrivateState } from './contract';
+import { compiledContract, PRIVATE_STATE_ID, VeilConsent, zkConfigPath, type ConsentPrivateState } from './contract';
+import { loadConsentPrivateState } from './consent-private-state';
 import { getDeployment, getOrCreateWallet, resolveNetwork } from './network';
 import { createWallet, persistWalletState, waitForCoreWalletState, type WalletContext } from './wallet';
 import { submitTransactionOnce } from './submit';
@@ -46,6 +47,7 @@ async function createProviders(walletCtx: WalletContext) {
 
 const { network, config: networkConfig } = resolveNetwork();
 const walletRecord = getOrCreateWallet(network);
+const PRIVATE_STATE = loadConsentPrivateState(network);
 
 async function main(): Promise<void> {
   const deployment = getDeployment(network);
@@ -59,9 +61,9 @@ async function main(): Promise<void> {
       compiledContract,
       contractAddress: deployment.address,
       privateStateId: PRIVATE_STATE_ID,
-      initialPrivateState: INITIAL_PRIVATE_STATE,
+      initialPrivateState: PRIVATE_STATE,
     });
-    await providers.privateStateProvider.set(PRIVATE_STATE_ID, INITIAL_PRIVATE_STATE);
+    await providers.privateStateProvider.set(PRIVATE_STATE_ID, PRIVATE_STATE);
     const now = BigInt(Math.floor(Date.now() / 1000));
     const expiry = now + 3600n;
 

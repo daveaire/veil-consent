@@ -1,0 +1,58 @@
+name: Product feedback
+description: Share structured feedback after trying the VeilConsent Preprod MVP.
+title: "Feedback: "
+labels: [feedback]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for testing VeilConsent. Do not include private documents, consent packets, wallet recovery material, personal email addresses, or other sensitive data.
+  - type: dropdown
+    id: role
+    attributes:
+      label: Which role did you test?
+      options:
+        - Organizer — local walkthrough
+        - Organizer — independent participant workflow
+        - Participant
+        - Technical reviewer
+    validations:
+      required: true
+  - type: dropdown
+    id: completion
+    attributes:
+      label: How far did you get?
+      options:
+        - Completed the full workflow
+        - Created or joined a request
+        - Connected a wallet
+        - Could not begin
+    validations:
+      required: true
+  - type: textarea
+    id: clear
+    attributes:
+      label: What was clear or useful?
+      placeholder: Describe the part that worked well.
+    validations:
+      required: true
+  - type: textarea
+    id: friction
+    attributes:
+      label: Where did you encounter friction?
+      placeholder: Describe what happened, what you expected, and the browser you used. Do not paste private packets.
+    validations:
+      required: true
+  - type: textarea
+    id: improvement
+    attributes:
+      label: What single improvement matters most?
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I confirmed that this report contains no private document, consent packet, recovery phrase, or secret key.
+          required: true

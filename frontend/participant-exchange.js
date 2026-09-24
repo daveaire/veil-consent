@@ -67,11 +67,19 @@ export function createInvitation({ slot, credential, request, purpose, expiry, o
 
 async function responseKey(privateKey, publicKey, request) {
   const shared = new Uint8Array(await crypto.subtle.deriveBits({ name: 'ECDH', public: publicKey }, privateKey, 256));
-  const requestBytes = encoder.encode(request);
-  const material = new Uint8Array(shared.length + requestBytes.length);
-  material.set(shared); material.set(requestBytes, shared.length);
-  const digest = await crypto.subtle.digest('SHA-256', material);
-  return crypto.subtle.importKey('raw', digest, 'AES-GCM', false, ['encrypt', 'decrypt']);
+  const keyMaterial = await crypto.subtle.importKey('raw', shared, 'HKDF', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {
+      name: 'HKDF',
+      hash: 'SHA-256',
+      salt: hexToBytes(request),
+      info: encoder.encode('veilconsent:participant-response:v1'),
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt'],
+  );
 }
 
 export async function createResponse(invitationValue, secretHex, approved) {
