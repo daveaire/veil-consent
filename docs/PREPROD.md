@@ -4,7 +4,7 @@ VeilConsent was deployed to Midnight Preprod on 23 September 2026.
 
 | Field | Value |
 | --- | --- |
-| Contract | `34ee0e9eca8646508c89f6f829bdb7d4ac653d8b1f7acca53874e50b0c774840` |
+| Contract | [`34ee0e9eca8646508c89f6f829bdb7d4ac653d8b1f7acca53874e50b0c774840`](https://preprod.midnightexplorer.com/contracts/0x34ee0e9eca8646508c89f6f829bdb7d4ac653d8b1f7acca53874e50b0c774840) |
 | Lifecycle block | `2680940` |
 | Final request status | `4` — consumed |
 | Request commitment | `b8b822438023d8441703f3fdb554405f6d3d32c8f0a047bbb7fd0d4b0a8587fa` |

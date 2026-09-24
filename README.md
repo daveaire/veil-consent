@@ -16,7 +16,7 @@
 
 | Network | Address |
 | --- | --- |
-| Preprod | `34ee0e9eca8646508c89f6f829bdb7d4ac653d8b1f7acca53874e50b0c774840` |
+| Preprod | [`34ee0e9eca8646508c89f6f829bdb7d4ac653d8b1f7acca53874e50b0c774840`](https://preprod.midnightexplorer.com/contracts/0x34ee0e9eca8646508c89f6f829bdb7d4ac653d8b1f7acca53874e50b0c774840) |
 
 The deployed contract completed a full request lifecycle on Preprod at block `2680940`:
 
