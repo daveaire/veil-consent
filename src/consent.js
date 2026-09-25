@@ -1,5 +1,6 @@
 import { hashText, randomSecret } from './crypto.js';
 import { pureCircuits } from '../managed/contract/index.js';
+import { canonicalPurpose, createPurposePolicy } from './purpose-policy.js';
 
 export const STATUS = Object.freeze({ EMPTY: 0, AWAITING: 1, ISSUED: 2, REVOKED: 3, CONSUMED: 4 });
 
@@ -13,6 +14,7 @@ function asDecision(value) {
 export function createConsentInput({
   document,
   purpose,
+  model = 'veil-demo-v1',
   recipients = 'the configured AI processor',
   retention = '24 hours',
   threshold = 3,
@@ -27,10 +29,18 @@ export function createConsentInput({
     throw new TypeError('exactly three participant decisions are required by the MVP circuit');
   }
   const expiresAt = BigInt(expiry ?? Math.floor(Date.now() / 1000) + 3600);
-  const purposeStatement = `${purpose}|recipients:${recipients}|retention:${retention}`;
+  const purposeStatement = canonicalPurpose(createPurposePolicy({
+    task: purpose,
+    model,
+    recipients,
+    retention,
+  }));
   const approvalSecretA = secrets.approvalSecretA ?? randomSecret();
   const approvalSecretB = secrets.approvalSecretB ?? randomSecret();
   const approvalSecretC = secrets.approvalSecretC ?? randomSecret();
+  const revocationSecretA = secrets.revocationSecretA ?? randomSecret();
+  const revocationSecretB = secrets.revocationSecretB ?? randomSecret();
+  const revocationSecretC = secrets.revocationSecretC ?? randomSecret();
   return {
     contentHash: hashText(document),
     purposeHash: hashText(purposeStatement),
@@ -41,6 +51,9 @@ export function createConsentInput({
     credentialA: secrets.credentialA ?? pureCircuits.participantCredential(approvalSecretA),
     credentialB: secrets.credentialB ?? pureCircuits.participantCredential(approvalSecretB),
     credentialC: secrets.credentialC ?? pureCircuits.participantCredential(approvalSecretC),
+    revocationHandleA: secrets.revocationHandleA ?? pureCircuits.participantRevocationHandle(revocationSecretA),
+    revocationHandleB: secrets.revocationHandleB ?? pureCircuits.participantRevocationHandle(revocationSecretB),
+    revocationHandleC: secrets.revocationHandleC ?? pureCircuits.participantRevocationHandle(revocationSecretC),
     approvalSecretA,
     approvalSecretB,
     approvalSecretC,
@@ -48,6 +61,7 @@ export function createConsentInput({
     decisionB: asDecision(decisions[1]),
     decisionC: asDecision(decisions[2]),
     capabilitySecret: secrets.capabilitySecret ?? randomSecret(),
+    participantRevocationSecret: secrets.participantRevocationSecret ?? revocationSecretA,
     expiry: expiresAt,
     purposeStatement,
   };

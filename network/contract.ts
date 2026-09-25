@@ -24,6 +24,10 @@ export interface ConsentPrivateState {
   decisionB: bigint;
   decisionC: bigint;
   capabilitySecret: Uint8Array;
+  revocationHandleA: Uint8Array;
+  revocationHandleB: Uint8Array;
+  revocationHandleC: Uint8Array;
+  participantRevocationSecret: Uint8Array;
 }
 
 export const PRIVATE_STATE_ID = 'veilConsentPrivateState';
@@ -32,6 +36,9 @@ export function createConsentPrivateState(): ConsentPrivateState {
   const approvalSecretA = new Uint8Array(randomBytes(32));
   const approvalSecretB = new Uint8Array(randomBytes(32));
   const approvalSecretC = new Uint8Array(randomBytes(32));
+  const revocationSecretA = new Uint8Array(randomBytes(32));
+  const revocationSecretB = new Uint8Array(randomBytes(32));
+  const revocationSecretC = new Uint8Array(randomBytes(32));
   return {
     contentHash: hash('VeilConsent encrypted Preprod sample'),
     purposeHash: hash('summarize|model:veil-demo-v1|recipients:project-members|retention:24-hours'),
@@ -42,6 +49,9 @@ export function createConsentPrivateState(): ConsentPrivateState {
     credentialA: VeilConsent.pureCircuits.participantCredential(approvalSecretA),
     credentialB: VeilConsent.pureCircuits.participantCredential(approvalSecretB),
     credentialC: VeilConsent.pureCircuits.participantCredential(approvalSecretC),
+    revocationHandleA: VeilConsent.pureCircuits.participantRevocationHandle(revocationSecretA),
+    revocationHandleB: VeilConsent.pureCircuits.participantRevocationHandle(revocationSecretB),
+    revocationHandleC: VeilConsent.pureCircuits.participantRevocationHandle(revocationSecretC),
     approvalSecretA,
     approvalSecretB,
     approvalSecretC,
@@ -49,6 +59,7 @@ export function createConsentPrivateState(): ConsentPrivateState {
     decisionB: 1n,
     decisionC: 0n,
     capabilitySecret: new Uint8Array(randomBytes(32)),
+    participantRevocationSecret: revocationSecretA,
   };
 }
 
@@ -69,6 +80,7 @@ export const consentWitnesses: VeilConsent.Witnesses<ConsentPrivateState> = {
   privateDecisionB: ({ privateState }) => [privateState, privateState.decisionB],
   privateDecisionC: ({ privateState }) => [privateState, privateState.decisionC],
   privateCapabilitySecret: ({ privateState }) => [privateState, privateState.capabilitySecret],
+  privateParticipantRevocationSecret: ({ privateState }) => [privateState, privateState.participantRevocationSecret],
 };
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));

@@ -29,6 +29,7 @@ const witnesses = {
   privateDecisionB: ({ privateState }) => [privateState, privateState.decisionB],
   privateDecisionC: ({ privateState }) => [privateState, privateState.decisionC],
   privateCapabilitySecret: ({ privateState }) => [privateState, privateState.capabilitySecret],
+  privateParticipantRevocationSecret: ({ privateState }) => [privateState, privateState.participantRevocationSecret],
 };
 
 const initialPrivateState = {
@@ -48,6 +49,7 @@ const initialPrivateState = {
   decisionB: 0n,
   decisionC: 0n,
   capabilitySecret: empty,
+  participantRevocationSecret: empty,
 };
 
 export class ConsentSession {
@@ -74,7 +76,10 @@ export class ConsentSession {
   }
 
   createRequest(input) {
-    return this.apply(this.contract.impureCircuits.createRequest(this.context(input), input.expiry));
+    return this.apply(this.contract.impureCircuits.createRequest(
+      this.context(input), input.expiry, input.credentialA, input.credentialB, input.credentialC,
+      input.revocationHandleA, input.revocationHandleB, input.revocationHandleC,
+    ));
   }
 
   issueCapability(input, observedAt) {
@@ -87,6 +92,12 @@ export class ConsentSession {
 
   revoke(input) {
     return this.apply(this.contract.impureCircuits.revokeRequest(this.context(input)));
+  }
+
+  withdrawConsent(input, participantRevocationSecret) {
+    return this.apply(this.contract.impureCircuits.withdrawConsent(
+      this.context({ ...input, participantRevocationSecret }),
+    ));
   }
 
   publicState(result) {
@@ -103,7 +114,7 @@ export class ConsentSession {
         consumed: Number(state.capabilitiesConsumed),
         revoked: Number(state.revocations),
       },
-      disclosed: ['request commitment', 'expiry', 'status', 'lifecycle counters'],
+      disclosed: ['request commitment', 'expiry', 'status', 'lifecycle counters', 'one-time pseudonymous credential commitments', 'pseudonymous revocation handles'],
       hidden: ['document', 'purpose', 'recipients', 'retention', 'participant identities', 'individual decisions', 'policy threshold'],
     };
   }

@@ -17,7 +17,7 @@ globalThis.WebSocket = WebSocket;
 
 async function createProviders(walletCtx: WalletContext) {
   const privateStatePassword = getPrivateStatePassword();
-  const zkConfigProvider = new NodeZkConfigProvider<'createRequest' | 'issueCapability' | 'consumeCapability' | 'revokeRequest'>(zkConfigPath);
+  const zkConfigProvider = new NodeZkConfigProvider<'createRequest' | 'issueCapability' | 'consumeCapability' | 'revokeRequest' | 'withdrawConsent'>(zkConfigPath);
   const walletProvider = {
     getCoinPublicKey: () => walletCtx.shieldedSecretKeys.coinPublicKey,
     getEncryptionPublicKey: () => walletCtx.shieldedSecretKeys.encryptionPublicKey,
@@ -69,7 +69,10 @@ async function main(): Promise<void> {
 
     console.log(`VeilConsent · ${network}`);
     console.log(`Contract: ${deployment.address}`);
-    const created = await deployed.callTx.createRequest(expiry);
+    const created = await deployed.callTx.createRequest(
+      expiry, PRIVATE_STATE.credentialA, PRIVATE_STATE.credentialB, PRIVATE_STATE.credentialC,
+      PRIVATE_STATE.revocationHandleA, PRIVATE_STATE.revocationHandleB, PRIVATE_STATE.revocationHandleC,
+    );
     const issued = await deployed.callTx.issueCapability();
     const consumed = await deployed.callTx.consumeCapability();
     const state = await providers.publicDataProvider.queryContractState(deployment.address);

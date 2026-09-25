@@ -288,18 +288,20 @@ async function main() {
   console.log('  Setting up providers...');
   const providers = await createProviders(walletCtx);
 
-  // The wallet's reported DUST balance is a *time-projection* of what its
-  // registered NIGHT will eventually generate; the tx-builder spends only
-  // what the next block's timestamp accounts for, which lags wall-clock by
-  // ~1 block on a fresh devnet. Sleeping ~1 block-time before attempt 1
-  // closes that gap in the common case; the retry loop covers outliers.
+  // The wallet's reported DUST balance is a time projection. Public-network
+  // indexers can trail the timestamp accepted by the next block, so wait for
+  // that validity window before constructing the first transaction.
   process.stdout.write('  Generating DUST...');
-  await new Promise((r) => setTimeout(r, 6000));
+  const configuredPreDeployDelay = Number(process.env.MIDNIGHT_PREDEPLOY_DUST_DELAY_MS);
+  const preDeployDelayMs = Number.isFinite(configuredPreDeployDelay) && configuredPreDeployDelay >= 0
+    ? configuredPreDeployDelay
+    : network === 'undeployed' ? 6000 : 60000;
+  await new Promise((r) => setTimeout(r, preDeployDelayMs));
   process.stdout.write(' done.\n');
 
   console.log('  Deploying contract...\n');
 
-  // Fallback timing. The 6s pre-pause above handles the common case; this
+  // Fallback timing. The pre-pause above handles the common case; this
   // loop covers genuine outliers (slow blocks, proof-server worker-pool
   // settling). Earlier 2s retries caused CI flakes where attempt 2's /prove
   // hit the proof-server before it had drained attempt 1's state — 5s gives
@@ -334,7 +336,16 @@ async function main() {
       const isDustShortage =
         fullError.includes('Not enough Dust') ||
         fullError.includes('Insufficient Funds') ||
-        fullError.includes('could not balance dust');
+        fullError.includes('could not balance dust') ||
+        // Midnight ledger error 170 is InvalidDustSpendProof. A restored
+        // wallet can briefly balance against a stale DUST validity window.
+        fullError.includes('Custom error: 170');
+
+      if (fullError.includes('Custom error: 170')) {
+        console.log('  DUST validity window was stale. Restart the command after the next indexed block.');
+        await walletCtx.wallet.stop();
+        process.exit(75);
+      }
 
       // Quiet the first DUST-shortage retry: it's the expected race between
       // wall-clock projection and block-timestamp accounting and the loud

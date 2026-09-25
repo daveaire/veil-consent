@@ -2,11 +2,14 @@ import { pureCircuits } from './proof-client.js';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
-// Version 2 prevents a declined response from releasing the witness that can
-// satisfy the Compact circuit's approval check. Version 1 packets must not be
-// accepted because they included the credential preimage for both decisions.
-const VERSION = 2;
+// Version 3 adds signed invitations and participant-held revocation handles.
+// Earlier packets must not be accepted: v1 exposed approval material on a
+// decline, while v2 had no authenticated organizer or withdrawal credential.
+const VERSION = 3;
 const PREFIX = 'veilconsent:';
+
+const signingKeyFields = ({ kty, crv, x, y }) => ({ kty, crv, x, y });
+const packetBytes = (packet) => encoder.encode(JSON.stringify(packet));
 
 export const bytesToHex = (bytes) => [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 export const hexToBytes = (value) => {
@@ -43,11 +46,16 @@ export function decodePacket(value, expectedType) {
 export function createEnrollment(slot) {
   if (!['A', 'B', 'C'].includes(slot)) throw new Error('Participant slot must be A, B, or C');
   const secret = crypto.getRandomValues(new Uint8Array(32));
+  const revocationSecret = crypto.getRandomValues(new Uint8Array(32));
   const credential = pureCircuits.participantCredential(secret);
+  const revocationHandle = pureCircuits.participantRevocationHandle(revocationSecret);
   return {
     secret: bytesToHex(secret),
+    revocationSecret: bytesToHex(revocationSecret),
     credential: bytesToHex(credential),
-    packet: encodePacket({ version: VERSION, type: 'enrollment', slot, credential: bytesToHex(credential) }),
+    revocationHandle: bytesToHex(revocationHandle),
+    packet: encodePacket({ version: VERSION, type: 'enrollment', slot,
+      credential: bytesToHex(credential), revocationHandle: bytesToHex(revocationHandle) }),
   };
 }
 
@@ -55,17 +63,55 @@ export function readEnrollment(value) {
   const packet = decodePacket(value, 'enrollment');
   if (!['A', 'B', 'C'].includes(packet.slot)) throw new Error('Enrollment has an invalid participant slot');
   hexToBytes(packet.credential);
+  hexToBytes(packet.revocationHandle);
   return packet;
 }
 
 export async function createOrganizerEncryptionKey() {
-  const keyPair = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
-  const exported = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
-  return { keyPair, publicKey: exported };
+  const [keyPair, signingKeyPair] = await Promise.all([
+    crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']),
+    crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign', 'verify']),
+  ]);
+  const [publicKey, signingPublicKey] = await Promise.all([
+    crypto.subtle.exportKey('jwk', keyPair.publicKey),
+    crypto.subtle.exportKey('jwk', signingKeyPair.publicKey),
+  ]);
+  const signingFingerprint = bytesToHex(new Uint8Array(await crypto.subtle.digest(
+    'SHA-256', packetBytes(signingKeyFields(signingPublicKey)),
+  )));
+  return { keyPair, publicKey, signingKeyPair, signingPublicKey, signingFingerprint };
 }
 
-export function createInvitation({ slot, credential, request, purpose, expiry, organizerPublicKey }) {
-  return encodePacket({ version: VERSION, type: 'invitation', slot, credential, request, purpose, expiry, organizerPublicKey });
+export async function createInvitation({ slot, credential, request, purpose, expiry, organizerPublicKey,
+  organizerSigningPublicKey, organizerSigningPrivateKey }) {
+  if (!organizerSigningPublicKey || !organizerSigningPrivateKey) throw new Error('Organizer signing keys are required');
+  const unsigned = { version: VERSION, type: 'invitation', slot, credential, request, purpose, expiry,
+    organizerPublicKey, organizerSigningPublicKey: signingKeyFields(organizerSigningPublicKey) };
+  const signature = await crypto.subtle.sign(
+    { name: 'ECDSA', hash: 'SHA-256' }, organizerSigningPrivateKey, packetBytes(unsigned),
+  );
+  return encodePacket({ ...unsigned, organizerSignature: base64url(new Uint8Array(signature)) });
+}
+
+export async function verifyInvitation(value, expectedFingerprint = '') {
+  const packet = decodePacket(value, 'invitation');
+  const { organizerSignature, ...unsigned } = packet;
+  if (typeof organizerSignature !== 'string' || !packet.organizerSigningPublicKey) {
+    throw new Error('Invitation is not signed by an organizer');
+  }
+  const publicKey = await crypto.subtle.importKey(
+    'jwk', packet.organizerSigningPublicKey, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify'],
+  );
+  const valid = await crypto.subtle.verify(
+    { name: 'ECDSA', hash: 'SHA-256' }, publicKey, unbase64url(organizerSignature), packetBytes(unsigned),
+  );
+  if (!valid) throw new Error('Organizer invitation signature is invalid');
+  const fingerprint = bytesToHex(new Uint8Array(await crypto.subtle.digest(
+    'SHA-256', packetBytes(signingKeyFields(packet.organizerSigningPublicKey)),
+  )));
+  const expected = expectedFingerprint.replaceAll(/[^0-9a-f]/giu, '').toLowerCase();
+  if (expected && expected !== fingerprint) throw new Error('Organizer fingerprint does not match the trusted value');
+  return { ...packet, organizerFingerprint: fingerprint };
 }
 
 async function responseKey(privateKey, publicKey, request) {
@@ -85,8 +131,8 @@ async function responseKey(privateKey, publicKey, request) {
   );
 }
 
-export async function createResponse(invitationValue, secretHex, approved) {
-  const invitation = decodePacket(invitationValue, 'invitation');
+export async function createResponse(invitationValue, secretHex, approved, expectedOrganizerFingerprint = '') {
+  const invitation = await verifyInvitation(invitationValue, expectedOrganizerFingerprint);
   const secret = hexToBytes(secretHex);
   const credential = bytesToHex(pureCircuits.participantCredential(secret));
   if (credential !== invitation.credential) throw new Error('This participant credential does not match the invitation');

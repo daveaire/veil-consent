@@ -16,13 +16,13 @@
 
 | Network | Address |
 | --- | --- |
-| Preprod | [`34ee0e9eca8646508c89f6f829bdb7d4ac653d8b1f7acca53874e50b0c774840`](https://preprod.midnightexplorer.com/contracts/0x34ee0e9eca8646508c89f6f829bdb7d4ac653d8b1f7acca53874e50b0c774840) |
+| Preprod | [`6f995e8986feb2b107a7e65e650413ef150fe63bf88285a88c3da4c505d5ddcd`](https://preprod.midnightexplorer.com/contracts/0x6f995e8986feb2b107a7e65e650413ef150fe63bf88285a88c3da4c505d5ddcd) |
 
-The deployed contract completed a full request lifecycle on Preprod at block `2680940`:
+The deployed contract completed a full request lifecycle on Preprod at block `2702471`:
 
-- Create: `00439acbb13bf353b72abb81b6799bbf5fa9bb67d8f3f9177c9215cb88d056edb4`
-- Issue: `0033c4886154753095b97c79a839ee2f09b006b8f4da84fff010182e637f544cad`
-- Consume: `00d2939336889430c7d84375246985788c83bc6dae2a5bf9a023b4967b86b4b7bf`
+- Create: `0098474fb0848b2f588dd8948046e19dcc9a60df049ac695c1248f99209340392f`
+- Issue: `004ba33bc440313d1964cc88690667ce9644f085c6918b5e81f5d905f58cf5f410`
+- Consume: `00676d839696328a906c1375c1e22e0502eb65f15850232d04950645b9d3f3779f`
 
 The final request state is consumed. Participant identity, individual decision, threshold, purpose, and document data were not published. See the [Preprod deployment record](docs/PREPROD.md) for the commitments and validation method.
 
@@ -34,15 +34,15 @@ npm run network:verify -- --network preprod
 
 ## What This Product Does
 
-VeilConsent prevents an AI gateway from processing shared private material until the people represented in that material have authorized one exact use. A request binds an encrypted document to a task, model, recipient class, retention term, consent policy, and expiry.
+VeilConsent prevents its AI gateway from processing shared private material until enough enrolled pseudonymous credentials provide valid approval witnesses for one exact use. A request binds an encrypted document to a canonical task, model, recipient class, retention term, consent policy, and expiry. Real-world identity assurance is supplied by an external wallet or credential issuer.
 
-Participants create one-time credentials in a separate portal and return ECDH-encrypted, request-bound response packets. A Compact circuit proves that the private consent rule passed and issues a single-use capability. The gateway consumes that capability before decrypting the document; the public lifecycle then blocks replay.
+Participants create separate approval and withdrawal credentials in a separate portal and return ECDH-encrypted, request-bound response packets. Organizer invitations are signed and verified against an out-of-band fingerprint. A Compact circuit proves that the private consent rule passed and issues a single-use capability. Participants can revoke with their independent withdrawal secret. The gateway validates the committed execution policy and consumes the capability before decrypting the document; the public lifecycle then blocks replay.
 
 Midnight is used because the authorization decision must be verifiable without publishing participant identities, individual decisions, or the threshold. A conventional public contract would reveal the very consent record VeilConsent is designed to protect.
 
 **Vision:** make consent a machine-verifiable prerequisite for sensitive AI workflows, while keeping the consent record private by default.
 
-**Key features:** private threshold and unanimous policies, independent participant enrollment, encrypted response handoff, one-time participant credentials, local document encryption, purpose-bound capabilities, expiry, organizer revocation, replay prevention, compatible Midnight wallet selection, and a small consent-gated AI adapter.
+**Key features:** private threshold and unanimous policies, independent participant enrollment, signed organizer invitations, decline-safe responses, participant withdrawal credentials, encrypted response handoff, local document encryption, executable purpose policies, expiry, replay prevention, compatible Midnight wallet selection, and a small consent-gated AI adapter.
 
 ```mermaid
 flowchart LR
@@ -65,11 +65,13 @@ flowchart LR
 - Expiry and lifecycle status
 - Aggregate request, issue, consumption, and revocation counters
 - A response nullifier that prevents reuse
+- One-time pseudonymous participant credential commitments
+- Random pseudonymous participant revocation handles
 
 **Private witness or local data**
 
 - Document, encryption key, and exact processing purpose
-- Participant identities, credentials, and individual decisions
+- Participant legal identities, credential preimages, and individual decisions
 - Consent threshold, organizer secret, and capability secret
 
 **Proved without revealing**
@@ -166,7 +168,7 @@ After trying the MVP, use the [structured feedback form](https://github.com/dave
 
 VeilConsent verifies whether an AI workflow is authorized to access committed data for a committed purpose at the time of each request. Revocation and expiry block future authorized access through the VeilConsent gateway. They cannot make previously disclosed information unread, erase copies retained by an agent or model provider, or control data after plaintext has left the gateway.
 
-VeilConsent also cannot prove that an AI response is correct. See [ARCHITECTURE.md](ARCHITECTURE.md) for the protocol and threat model, [SECURITY.md](SECURITY.md) for the MVP trust assumptions, and [DEMO.md](DEMO.md) for the reviewer walkthrough.
+VeilConsent also cannot prove that an AI response is correct. See [ARCHITECTURE.md](ARCHITECTURE.md) for the protocol and threat model, [SECURITY.md](SECURITY.md) for the MVP trust assumptions, [docs/SECURITY-REVIEW.md](docs/SECURITY-REVIEW.md) for the finding register, and [DEMO.md](DEMO.md) for the reviewer walkthrough.
 
 ## License
 

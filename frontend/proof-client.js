@@ -14,8 +14,9 @@ async function digest(value) {
   return new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(value)));
 }
 
-export async function browserConsentInput({ document, purpose, threshold, decisions, expiry, credentials = [] }) {
+export async function browserConsentInput({ document, purpose, threshold, decisions, expiry, credentials = [], revocationHandles = [] }) {
   const approvalSecretA = random32(), approvalSecretB = random32(), approvalSecretC = random32();
+  const revocationSecrets = [random32(), random32(), random32()];
   return {
     contentHash: await digest(document),
     purposeHash: await digest(purpose),
@@ -26,11 +27,15 @@ export async function browserConsentInput({ document, purpose, threshold, decisi
     credentialA: credentials[0] ?? pureCircuits.participantCredential(approvalSecretA),
     credentialB: credentials[1] ?? pureCircuits.participantCredential(approvalSecretB),
     credentialC: credentials[2] ?? pureCircuits.participantCredential(approvalSecretC),
+    revocationHandleA: revocationHandles[0] ?? pureCircuits.participantRevocationHandle(revocationSecrets[0]),
+    revocationHandleB: revocationHandles[1] ?? pureCircuits.participantRevocationHandle(revocationSecrets[1]),
+    revocationHandleC: revocationHandles[2] ?? pureCircuits.participantRevocationHandle(revocationSecrets[2]),
     approvalSecretA, approvalSecretB, approvalSecretC,
     decisionA: decisions[0] ? 1n : 0n,
     decisionB: decisions[1] ? 1n : 0n,
     decisionC: decisions[2] ? 1n : 0n,
     capabilitySecret: random32(),
+    participantRevocationSecret: revocationSecrets[0],
     expiry: BigInt(expiry),
   };
 }
@@ -54,6 +59,7 @@ const witnesses = {
   privateDecisionB: ({ privateState }) => [privateState, privateState.decisionB],
   privateDecisionC: ({ privateState }) => [privateState, privateState.decisionC],
   privateCapabilitySecret: ({ privateState }) => [privateState, privateState.capabilitySecret],
+  privateParticipantRevocationSecret: ({ privateState }) => [privateState, privateState.participantRevocationSecret],
 };
 
 export class BrowserConsentSession {
@@ -67,6 +73,7 @@ export class BrowserConsentSession {
       credentialB: new Uint8Array(32).fill(1), credentialC: new Uint8Array(32).fill(2),
       approvalSecretA: empty, approvalSecretB: empty, approvalSecretC: empty,
       decisionA: 0n, decisionB: 0n, decisionC: 0n, capabilitySecret: empty,
+      participantRevocationSecret: empty,
     };
     const initial = await session.contract.initialState(createConstructorContext(base, '00'.repeat(32)));
     session.contractState = initial.currentContractState;
@@ -77,7 +84,9 @@ export class BrowserConsentSession {
   call(name, input, blockTime) {
     const context = createCircuitContext(this.address, this.zswapState, this.contractState, input, undefined, undefined, blockTime);
     const result = name === 'createRequest'
-      ? this.contract.impureCircuits[name](context, input.expiry)
+      ? this.contract.impureCircuits[name](context, input.expiry,
+        input.credentialA, input.credentialB, input.credentialC,
+        input.revocationHandleA, input.revocationHandleB, input.revocationHandleC)
       : this.contract.impureCircuits[name](context);
     this.contractState = result.context.currentQueryContext.state;
     this.zswapState = result.context.currentZswapLocalState;
@@ -97,4 +106,7 @@ export class BrowserConsentSession {
   issueCapability(input, observedAt) { return this.call('issueCapability', input, observedAt); }
   consumeCapability(input, observedAt) { return this.call('consumeCapability', input, observedAt); }
   revoke(input) { return this.call('revokeRequest', input); }
+  withdrawConsent(input, participantRevocationSecret) {
+    return this.call('withdrawConsent', { ...input, participantRevocationSecret });
+  }
 }

@@ -12,6 +12,13 @@ export ledger requestStatus: Uint<8>;
 export ledger activeCapability: Bytes<32>;
 export ledger lastResponseNullifier: Bytes<32>;
 export ledger usedResponseNullifiers: Set<Bytes<32>>;
+export ledger usedCredentials: Set<Bytes<32>>;
+export ledger activeCredentialA: Bytes<32>;
+export ledger activeCredentialB: Bytes<32>;
+export ledger activeCredentialC: Bytes<32>;
+export ledger activeRevocationHandleA: Bytes<32>;
+export ledger activeRevocationHandleB: Bytes<32>;
+export ledger activeRevocationHandleC: Bytes<32>;
 
 constructor() {
   requestStatus = 0;
@@ -34,18 +41,41 @@ witness privateDecisionA(): Uint<64>;
 witness privateDecisionB(): Uint<64>;
 witness privateDecisionC(): Uint<64>;
 witness privateCapabilitySecret(): Bytes<32>;
+witness privateParticipantRevocationSecret(): Bytes<32>;
 
-export circuit createRequest(expiry: Uint<64>): Bytes<32> {
+export circuit createRequest(
+  expiry: Uint<64>, credentialA: Bytes<32>, credentialB: Bytes<32>, credentialC: Bytes<32>,
+  revocationHandleA: Bytes<32>, revocationHandleB: Bytes<32>, revocationHandleC: Bytes<32>
+): Bytes<32> {
   assert(requestStatus == 0 || requestStatus == 3 || requestStatus == 4, "Previous request is still active");
   const threshold = privateThreshold();
+  const publicCredentialA = disclose(credentialA);
+  const publicCredentialB = disclose(credentialB);
+  const publicCredentialC = disclose(credentialC);
   assert(threshold >= 1 && threshold <= 3, "Threshold must be between one and three");
+  assert(publicCredentialA != publicCredentialB && publicCredentialA != publicCredentialC && publicCredentialB != publicCredentialC,
+    "Consent credentials must be unique");
+  assert(!usedCredentials.member(publicCredentialA) && !usedCredentials.member(publicCredentialB) && !usedCredentials.member(publicCredentialC),
+    "Consent credentials are one-time and cannot be enrolled again");
+  assert(revocationHandleA != revocationHandleB && revocationHandleA != revocationHandleC && revocationHandleB != revocationHandleC,
+    "Participant revocation handles must be unique");
   const commitment = requestCommitment(
     privateContentHash(), privatePurposeHash(), privatePolicySalt(), threshold,
     privateOrganizerSecret(), privateRequestNonce(),
-    privateCredentialA(), privateCredentialB(), privateCredentialC(), expiry
+    publicCredentialA, publicCredentialB, publicCredentialC,
+    revocationHandleA, revocationHandleB, revocationHandleC, expiry
   );
   activeRequest = disclose(commitment);
   activeExpiry = disclose(expiry);
+  activeCredentialA = publicCredentialA;
+  activeCredentialB = publicCredentialB;
+  activeCredentialC = publicCredentialC;
+  usedCredentials.insert(publicCredentialA);
+  usedCredentials.insert(publicCredentialB);
+  usedCredentials.insert(publicCredentialC);
+  activeRevocationHandleA = disclose(revocationHandleA);
+  activeRevocationHandleB = disclose(revocationHandleB);
+  activeRevocationHandleC = disclose(revocationHandleC);
   requestStatus = 1;
   requestsCreated.increment(1);
   return disclose(commitment);
@@ -59,6 +89,8 @@ export circuit issueCapability(): Bytes<32> {
   const credentialB = privateCredentialB();
   const credentialC = privateCredentialC();
   assert(credentialA != credentialB && credentialA != credentialC && credentialB != credentialC, "Consent credentials must be unique");
+  assert(disclose(credentialA) == activeCredentialA && disclose(credentialB) == activeCredentialB && disclose(credentialC) == activeCredentialC,
+    "Private credentials do not match the enrolled participants");
   const decisionA = privateDecisionA();
   const decisionB = privateDecisionB();
   const decisionC = privateDecisionC();
@@ -79,7 +111,8 @@ export circuit issueCapability(): Bytes<32> {
   const expectedRequest = requestCommitment(
     privateContentHash(), privatePurposeHash(), privatePolicySalt(), threshold,
     privateOrganizerSecret(), privateRequestNonce(),
-    credentialA, credentialB, credentialC, activeExpiry
+    credentialA, credentialB, credentialC,
+    activeRevocationHandleA, activeRevocationHandleB, activeRevocationHandleC, activeExpiry
   );
   assert(expectedRequest == activeRequest, "Private request data does not match the active commitment");
   const markerA = decisionA == 1
@@ -121,9 +154,20 @@ export circuit revokeRequest(): Bytes<32> {
   const expectedRequest = requestCommitment(
     privateContentHash(), privatePurposeHash(), privatePolicySalt(), privateThreshold(),
     privateOrganizerSecret(), privateRequestNonce(),
-    privateCredentialA(), privateCredentialB(), privateCredentialC(), activeExpiry
+    privateCredentialA(), privateCredentialB(), privateCredentialC(),
+    activeRevocationHandleA, activeRevocationHandleB, activeRevocationHandleC, activeExpiry
   );
   assert(expectedRequest == activeRequest, "Only the committed organizer can revoke");
+  requestStatus = 3;
+  revocations.increment(1);
+  return disclose(activeRequest);
+}
+
+export circuit withdrawConsent(): Bytes<32> {
+  assert(requestStatus == 1 || requestStatus == 2, "Consent cannot be withdrawn for this request");
+  const handle = disclose(participantRevocationHandle(privateParticipantRevocationSecret()));
+  assert(handle == activeRevocationHandleA || handle == activeRevocationHandleB || handle == activeRevocationHandleC,
+    "Caller does not hold an enrolled participant revocation secret");
   requestStatus = 3;
   revocations.increment(1);
   return disclose(activeRequest);
@@ -132,12 +176,14 @@ export circuit revokeRequest(): Bytes<32> {
 export circuit requestCommitment(
   contentHash: Bytes<32>, purposeHash: Bytes<32>, policySalt: Bytes<32>, threshold: Uint<64>,
   organizerSecret: Bytes<32>, requestNonce: Bytes<32>,
-  credentialA: Bytes<32>, credentialB: Bytes<32>, credentialC: Bytes<32>, expiry: Uint<64>
+  credentialA: Bytes<32>, credentialB: Bytes<32>, credentialC: Bytes<32>,
+  revocationHandleA: Bytes<32>, revocationHandleB: Bytes<32>, revocationHandleC: Bytes<32>, expiry: Uint<64>
 ): Bytes<32> {
-  return persistentHash<Vector<11, Bytes<32>>>([
-    pad(32, "veil-consent:request:v1"), contentHash, purposeHash, policySalt,
+  return persistentHash<Vector<14, Bytes<32>>>([
+    pad(32, "veil-consent:request:v2"), contentHash, purposeHash, policySalt,
     threshold as Field as Bytes<32>, organizerSecret, requestNonce,
-    credentialA, credentialB, credentialC, expiry as Field as Bytes<32>
+    credentialA, credentialB, credentialC,
+    revocationHandleA, revocationHandleB, revocationHandleC, expiry as Field as Bytes<32>
   ]);
 }
 
@@ -152,6 +198,12 @@ export circuit responseNullifier(
 export circuit participantCredential(secret: Bytes<32>): Bytes<32> {
   return persistentHash<Vector<2, Bytes<32>>>([
     pad(32, "veil-consent:participant:v1"), secret
+  ]);
+}
+
+export circuit participantRevocationHandle(secret: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([
+    pad(32, "veil-consent:revoke:v1"), secret
   ]);
 }
 

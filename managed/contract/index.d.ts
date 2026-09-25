@@ -17,20 +17,37 @@ export type Witnesses<PS> = {
   privateDecisionB(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, bigint];
   privateDecisionC(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, bigint];
   privateCapabilitySecret(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
+  privateParticipantRevocationSecret(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
 }
 
 export type ImpureCircuits<PS> = {
-  createRequest(context: __compactRuntime.CircuitContext<PS>, expiry_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  createRequest(context: __compactRuntime.CircuitContext<PS>,
+                expiry_0: bigint,
+                credentialA_0: Uint8Array,
+                credentialB_0: Uint8Array,
+                credentialC_0: Uint8Array,
+                revocationHandleA_0: Uint8Array,
+                revocationHandleB_0: Uint8Array,
+                revocationHandleC_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
   issueCapability(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
   consumeCapability(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
   revokeRequest(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  withdrawConsent(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
 }
 
 export type ProvableCircuits<PS> = {
-  createRequest(context: __compactRuntime.CircuitContext<PS>, expiry_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  createRequest(context: __compactRuntime.CircuitContext<PS>,
+                expiry_0: bigint,
+                credentialA_0: Uint8Array,
+                credentialB_0: Uint8Array,
+                credentialC_0: Uint8Array,
+                revocationHandleA_0: Uint8Array,
+                revocationHandleB_0: Uint8Array,
+                revocationHandleC_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
   issueCapability(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
   consumeCapability(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
   revokeRequest(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  withdrawConsent(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
 }
 
 export type PureCircuits = {
@@ -43,12 +60,16 @@ export type PureCircuits = {
                     credentialA_0: Uint8Array,
                     credentialB_0: Uint8Array,
                     credentialC_0: Uint8Array,
+                    revocationHandleA_0: Uint8Array,
+                    revocationHandleB_0: Uint8Array,
+                    revocationHandleC_0: Uint8Array,
                     expiry_0: bigint): Uint8Array;
   responseNullifier(requestNonce_0: Uint8Array,
                     credentialA_0: Uint8Array,
                     credentialB_0: Uint8Array,
                     credentialC_0: Uint8Array): Uint8Array;
   participantCredential(secret_0: Uint8Array): Uint8Array;
+  participantRevocationHandle(secret_0: Uint8Array): Uint8Array;
   approvalNullifier(secret_0: Uint8Array): Uint8Array;
   responseMarker(requestNonce_0: Uint8Array,
                  policySalt_0: Uint8Array,
@@ -60,10 +81,18 @@ export type PureCircuits = {
 }
 
 export type Circuits<PS> = {
-  createRequest(context: __compactRuntime.CircuitContext<PS>, expiry_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  createRequest(context: __compactRuntime.CircuitContext<PS>,
+                expiry_0: bigint,
+                credentialA_0: Uint8Array,
+                credentialB_0: Uint8Array,
+                credentialC_0: Uint8Array,
+                revocationHandleA_0: Uint8Array,
+                revocationHandleB_0: Uint8Array,
+                revocationHandleC_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
   issueCapability(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
   consumeCapability(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
   revokeRequest(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  withdrawConsent(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, Uint8Array>;
   requestCommitment(context: __compactRuntime.CircuitContext<PS>,
                     contentHash_0: Uint8Array,
                     purposeHash_0: Uint8Array,
@@ -74,6 +103,9 @@ export type Circuits<PS> = {
                     credentialA_0: Uint8Array,
                     credentialB_0: Uint8Array,
                     credentialC_0: Uint8Array,
+                    revocationHandleA_0: Uint8Array,
+                    revocationHandleB_0: Uint8Array,
+                    revocationHandleC_0: Uint8Array,
                     expiry_0: bigint): __compactRuntime.CircuitResults<PS, Uint8Array>;
   responseNullifier(context: __compactRuntime.CircuitContext<PS>,
                     requestNonce_0: Uint8Array,
@@ -82,6 +114,8 @@ export type Circuits<PS> = {
                     credentialC_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
   participantCredential(context: __compactRuntime.CircuitContext<PS>,
                         secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
+  participantRevocationHandle(context: __compactRuntime.CircuitContext<PS>,
+                              secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
   approvalNullifier(context: __compactRuntime.CircuitContext<PS>,
                     secret_0: Uint8Array): __compactRuntime.CircuitResults<PS, Uint8Array>;
   responseMarker(context: __compactRuntime.CircuitContext<PS>,
@@ -111,6 +145,18 @@ export type Ledger = {
     member(elem_0: Uint8Array): boolean;
     [Symbol.iterator](): Iterator<Uint8Array>
   };
+  usedCredentials: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(elem_0: Uint8Array): boolean;
+    [Symbol.iterator](): Iterator<Uint8Array>
+  };
+  readonly activeCredentialA: Uint8Array;
+  readonly activeCredentialB: Uint8Array;
+  readonly activeCredentialC: Uint8Array;
+  readonly activeRevocationHandleA: Uint8Array;
+  readonly activeRevocationHandleB: Uint8Array;
+  readonly activeRevocationHandleC: Uint8Array;
 }
 
 export type ContractReferenceLocations = any;

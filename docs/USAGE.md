@@ -24,7 +24,7 @@ Before capability issuance, an organizer can choose **Revoke**. Expired or revok
 
 1. Each participant opens **Participant portal**, chooses their assigned slot, and creates an enrollment. They return the enrollment packet to the organizer and keep the same browser storage for the response step.
 2. The organizer chooses **Independent participants**, imports the three enrollment packets into the matching slots, and creates the request.
-3. The organizer copies each generated invitation to its participant. The participant pastes it into the portal and checks the task, model, recipients, retention term, expiry, and shortened request commitment.
+3. The organizer copies each generated invitation and sends its signing-key fingerprint through a separate trusted channel. The participant pastes both values into the portal, verifies the signature, and checks the task, model, recipients, retention term, expiry, and shortened request commitment.
 4. The participant approves or declines and returns the encrypted response packet.
 5. The organizer imports all three response packets. VeilConsent verifies the request and enrolled credential for each response, then enables **Prove consent**.
 
@@ -32,9 +32,9 @@ Packets are transport-neutral strings. For the MVP, exchange them through an agr
 
 ## What Gets Proved (and What Stays Private)
 
-Midnight verifies that enough eligible participants approved, the request is active, and the capability is bound to the committed document and purpose. The ledger records commitments, expiry, status, counters, and a one-time response nullifier.
+Midnight verifies that enough eligible participants approved, the request is active, and the capability is bound to the committed document and purpose. The ledger records the request and capability commitments, one-time pseudonymous credential commitments, random revocation handles, expiry, status, counters, and response nullifiers.
 
-The document, purpose details, participant identities, credentials, individual decisions, threshold, organizer secret, encryption key, and capability secret stay private.
+The document, purpose details, participant legal identities, credential preimages, individual decisions, threshold, organizer secret, encryption key, and capability secret stay private.
 
 ## Troubleshooting
 

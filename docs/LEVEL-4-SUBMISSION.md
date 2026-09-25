@@ -13,7 +13,7 @@ This document is the reviewed copy-and-paste package for the Rise In Level 4 for
 
 VeilConsent is a private multi-party consent gate for AI processing. It prevents an organizer or processing gateway from using a shared document until the required participants have authorized one exact task, model, recipient class, retention term, and expiry.
 
-Participants create one-time credentials in a separate browser portal and return request-bound encrypted responses. A Compact contract evaluates the private threshold or unanimous policy and issues a single-use processing capability. The public ledger records commitments and lifecycle state while participant identities, individual decisions, policy threshold, exact purpose, and document contents remain private. Revocation, expiry, credential reuse, and capability replay are rejected.
+Participants create separate one-time approval and withdrawal credentials in a browser portal and return request-bound encrypted responses. Signed organizer invitations are checked against a fingerprint received through a trusted channel. A Compact contract evaluates the private threshold or unanimous policy and issues a single-use processing capability. The public ledger records pseudonymous commitments and lifecycle state while legal identity, credential preimages, individual decisions, policy threshold, exact purpose, and document contents remain private. Participant withdrawal, organizer revocation, expiry, credential reuse, purpose substitution, and capability replay are rejected.
 
 The hosted walkthrough runs the generated Compact circuits locally so reviewers can exercise the complete state machine without test tokens. The same compiled contract is deployed on Preprod and has a finalized create → issue → consume lifecycle that can be independently queried from the Preprod indexer.
 
@@ -27,7 +27,7 @@ A conventional public contract would expose the consent record it is meant to pr
 - Live product: https://daveaire.github.io/veil-consent/
 - Participant portal: https://daveaire.github.io/veil-consent/participant.html
 - Demo video: https://daveaire.github.io/veil-consent/veil-consent-mvp.mp4
-- Preprod contract: https://preprod.midnightexplorer.com/contracts/0x34ee0e9eca8646508c89f6f829bdb7d4ac653d8b1f7acca53874e50b0c774840
+- Preprod contract: https://preprod.midnightexplorer.com/contracts/0x6f995e8986feb2b107a7e65e650413ef150fe63bf88285a88c3da4c505d5ddcd
 - CI: https://github.com/daveaire/veil-consent/actions/workflows/ci.yml
 - Scheduled Preprod verification: https://github.com/daveaire/veil-consent/actions/workflows/preprod.yml
 - Product profile: https://x.com/VeilConsent

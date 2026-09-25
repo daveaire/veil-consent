@@ -55,6 +55,19 @@ test('unanimous policy, expiry, revocation, and replay rules are enforced', asyn
   assert.throws(() => session.issueCapability(unanimous, now), /not awaiting consent/);
 });
 
+test('an enrolled participant can withdraw consent without the organizer secret', async () => {
+  const privateInput = input();
+  const session = await ConsentSession.create();
+  session.createRequest(privateInput);
+  assert.throws(
+    () => session.withdrawConsent(privateInput, new Uint8Array(32).fill(9)),
+    /does not hold an enrolled participant revocation secret/,
+  );
+  const withdrawn = session.withdrawConsent(privateInput, privateInput.participantRevocationSecret);
+  assert.equal(withdrawn.status, STATUS.REVOKED);
+  assert.throws(() => session.issueCapability(privateInput, now), /not awaiting consent/);
+});
+
 test('content, purpose, organizer secret, credentials, and capability secret are bound', async () => {
   const session = await ConsentSession.create();
   const original = input();
@@ -65,7 +78,7 @@ test('content, purpose, organizer secret, credentials, and capability secret are
   }
   assert.throws(
     () => session.issueCapability({ ...original, credentialA: new Uint8Array(32).fill(9) }, now),
-    /approval is not authentic/,
+    /credentials do not match/,
   );
   assert.throws(
     () => session.issueCapability({ ...original, approvalSecretA: new Uint8Array(32).fill(7) }, now),
@@ -78,7 +91,7 @@ test('content, purpose, organizer secret, credentials, and capability secret are
   );
 });
 
-test('revealed approval credentials cannot authorize a later request', async () => {
+test('pseudonymous credentials cannot be enrolled in a later request', async () => {
   const session = await ConsentSession.create();
   const first = input();
   session.createRequest(first);
@@ -92,6 +105,19 @@ test('revealed approval credentials cannot authorize a later request', async () 
     capabilitySecret: new Uint8Array(32).fill(6),
     expiry: BigInt(now + 7200),
   };
-  session.createRequest(second);
-  assert.throws(() => session.issueCapability(second, now + 2), /response was already used/);
+  assert.throws(() => session.createRequest(second), /one-time and cannot be enrolled again/);
+});
+
+test('credentials cannot be reused after revocation before capability issuance', async () => {
+  const session = await ConsentSession.create();
+  const first = input();
+  session.createRequest(first);
+  session.revoke(first);
+  const second = {
+    ...first,
+    requestNonce: new Uint8Array(32).fill(4),
+    policySalt: new Uint8Array(32).fill(5),
+    expiry: BigInt(now + 7200),
+  };
+  assert.throws(() => session.createRequest(second), /one-time and cannot be enrolled again/);
 });

@@ -1,4 +1,5 @@
 import { decryptDocument, encryptDocument } from './crypto.js';
+import { assertExecutionAllowed } from './purpose-policy.js';
 
 export function prepareProtectedDocument(document, capabilitySecret) {
   return encryptDocument(document, capabilitySecret);
@@ -10,7 +11,8 @@ export class ConsentGatedAiGateway {
     this.adapter = adapter;
   }
 
-  process({ input, encryptedDocument, observedAt }) {
+  process({ input, encryptedDocument, observedAt, execution }) {
+    const policy = assertExecutionAllowed(input.purposeStatement, execution);
     const authorization = this.session.consumeCapability(input, observedAt);
     const document = decryptDocument(encryptedDocument, input.capabilitySecret);
     return {
@@ -18,6 +20,7 @@ export class ConsentGatedAiGateway {
       output: this.adapter(document),
       documentDisclosedOnChain: false,
       capabilityReusable: false,
+      enforcedPurpose: policy,
     };
   }
 }
@@ -30,4 +33,3 @@ export function deterministicSummary(document) {
     inputCharacters: document.length,
   };
 }
-

@@ -9,6 +9,7 @@ const BYTE_FIELDS = [
   'contentHash', 'purposeHash', 'policySalt', 'organizerSecret', 'requestNonce',
   'credentialA', 'credentialB', 'credentialC', 'approvalSecretA', 'approvalSecretB',
   'approvalSecretC', 'capabilitySecret',
+  'revocationHandleA', 'revocationHandleB', 'revocationHandleC', 'participantRevocationSecret',
 ] as const satisfies readonly (keyof ConsentPrivateState)[];
 const BIGINT_FIELDS = ['threshold', 'decisionA', 'decisionB', 'decisionC'] as const satisfies readonly (keyof ConsentPrivateState)[];
 

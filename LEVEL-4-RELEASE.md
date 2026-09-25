@@ -6,7 +6,7 @@ This checklist maps the Rise In **Level 4 — Waxing Gibbous Submission** requir
 
 | Requirement | Evidence | Status |
 | --- | --- | --- |
-| Working MVP and Preprod contract | [Hosted organizer and participant clients](https://daveaire.github.io/veil-consent/); [explorer-linked contract](https://preprod.midnightexplorer.com/contracts/0x34ee0e9eca8646508c89f6f829bdb7d4ac653d8b1f7acca53874e50b0c774840); [create, issue, and consume finalized at block `2680940`](docs/PREPROD.md) | Ready |
+| Working MVP and Preprod contract | [Hosted organizer and participant clients](https://daveaire.github.io/veil-consent/); [explorer-linked contract](https://preprod.midnightexplorer.com/contracts/0x6f995e8986feb2b107a7e65e650413ef150fe63bf88285a88c3da4c505d5ddcd); [create, issue, and consume finalized at block `2702471`](docs/PREPROD.md) | Ready |
 | Multiple wallet support, loading states, and error handling | Compatible injected wallets are enumerated, selectable, and validated against Preprod; each asynchronous workflow has pending, success, and failure states | Ready |
 | README, architecture, setup, usage, and security documentation | `README.md`, `ARCHITECTURE.md`, `docs/USAGE.md`, `DEMO.md`, and `SECURITY.md` | Ready |
 | CI/CD running on the product repository | [CI workflow](https://github.com/daveaire/veil-consent/actions/workflows/ci.yml), [Pages workflow](https://github.com/daveaire/veil-consent/actions/workflows/pages.yml), and scheduled [Preprod verification](https://github.com/daveaire/veil-consent/actions/workflows/preprod.yml) | Ready |
@@ -23,7 +23,7 @@ Reviewed narrative copy is maintained in [`docs/LEVEL-4-SUBMISSION.md`](docs/LEV
 | --- | --- |
 | Public GitHub repository | `https://github.com/daveaire/veil-consent` |
 | Live Preprod demo | `https://daveaire.github.io/veil-consent/` |
-| Contract address | `https://preprod.midnightexplorer.com/contracts/0x34ee0e9eca8646508c89f6f829bdb7d4ac653d8b1f7acca53874e50b0c774840` |
+| Contract address | `https://preprod.midnightexplorer.com/contracts/0x6f995e8986feb2b107a7e65e650413ef150fe63bf88285a88c3da4c505d5ddcd` |
 | CI/CD evidence | `https://github.com/daveaire/veil-consent/actions/workflows/ci.yml` |
 | Product X profile | `https://x.com/VeilConsent` |
 | Demo video | `https://daveaire.github.io/veil-consent/veil-consent-mvp.mp4` |

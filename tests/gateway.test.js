@@ -19,11 +19,13 @@ test('AI adapter cannot read the document before issue and can process it exactl
   const encryptedDocument = prepareProtectedDocument(document, input.capabilitySecret);
   const gateway = new ConsentGatedAiGateway(session);
 
-  assert.throws(() => gateway.process({ input, encryptedDocument, observedAt: now }), /unavailable/);
+  const execution = { task: 'Summarize decisions', model: 'veil-demo-v1', recipient: 'the configured AI processor', retentionSeconds: 86_400 };
+  assert.throws(() => gateway.process({ input, encryptedDocument, observedAt: now, execution }), /unavailable/);
   session.issueCapability(input, now);
-  const result = gateway.process({ input, encryptedDocument, observedAt: now + 1 });
+  assert.throws(() => gateway.process({ input, encryptedDocument, observedAt: now + 1,
+    execution: { ...execution, model: 'unapproved-model' } }), /outside the consented purpose/);
+  const result = gateway.process({ input, encryptedDocument, observedAt: now + 1, execution });
   assert.equal(result.output.summary, 'The group approved Project Aurora. The launch remains confidential.');
   assert.equal(result.capabilityReusable, false);
-  assert.throws(() => gateway.process({ input, encryptedDocument, observedAt: now + 2 }), /already consumed/);
+  assert.throws(() => gateway.process({ input, encryptedDocument, observedAt: now + 2, execution }), /already consumed/);
 });
-
