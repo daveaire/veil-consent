@@ -133,56 +133,56 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('createRequest',
                                      'argument 1 (as invoked from Typescript)',
-                                     'veil-consent.compact line 46 char 1',
+                                     'veil-consent.compact line 60 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(typeof(expiry_0) === 'bigint' && expiry_0 >= 0n && expiry_0 <= 18446744073709551615n)) {
           __compactRuntime.typeError('createRequest',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'veil-consent.compact line 46 char 1',
+                                     'veil-consent.compact line 60 char 1',
                                      'Uint<0..18446744073709551616>',
                                      expiry_0)
         }
         if (!(credentialA_0.buffer instanceof ArrayBuffer && credentialA_0.BYTES_PER_ELEMENT === 1 && credentialA_0.length === 32)) {
           __compactRuntime.typeError('createRequest',
                                      'argument 2 (argument 3 as invoked from Typescript)',
-                                     'veil-consent.compact line 46 char 1',
+                                     'veil-consent.compact line 60 char 1',
                                      'Bytes<32>',
                                      credentialA_0)
         }
         if (!(credentialB_0.buffer instanceof ArrayBuffer && credentialB_0.BYTES_PER_ELEMENT === 1 && credentialB_0.length === 32)) {
           __compactRuntime.typeError('createRequest',
                                      'argument 3 (argument 4 as invoked from Typescript)',
-                                     'veil-consent.compact line 46 char 1',
+                                     'veil-consent.compact line 60 char 1',
                                      'Bytes<32>',
                                      credentialB_0)
         }
         if (!(credentialC_0.buffer instanceof ArrayBuffer && credentialC_0.BYTES_PER_ELEMENT === 1 && credentialC_0.length === 32)) {
           __compactRuntime.typeError('createRequest',
                                      'argument 4 (argument 5 as invoked from Typescript)',
-                                     'veil-consent.compact line 46 char 1',
+                                     'veil-consent.compact line 60 char 1',
                                      'Bytes<32>',
                                      credentialC_0)
         }
         if (!(revocationHandleA_0.buffer instanceof ArrayBuffer && revocationHandleA_0.BYTES_PER_ELEMENT === 1 && revocationHandleA_0.length === 32)) {
           __compactRuntime.typeError('createRequest',
                                      'argument 5 (argument 6 as invoked from Typescript)',
-                                     'veil-consent.compact line 46 char 1',
+                                     'veil-consent.compact line 60 char 1',
                                      'Bytes<32>',
                                      revocationHandleA_0)
         }
         if (!(revocationHandleB_0.buffer instanceof ArrayBuffer && revocationHandleB_0.BYTES_PER_ELEMENT === 1 && revocationHandleB_0.length === 32)) {
           __compactRuntime.typeError('createRequest',
                                      'argument 6 (argument 7 as invoked from Typescript)',
-                                     'veil-consent.compact line 46 char 1',
+                                     'veil-consent.compact line 60 char 1',
                                      'Bytes<32>',
                                      revocationHandleB_0)
         }
         if (!(revocationHandleC_0.buffer instanceof ArrayBuffer && revocationHandleC_0.BYTES_PER_ELEMENT === 1 && revocationHandleC_0.length === 32)) {
           __compactRuntime.typeError('createRequest',
                                      'argument 7 (argument 8 as invoked from Typescript)',
-                                     'veil-consent.compact line 46 char 1',
+                                     'veil-consent.compact line 60 char 1',
                                      'Bytes<32>',
                                      revocationHandleC_0)
         }
@@ -216,7 +216,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('issueCapability',
                                      'argument 1 (as invoked from Typescript)',
-                                     'veil-consent.compact line 84 char 1',
+                                     'veil-consent.compact line 98 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -239,7 +239,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('consumeCapability',
                                      'argument 1 (as invoked from Typescript)',
-                                     'veil-consent.compact line 142 char 1',
+                                     'veil-consent.compact line 156 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -262,7 +262,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('revokeRequest',
                                      'argument 1 (as invoked from Typescript)',
-                                     'veil-consent.compact line 152 char 1',
+                                     'veil-consent.compact line 166 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -285,7 +285,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('withdrawConsent',
                                      'argument 1 (as invoked from Typescript)',
-                                     'veil-consent.compact line 166 char 1',
+                                     'veil-consent.compact line 180 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -768,7 +768,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privateContentHash',
                                  'return value',
-                                 'veil-consent.compact line 28 char 1',
+                                 'veil-consent.compact line 42 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -785,7 +785,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privatePurposeHash',
                                  'return value',
-                                 'veil-consent.compact line 29 char 1',
+                                 'veil-consent.compact line 43 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -802,7 +802,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privatePolicySalt',
                                  'return value',
-                                 'veil-consent.compact line 30 char 1',
+                                 'veil-consent.compact line 44 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -819,7 +819,7 @@ export class Contract {
     if (!(typeof(result_0) === 'bigint' && result_0 >= 0n && result_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('privateThreshold',
                                  'return value',
-                                 'veil-consent.compact line 31 char 1',
+                                 'veil-consent.compact line 45 char 1',
                                  'Uint<0..18446744073709551616>',
                                  result_0)
     }
@@ -836,7 +836,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privateOrganizerSecret',
                                  'return value',
-                                 'veil-consent.compact line 32 char 1',
+                                 'veil-consent.compact line 46 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -853,7 +853,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privateRequestNonce',
                                  'return value',
-                                 'veil-consent.compact line 33 char 1',
+                                 'veil-consent.compact line 47 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -870,7 +870,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privateCredentialA',
                                  'return value',
-                                 'veil-consent.compact line 34 char 1',
+                                 'veil-consent.compact line 48 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -887,7 +887,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privateCredentialB',
                                  'return value',
-                                 'veil-consent.compact line 35 char 1',
+                                 'veil-consent.compact line 49 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -904,7 +904,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privateCredentialC',
                                  'return value',
-                                 'veil-consent.compact line 36 char 1',
+                                 'veil-consent.compact line 50 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -921,7 +921,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privateApprovalSecretA',
                                  'return value',
-                                 'veil-consent.compact line 37 char 1',
+                                 'veil-consent.compact line 51 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -938,7 +938,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privateApprovalSecretB',
                                  'return value',
-                                 'veil-consent.compact line 38 char 1',
+                                 'veil-consent.compact line 52 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -955,7 +955,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privateApprovalSecretC',
                                  'return value',
-                                 'veil-consent.compact line 39 char 1',
+                                 'veil-consent.compact line 53 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -972,7 +972,7 @@ export class Contract {
     if (!(typeof(result_0) === 'bigint' && result_0 >= 0n && result_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('privateDecisionA',
                                  'return value',
-                                 'veil-consent.compact line 40 char 1',
+                                 'veil-consent.compact line 54 char 1',
                                  'Uint<0..18446744073709551616>',
                                  result_0)
     }
@@ -989,7 +989,7 @@ export class Contract {
     if (!(typeof(result_0) === 'bigint' && result_0 >= 0n && result_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('privateDecisionB',
                                  'return value',
-                                 'veil-consent.compact line 41 char 1',
+                                 'veil-consent.compact line 55 char 1',
                                  'Uint<0..18446744073709551616>',
                                  result_0)
     }
@@ -1006,7 +1006,7 @@ export class Contract {
     if (!(typeof(result_0) === 'bigint' && result_0 >= 0n && result_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('privateDecisionC',
                                  'return value',
-                                 'veil-consent.compact line 42 char 1',
+                                 'veil-consent.compact line 56 char 1',
                                  'Uint<0..18446744073709551616>',
                                  result_0)
     }
@@ -1023,7 +1023,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privateCapabilitySecret',
                                  'return value',
-                                 'veil-consent.compact line 43 char 1',
+                                 'veil-consent.compact line 57 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -1040,7 +1040,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('privateParticipantRevocationSecret',
                                  'return value',
-                                 'veil-consent.compact line 44 char 1',
+                                 'veil-consent.compact line 58 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -2359,7 +2359,7 @@ export class Contract {
                                    policySalt_0,
                                    __compactRuntime.convertFieldToBytes(32,
                                                                         threshold_0,
-                                                                        'veil-consent.compact line 184 char 5'),
+                                                                        'veil-consent.compact line 198 char 5'),
                                    organizerSecret_0,
                                    requestNonce_0,
                                    credentialA_0,
@@ -2370,7 +2370,7 @@ export class Contract {
                                    revocationHandleC_0,
                                    __compactRuntime.convertFieldToBytes(32,
                                                                         expiry_0,
-                                                                        'veil-consent.compact line 186 char 62')]);
+                                                                        'veil-consent.compact line 200 char 62')]);
   }
   _responseNullifier_0(requestNonce_0,
                        credentialA_0,
@@ -2401,7 +2401,7 @@ export class Contract {
                                    policySalt_0,
                                    __compactRuntime.convertFieldToBytes(32,
                                                                         slot_0,
-                                                                        'veil-consent.compact line 219 char 5')]);
+                                                                        'veil-consent.compact line 233 char 5')]);
   }
   _capabilityFor_0(request_0, contentHash_0, purposeHash_0, secret_0) {
     return this._persistentHash_3([new Uint8Array([118, 101, 105, 108, 45, 99, 111, 110, 115, 101, 110, 116, 58, 99, 97, 112, 97, 98, 105, 108, 105, 116, 121, 58, 118, 49, 0, 0, 0, 0, 0, 0]),
@@ -2777,7 +2777,7 @@ export function ledger(stateOrChargedState) {
         if (!(elem_0.buffer instanceof ArrayBuffer && elem_0.BYTES_PER_ELEMENT === 1 && elem_0.length === 32)) {
           __compactRuntime.typeError('member',
                                      'argument 1',
-                                     'veil-consent.compact line 14 char 1',
+                                     'veil-consent.compact line 28 char 1',
                                      'Bytes<32>',
                                      elem_0)
         }
@@ -2864,7 +2864,7 @@ export function ledger(stateOrChargedState) {
         if (!(elem_0.buffer instanceof ArrayBuffer && elem_0.BYTES_PER_ELEMENT === 1 && elem_0.length === 32)) {
           __compactRuntime.typeError('member',
                                      'argument 1',
-                                     'veil-consent.compact line 15 char 1',
+                                     'veil-consent.compact line 29 char 1',
                                      'Bytes<32>',
                                      elem_0)
         }
@@ -3043,91 +3043,91 @@ export const pureCircuits = {
     if (!(contentHash_0.buffer instanceof ArrayBuffer && contentHash_0.BYTES_PER_ELEMENT === 1 && contentHash_0.length === 32)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 1',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Bytes<32>',
                                  contentHash_0)
     }
     if (!(purposeHash_0.buffer instanceof ArrayBuffer && purposeHash_0.BYTES_PER_ELEMENT === 1 && purposeHash_0.length === 32)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 2',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Bytes<32>',
                                  purposeHash_0)
     }
     if (!(policySalt_0.buffer instanceof ArrayBuffer && policySalt_0.BYTES_PER_ELEMENT === 1 && policySalt_0.length === 32)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 3',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Bytes<32>',
                                  policySalt_0)
     }
     if (!(typeof(threshold_0) === 'bigint' && threshold_0 >= 0n && threshold_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 4',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Uint<0..18446744073709551616>',
                                  threshold_0)
     }
     if (!(organizerSecret_0.buffer instanceof ArrayBuffer && organizerSecret_0.BYTES_PER_ELEMENT === 1 && organizerSecret_0.length === 32)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 5',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Bytes<32>',
                                  organizerSecret_0)
     }
     if (!(requestNonce_0.buffer instanceof ArrayBuffer && requestNonce_0.BYTES_PER_ELEMENT === 1 && requestNonce_0.length === 32)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 6',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Bytes<32>',
                                  requestNonce_0)
     }
     if (!(credentialA_0.buffer instanceof ArrayBuffer && credentialA_0.BYTES_PER_ELEMENT === 1 && credentialA_0.length === 32)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 7',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Bytes<32>',
                                  credentialA_0)
     }
     if (!(credentialB_0.buffer instanceof ArrayBuffer && credentialB_0.BYTES_PER_ELEMENT === 1 && credentialB_0.length === 32)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 8',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Bytes<32>',
                                  credentialB_0)
     }
     if (!(credentialC_0.buffer instanceof ArrayBuffer && credentialC_0.BYTES_PER_ELEMENT === 1 && credentialC_0.length === 32)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 9',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Bytes<32>',
                                  credentialC_0)
     }
     if (!(revocationHandleA_0.buffer instanceof ArrayBuffer && revocationHandleA_0.BYTES_PER_ELEMENT === 1 && revocationHandleA_0.length === 32)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 10',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Bytes<32>',
                                  revocationHandleA_0)
     }
     if (!(revocationHandleB_0.buffer instanceof ArrayBuffer && revocationHandleB_0.BYTES_PER_ELEMENT === 1 && revocationHandleB_0.length === 32)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 11',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Bytes<32>',
                                  revocationHandleB_0)
     }
     if (!(revocationHandleC_0.buffer instanceof ArrayBuffer && revocationHandleC_0.BYTES_PER_ELEMENT === 1 && revocationHandleC_0.length === 32)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 12',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Bytes<32>',
                                  revocationHandleC_0)
     }
     if (!(typeof(expiry_0) === 'bigint' && expiry_0 >= 0n && expiry_0 <= 18446744073709551615n)) {
       __compactRuntime.typeError('requestCommitment',
                                  'argument 13',
-                                 'veil-consent.compact line 176 char 1',
+                                 'veil-consent.compact line 190 char 1',
                                  'Uint<0..18446744073709551616>',
                                  expiry_0)
     }
@@ -3156,28 +3156,28 @@ export const pureCircuits = {
     if (!(requestNonce_0.buffer instanceof ArrayBuffer && requestNonce_0.BYTES_PER_ELEMENT === 1 && requestNonce_0.length === 32)) {
       __compactRuntime.typeError('responseNullifier',
                                  'argument 1',
-                                 'veil-consent.compact line 190 char 1',
+                                 'veil-consent.compact line 204 char 1',
                                  'Bytes<32>',
                                  requestNonce_0)
     }
     if (!(credentialA_0.buffer instanceof ArrayBuffer && credentialA_0.BYTES_PER_ELEMENT === 1 && credentialA_0.length === 32)) {
       __compactRuntime.typeError('responseNullifier',
                                  'argument 2',
-                                 'veil-consent.compact line 190 char 1',
+                                 'veil-consent.compact line 204 char 1',
                                  'Bytes<32>',
                                  credentialA_0)
     }
     if (!(credentialB_0.buffer instanceof ArrayBuffer && credentialB_0.BYTES_PER_ELEMENT === 1 && credentialB_0.length === 32)) {
       __compactRuntime.typeError('responseNullifier',
                                  'argument 3',
-                                 'veil-consent.compact line 190 char 1',
+                                 'veil-consent.compact line 204 char 1',
                                  'Bytes<32>',
                                  credentialB_0)
     }
     if (!(credentialC_0.buffer instanceof ArrayBuffer && credentialC_0.BYTES_PER_ELEMENT === 1 && credentialC_0.length === 32)) {
       __compactRuntime.typeError('responseNullifier',
                                  'argument 4',
-                                 'veil-consent.compact line 190 char 1',
+                                 'veil-consent.compact line 204 char 1',
                                  'Bytes<32>',
                                  credentialC_0)
     }
@@ -3194,7 +3194,7 @@ export const pureCircuits = {
     if (!(secret_0.buffer instanceof ArrayBuffer && secret_0.BYTES_PER_ELEMENT === 1 && secret_0.length === 32)) {
       __compactRuntime.typeError('participantCredential',
                                  'argument 1',
-                                 'veil-consent.compact line 198 char 1',
+                                 'veil-consent.compact line 212 char 1',
                                  'Bytes<32>',
                                  secret_0)
     }
@@ -3208,7 +3208,7 @@ export const pureCircuits = {
     if (!(secret_0.buffer instanceof ArrayBuffer && secret_0.BYTES_PER_ELEMENT === 1 && secret_0.length === 32)) {
       __compactRuntime.typeError('participantRevocationHandle',
                                  'argument 1',
-                                 'veil-consent.compact line 204 char 1',
+                                 'veil-consent.compact line 218 char 1',
                                  'Bytes<32>',
                                  secret_0)
     }
@@ -3222,7 +3222,7 @@ export const pureCircuits = {
     if (!(secret_0.buffer instanceof ArrayBuffer && secret_0.BYTES_PER_ELEMENT === 1 && secret_0.length === 32)) {
       __compactRuntime.typeError('approvalNullifier',
                                  'argument 1',
-                                 'veil-consent.compact line 210 char 1',
+                                 'veil-consent.compact line 224 char 1',
                                  'Bytes<32>',
                                  secret_0)
     }
@@ -3238,21 +3238,21 @@ export const pureCircuits = {
     if (!(requestNonce_0.buffer instanceof ArrayBuffer && requestNonce_0.BYTES_PER_ELEMENT === 1 && requestNonce_0.length === 32)) {
       __compactRuntime.typeError('responseMarker',
                                  'argument 1',
-                                 'veil-consent.compact line 216 char 1',
+                                 'veil-consent.compact line 230 char 1',
                                  'Bytes<32>',
                                  requestNonce_0)
     }
     if (!(policySalt_0.buffer instanceof ArrayBuffer && policySalt_0.BYTES_PER_ELEMENT === 1 && policySalt_0.length === 32)) {
       __compactRuntime.typeError('responseMarker',
                                  'argument 2',
-                                 'veil-consent.compact line 216 char 1',
+                                 'veil-consent.compact line 230 char 1',
                                  'Bytes<32>',
                                  policySalt_0)
     }
     if (!(typeof(slot_0) === 'bigint' && slot_0 >= 0n && slot_0 <= 255n)) {
       __compactRuntime.typeError('responseMarker',
                                  'argument 3',
-                                 'veil-consent.compact line 216 char 1',
+                                 'veil-consent.compact line 230 char 1',
                                  'Uint<0..256>',
                                  slot_0)
     }
@@ -3269,28 +3269,28 @@ export const pureCircuits = {
     if (!(request_0.buffer instanceof ArrayBuffer && request_0.BYTES_PER_ELEMENT === 1 && request_0.length === 32)) {
       __compactRuntime.typeError('capabilityFor',
                                  'argument 1',
-                                 'veil-consent.compact line 223 char 1',
+                                 'veil-consent.compact line 237 char 1',
                                  'Bytes<32>',
                                  request_0)
     }
     if (!(contentHash_0.buffer instanceof ArrayBuffer && contentHash_0.BYTES_PER_ELEMENT === 1 && contentHash_0.length === 32)) {
       __compactRuntime.typeError('capabilityFor',
                                  'argument 2',
-                                 'veil-consent.compact line 223 char 1',
+                                 'veil-consent.compact line 237 char 1',
                                  'Bytes<32>',
                                  contentHash_0)
     }
     if (!(purposeHash_0.buffer instanceof ArrayBuffer && purposeHash_0.BYTES_PER_ELEMENT === 1 && purposeHash_0.length === 32)) {
       __compactRuntime.typeError('capabilityFor',
                                  'argument 3',
-                                 'veil-consent.compact line 223 char 1',
+                                 'veil-consent.compact line 237 char 1',
                                  'Bytes<32>',
                                  purposeHash_0)
     }
     if (!(secret_0.buffer instanceof ArrayBuffer && secret_0.BYTES_PER_ELEMENT === 1 && secret_0.length === 32)) {
       __compactRuntime.typeError('capabilityFor',
                                  'argument 4',
-                                 'veil-consent.compact line 223 char 1',
+                                 'veil-consent.compact line 237 char 1',
                                  'Bytes<32>',
                                  secret_0)
     }

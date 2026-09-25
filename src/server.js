@@ -9,6 +9,7 @@ const assets = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
   ['/participant.html', ['participant.html', 'text/html; charset=utf-8']],
+  ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
   ['/organizer.bundle.js', ['organizer.bundle.js', 'text/javascript; charset=utf-8']],
   ['/participant.bundle.js', ['participant.bundle.js', 'text/javascript; charset=utf-8']],
   ['/midnight-runtime.wasm', ['midnight-runtime.wasm', 'application/wasm']],

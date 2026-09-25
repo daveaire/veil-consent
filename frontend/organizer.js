@@ -17,7 +17,13 @@ function purpose() { return canonicalPurpose(purposePolicy()); }
 function decisions() { return [$('p1').checked, $('p2').checked, $('p3').checked]; }
 function isIndependent() { return $('workflow').value === 'independent'; }
 function message(value, error=false) { $('message').textContent=value; $('message').classList.toggle('error', error); }
-function stage(n, label) { const el=$('s'+n); el.classList.add('done'); el.querySelector('.badge').textContent=label; }
+function stage(n, label) {
+  const el=$('s'+n);
+  el.classList.add('done');
+  el.querySelector('.badge').textContent=label;
+  $('stepToken').textContent=n === 3 ? 'Complete' : `Step ${n + 1} of 3`;
+  $('statusChip').textContent=n === 1 ? 'Awaiting consent' : n === 2 ? 'Authorized' : 'Consumed';
+}
 function paint() { return demoCapture ? Promise.resolve() : new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))); }
 async function encrypt(text, secret) { const iv=crypto.getRandomValues(new Uint8Array(12)); const key=await crypto.subtle.importKey('raw',secret,'AES-GCM',false,['encrypt','decrypt']); return {iv,data:new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(text))),key}; }
 async function decrypt(envelope) { return new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:envelope.iv},envelope.key,envelope.data)); }
@@ -48,7 +54,7 @@ async function processOnce() { $('process').disabled=true; $('process').textCont
 $('create').onclick = createRequest;
 $('issue').onclick = issueCapability;
 $('process').onclick = processOnce;
-$('revoke').onclick = () => { try { session.revoke(input); $('issue').disabled=true; $('process').disabled=true; $('revoke').disabled=true; stage(1,'Revoked'); message('Request revoked. No capability can now be issued or consumed.'); } catch(error){ message(error.message,true); } };
+$('revoke').onclick = () => { try { session.revoke(input); $('issue').disabled=true; $('process').disabled=true; $('revoke').disabled=true; stage(1,'Revoked'); $('stepToken').textContent='Revoked'; $('statusChip').textContent='Revoked'; message('Request revoked. No capability can now be issued or consumed.'); } catch(error){ message(error.message,true); } };
 
 $('workflow').onchange=()=>{const independent=isIndependent();$('localResponses').style.display=independent?'none':'grid';$('enrollmentPanel').classList.toggle('visible',independent);$('create').disabled=independent&&enrollments.some(value=>!value);message(independent?'Import one enrollment packet from each participant before creating the request.':'Local walkthrough uses three simulated participants in this browser.');};
 document.querySelectorAll('.enroll-import').forEach(button=>button.onclick=()=>{try{const slot=button.dataset.slot,index=['A','B','C'].indexOf(slot),packet=readEnrollment($('enroll'+slot).value);if(packet.slot!==slot)throw new Error(`This enrollment is for participant ${packet.slot}`);if(enrollments.some((item,itemIndex)=>itemIndex!==index&&item?.credential===packet.credential))throw new Error('Each participant must use a distinct credential');enrollments[index]=packet;$('enrollStatus'+slot).textContent='Credential ready';$('create').disabled=enrollments.some(value=>!value);message(`Participant ${slot} enrollment imported. The private credential was not disclosed.`);}catch(error){message(error.message,true);}});

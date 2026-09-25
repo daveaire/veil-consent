@@ -2,6 +2,20 @@ pragma language_version 0.23;
 
 import CompactStandardLibrary;
 
+// Privacy model
+// -------------
+// Public ledger state exposes only lifecycle counters, request and capability
+// commitments, expiry, one-time nullifiers, and pseudonymous credentials.
+// Document and purpose hashes, the consent threshold, participant decisions,
+// approval secrets, organizer authority, and capability secret remain private
+// witnesses. A request commitment binds those witnesses to the public expiry
+// and enrolled credentials. Capability issuance proves that enough authentic
+// private approvals satisfy the hidden threshold; it does not reveal which
+// participants approved. Consumption updates public state before the client
+// decrypts content, preventing replay. Organizer revocation and participant
+// withdrawal can block future use, but cannot erase data already disclosed to
+// an AI system or retained outside VeilConsent.
+
 export ledger requestsCreated: Counter;
 export ledger capabilitiesIssued: Counter;
 export ledger capabilitiesConsumed: Counter;

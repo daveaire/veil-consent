@@ -11,7 +11,7 @@ This checklist maps the Rise In **Level 4 — Waxing Gibbous Submission** requir
 | README, architecture, setup, usage, and security documentation | `README.md`, `ARCHITECTURE.md`, `docs/USAGE.md`, `DEMO.md`, and `SECURITY.md` | Ready |
 | CI/CD running on the product repository | [CI workflow](https://github.com/daveaire/veil-consent/actions/workflows/ci.yml), [Pages workflow](https://github.com/daveaire/veil-consent/actions/workflows/pages.yml), and scheduled [Preprod verification](https://github.com/daveaire/veil-consent/actions/workflows/preprod.yml) | Ready |
 | Public product X profile and initial product update | [@VeilConsent](https://x.com/VeilConsent) is configured and linked; reviewed launch copy is in `PRODUCT-PROFILE.md` | Profile ready; first post held by applicant |
-| At least 15 meaningful commits | 42 scoped, descriptive commits through `a9cee46` | Ready |
+| At least 15 meaningful commits | More than 45 scoped, descriptive commits on `main` | Ready |
 | Feedback/onboarding mechanism | [Privacy-minimizing structured feedback form](https://github.com/daveaire/veil-consent/issues/new?template=feedback.yml) with a public implementation log | Ready |
 | Read-only Preprod verification | `npm run network:verify -- --network preprod` confirms status `4`, one request, one issue, and one consumption from the live indexer | Ready |
 
