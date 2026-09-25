@@ -6,8 +6,10 @@ import {
   createOrganizerEncryptionKey,
   createResponse,
   decodePacket,
+  hexToBytes,
   openResponse,
 } from '../frontend/participant-exchange.js';
+import { BrowserConsentSession, browserConsentInput } from '../frontend/proof-client.js';
 
 const request = 'ab'.repeat(32);
 const purpose = { task: 'Summarize', model: 'model-1', recipients: 'Project team', retention: '24 hours' };
@@ -39,6 +41,7 @@ test('participant response is encrypted, request-bound, and credential-authentic
     purpose,
   );
   assert.deepEqual({ slot: opened.slot, approved: opened.approved }, { slot: 'B', approved: true });
+  assert.equal(opened.approvalSecret, enrollment.secret);
 
   await assert.rejects(
     openResponse(responsePacket, organizer.keyPair.privateKey, 'cd'.repeat(32), ['00'.repeat(32), enrollment.credential, '11'.repeat(32)], purpose),
@@ -53,6 +56,44 @@ test('participant response is encrypted, request-bound, and credential-authentic
       { ...purpose, retention: '7 days' },
     ),
     /purpose does not match/,
+  );
+});
+
+test('a declined response cannot be converted into an approval witness', async () => {
+  const enrollments = ['A', 'B', 'C'].map(createEnrollment);
+  const organizer = await createOrganizerEncryptionKey();
+  const privateInput = await browserConsentInput({
+    document: 'Private launch plan',
+    purpose: JSON.stringify(purpose),
+    threshold: 1,
+    decisions: [false, false, false],
+    expiry: Math.floor(Date.now() / 1000) + 60,
+    credentials: enrollments.map((entry) => hexToBytes(entry.credential)),
+  });
+  const session = await BrowserConsentSession.create();
+  const created = session.createRequest(privateInput);
+  const invitation = createInvitation({
+    slot: 'B', credential: enrollments[1].credential, request: created.request, purpose,
+    expiry: Number(privateInput.expiry), organizerPublicKey: organizer.publicKey,
+  });
+  const declinedPacket = await createResponse(invitation, enrollments[1].secret, false);
+  const declined = await openResponse(
+    declinedPacket,
+    organizer.keyPair.privateKey,
+    created.request,
+    enrollments.map((entry) => entry.credential),
+    purpose,
+  );
+  assert.equal(declined.approved, false);
+  assert.equal('approvalSecret' in declined, false);
+  assert.equal('secret' in declined, false);
+
+  // A hostile organizer can change the decision bit, but it has no matching
+  // witness. The circuit must reject the attempted forged approval.
+  privateInput.decisionB = 1n;
+  assert.throws(
+    () => session.issueCapability(privateInput, Math.floor(Date.now() / 1000)),
+    /Participant B approval is not authentic/,
   );
 });
 

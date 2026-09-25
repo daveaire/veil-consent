@@ -53,10 +53,10 @@ The hosted MVP includes an organizer workspace and a separate participant portal
 1. A participant creates a random one-time secret in the participant portal and sends only its Compact credential commitment to the organizer.
 2. The organizer commits three credentials when creating the request and generates a fresh P-256 ECDH key pair for that request.
 3. Each invitation includes the participant slot, credential commitment, public request commitment, exact purpose terms, expiry, and organizer public encryption key.
-4. The participant verifies the terms and encrypts their decision and credential preimage using ephemeral P-256 ECDH, HKDF-SHA-256, and AES-256-GCM. The public request commitment is authenticated as additional data.
-5. The organizer decrypts the packet locally, checks its request binding, derives and verifies the enrolled credential, rejects duplicate responses, and supplies the decision as a private Compact witness.
+4. The participant verifies the terms and encrypts their decision using ephemeral P-256 ECDH, HKDF-SHA-256, and AES-256-GCM. An approval includes the one-time credential preimage needed by the Compact circuit; a decline never releases that approval material. The public request commitment is authenticated as additional data.
+5. The organizer decrypts the packet locally, checks its request binding, verifies approval material against the enrolled credential when present, rejects duplicate responses, and supplies the decision as a private Compact witness. Changing a decline to an approval fails because the organizer never receives a valid approval witness.
 
-The response preimage is disclosed to the organizer proving the transaction, but it is never included in the enrollment packet or published on-chain. Compact binds it to the enrolled credential and publishes a request-domain nullifier, so it cannot authorize a later request.
+An approval preimage is disclosed to the organizer proving the transaction, but it is never included in the enrollment packet, a declined response, or public chain state. Compact binds it to the enrolled credential and publishes a one-time nullifier, so it cannot authorize a later request.
 
 ## MVP trust assumptions
 

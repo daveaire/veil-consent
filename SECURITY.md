@@ -15,6 +15,7 @@ VeilConsent is a Preprod MVP. It is suitable for testing the consent protocol wi
 - AES-256-GCM encryption for sample documents and response records
 - Independent participant enrollment and ephemeral P-256 ECDH response packets with HKDF-SHA-256 key derivation
 - Request-bound authenticated encryption and enrolled-credential verification
+- Decline-safe response packets that never disclose a valid approval witness
 - Cryptographically random, owner-only deployment witness state
 - External JavaScript bundles under a restrictive browser content security policy
 - Owner-only, ignored wallet and private-state credentials

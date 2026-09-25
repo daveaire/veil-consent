@@ -2,7 +2,10 @@ import { pureCircuits } from './proof-client.js';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
-const VERSION = 1;
+// Version 2 prevents a declined response from releasing the witness that can
+// satisfy the Compact circuit's approval check. Version 1 packets must not be
+// accepted because they included the credential preimage for both decisions.
+const VERSION = 2;
 const PREFIX = 'veilconsent:';
 
 export const bytesToHex = (bytes) => [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
@@ -92,7 +95,18 @@ export async function createResponse(invitationValue, secretHex, approved) {
   const ephemeral = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
   const key = await responseKey(ephemeral.privateKey, organizerKey, invitation.request);
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const payload = encoder.encode(JSON.stringify({ slot: invitation.slot, request: invitation.request, purpose: invitation.purpose, credential, secret: secretHex, approved: Boolean(approved) }));
+  const response = {
+    slot: invitation.slot,
+    request: invitation.request,
+    purpose: invitation.purpose,
+    credential,
+    approved: Boolean(approved),
+  };
+  // Only an affirmative response releases the one-time circuit witness. A
+  // declined response therefore cannot be rewritten as an approval by the
+  // organizer after decryption.
+  if (response.approved) response.approvalSecret = secretHex;
+  const payload = encoder.encode(JSON.stringify(response));
   const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: encoder.encode(invitation.request) }, key, payload);
   return encodePacket({
     version: VERSION, type: 'response', request: invitation.request,
@@ -114,7 +128,14 @@ export async function openResponse(value, organizerPrivateKey, expectedRequest, 
   const index = ['A', 'B', 'C'].indexOf(response.slot);
   if (index < 0 || response.request !== expectedRequest) throw new Error('Response binding is invalid');
   if (JSON.stringify(response.purpose) !== JSON.stringify(expectedPurpose)) throw new Error('Response purpose does not match the consent request');
-  const derivedCredential = bytesToHex(pureCircuits.participantCredential(hexToBytes(response.secret)));
-  if (derivedCredential !== response.credential || credentials[index] !== response.credential) throw new Error('Response does not satisfy the enrolled credential');
+  if (typeof response.approved !== 'boolean' || credentials[index] !== response.credential) {
+    throw new Error('Response does not satisfy the enrolled credential');
+  }
+  if (response.approved) {
+    const derivedCredential = bytesToHex(pureCircuits.participantCredential(hexToBytes(response.approvalSecret)));
+    if (derivedCredential !== response.credential) throw new Error('Response does not satisfy the enrolled credential');
+  } else if ('approvalSecret' in response || 'secret' in response) {
+    throw new Error('A declined response must not disclose approval material');
+  }
   return response;
 }
