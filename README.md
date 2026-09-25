@@ -164,7 +164,9 @@ After trying the MVP, use the [structured feedback form](https://github.com/dave
 
 ## Security Boundary
 
-VeilConsent proves authorization to process committed data for a committed purpose. It cannot prove that an AI response is correct, erase copies made outside the gateway, or control a model provider after plaintext has been released. See [ARCHITECTURE.md](ARCHITECTURE.md) for the protocol and threat model, [SECURITY.md](SECURITY.md) for the MVP trust assumptions, and [DEMO.md](DEMO.md) for the reviewer walkthrough.
+VeilConsent verifies whether an AI workflow is authorized to access committed data for a committed purpose at the time of each request. Revocation and expiry block future authorized access through the VeilConsent gateway. They cannot make previously disclosed information unread, erase copies retained by an agent or model provider, or control data after plaintext has left the gateway.
+
+VeilConsent also cannot prove that an AI response is correct. See [ARCHITECTURE.md](ARCHITECTURE.md) for the protocol and threat model, [SECURITY.md](SECURITY.md) for the MVP trust assumptions, and [DEMO.md](DEMO.md) for the reviewer walkthrough.
 
 ## License
 
