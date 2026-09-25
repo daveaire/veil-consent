@@ -9,109 +9,57 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <header class="site-header">
-    <nav class="nav" aria-label="Primary navigation">
-      <a class="brand" href="./"><span class="mark" aria-hidden="true">V</span>VeilConsent</a>
-      <div class="nav-actions">
-        <a class="nav-link" href="participant.html">Participant portal</a>
-        <a class="nav-link" href="veil-consent-mvp.mp4">Product demo</a>
-        <span class="network">Midnight Preprod</span>
-      </div>
-    </nav>
-  </header>
+  <header class="site-header"><nav class="nav" aria-label="Primary navigation"><a class="brand" href="./"><span class="mark" aria-hidden="true">V</span>VeilConsent</a><div class="nav-actions"><a class="nav-link" href="participant.html">Participant portal</a><a class="nav-link" href="veil-consent-mvp.mp4">Product demo</a><span class="network">Midnight Preprod</span></div></nav></header>
 
   <main class="app-shell">
     <section class="hero">
-      <div>
-        <span class="kicker">Purpose-bound authorization</span>
-        <h1>Authorize AI work.<br><span class="accent">Keep consent private.</span></h1>
-      </div>
-      <div>
-        <p class="lede">Give an AI one narrowly scoped permission without publishing the document, participant decisions, or consent threshold.</p>
-        <div class="trust-row" aria-label="Privacy properties">
-          <span class="trust-pill"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="m2.3 6.2 2.1 2.1 5.2-5.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>One-use capability</span>
-          <span class="trust-pill"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="m2.3 6.2 2.1 2.1 5.2-5.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Private policy</span>
-          <span class="trust-pill"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="m2.3 6.2 2.1 2.1 5.2-5.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Replay protection</span>
-        </div>
-      </div>
+      <div><span class="kicker">Purpose-bound authorization</span><h1>Authorize AI work.<br><span class="accent">Keep consent private.</span></h1></div>
+      <div><p class="lede">Give an AI one narrowly scoped permission without publishing the document, participant decisions, or consent threshold.</p><div class="trust-row" aria-label="Privacy properties"><span class="trust-pill">✓ One-use capability</span><span class="trust-pill">✓ Private policy</span><span class="trust-pill">✓ Replay protection</span></div></div>
     </section>
 
-    <section class="panel wallet" aria-label="Wallet compatibility">
-      <div class="wallet-copy">
-        <span class="wallet-icon" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 20 20" fill="none"><path d="M3.5 5.5h11a2 2 0 0 1 2 2v7h-13a2 2 0 0 1-2-2v-7.2a2 2 0 0 1 1.2-1.83l9-3.73a1.5 1.5 0 0 1 1.96.8L14 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.5 9.2h3v2.8h-3a1.4 1.4 0 1 1 0-2.8Z" stroke="currentColor" stroke-width="1.4"/></svg></span>
-        <div><div class="wallet-state" id="walletState">Checking wallet compatibility…</div><div class="wallet-detail" id="walletDetail">This walkthrough runs locally and never submits wallet transactions.</div></div>
-      </div>
-      <div class="actions"><select class="wallet-provider" id="walletProvider" aria-label="Wallet provider" hidden></select><button class="secondary" id="refreshWallet">Refresh</button><button id="connectWallet">Check wallet</button></div>
-    </section>
+    <section class="mode-banner" aria-label="Demo environment"><span class="mode-icon" aria-hidden="true">D</span><div><strong>Interactive demo mode</strong><p>The workflow executes generated Compact circuits locally and does not submit a transaction. A separate finalized Preprod lifecycle is linked below.</p></div><a href="#preprod-evidence">View network evidence</a></section>
 
     <section class="workspace-grid grid">
       <div class="panel workspace">
+        <div class="wizard-nav" aria-label="Request creation steps"><button class="wizard-tab active" id="wizardTab1" aria-current="step"><span>1</span>Define access</button><button class="wizard-tab" id="wizardTab2"><span>2</span>Set consent</button><button class="wizard-tab" id="wizardTab3"><span>3</span>Review</button></div>
         <div class="workspace-body">
-          <div class="section-head">
-            <div><div class="eyebrow">Consent request</div><h2>Define exactly what the AI may do</h2><p>The document is encrypted locally. Only a commitment and the authorization state are exposed.</p></div>
-            <span class="step-token" id="stepToken">Step 1 of 3</span>
-          </div>
+          <section class="wizard-page active" id="wizardPage1">
+            <div class="section-head"><div><div class="eyebrow">AI access</div><h2>Define one exact use</h2><p>Describe the task in plain language. The document stays in this browser and is cleared after encryption.</p></div><button class="text-button" id="useSample">Use sample</button></div>
+            <label class="document-field">Private document<textarea id="document" placeholder="Paste the private text the AI may process"></textarea></label>
+            <div class="fields"><label>AI task<input id="task" value="Summarize decisions and action items"></label><label>Model<input id="model" value="veil-demo-v1"></label><label>Who may receive the result<input id="recipients" value="Project Aurora members"></label><label>Maximum retention<select id="retention"><option>24 hours</option><option>7 days</option><option>No retention</option></select></label></div>
+            <p class="session-note">Request settings are restored in this tab. Private document content is never saved as a draft.</p>
+          </section>
 
-          <label class="document-field">Private document<textarea id="document">Project Aurora launches Tuesday. Keep the customer list private. Legal must review the announcement tomorrow.</textarea></label>
-
-          <div class="fields">
-            <label>AI task<input id="task" value="Summarize decisions and action items"></label>
-            <label>Model<input id="model" value="veil-demo-v1"></label>
-            <label>Allowed recipients<input id="recipients" value="Project Aurora members"></label>
-            <label>Retention<select id="retention"><option>24 hours</option><option>7 days</option><option>No retention</option></select></label>
-            <label>Private consent rule<select id="threshold"><option value="3">Unanimous</option><option value="2" selected>Any 2 of 3</option><option value="1">Any 1 of 3</option></select></label>
-            <label>Request expires<select id="expiry"><option value="3600">In 1 hour</option><option value="86400">In 24 hours</option><option value="604800">In 7 days</option></select></label>
-          </div>
-
-          <div class="consent-block">
-            <div class="consent-head"><div><div class="eyebrow">Participants</div><h3>Collect private responses</h3></div><select class="workflow" id="workflow" aria-label="Participant workflow"><option value="local">Local walkthrough</option><option value="independent">Independent participants</option></select></div>
+          <section class="wizard-page" id="wizardPage2" hidden>
+            <div class="section-head"><div><div class="eyebrow">Consent policy</div><h2>Choose how approval is collected</h2><p>Use the local walkthrough to understand the protocol or invite three independent participants.</p></div></div>
+            <div class="mode-options" role="radiogroup" aria-label="Participant workflow"><label class="mode-option selected" id="modeLocalCard"><input type="radio" name="mode" id="modeLocal" value="local" checked><span class="mode-symbol">▶</span><strong>Try the demo</strong><small>Simulate three private responses in this browser.</small></label><label class="mode-option" id="modeIndependentCard"><input type="radio" name="mode" id="modeIndependent" value="independent"><span class="mode-symbol">↗</span><strong>Invite participants</strong><small>Exchange signed, encrypted packets with three people.</small></label></div>
+            <select class="workflow visually-hidden" id="workflow" aria-label="Participant workflow"><option value="local">Local walkthrough</option><option value="independent">Independent participants</option></select>
+            <div class="fields policy-fields"><label>Private consent rule<select id="threshold"><option value="3">Unanimous</option><option value="2" selected>Any 2 of 3</option><option value="1">Any 1 of 3</option></select></label><label>Request expires<select id="expiry"><option value="3600">In 1 hour</option><option value="86400">In 24 hours</option><option value="604800">In 7 days</option></select></label></div>
             <div class="participants" id="localResponses"><label class="participant"><input id="p1" type="checkbox" checked>Participant A approves</label><label class="participant"><input id="p2" type="checkbox" checked>Participant B approves</label><label class="participant"><input id="p3" type="checkbox">Participant C approves</label></div>
+            <details class="handoff" id="enrollmentPanel"><summary>Advanced participant enrollment</summary><h3>Import participant enrollments</h3><p>Confirm each credential fingerprint with the intended person through an authenticated channel. VeilConsent does not establish legal identity.</p><div class="packet-grid"><div class="packet-card"><strong>Participant A</strong><textarea id="enrollA" placeholder="Enrollment packet"></textarea><button class="secondary enroll-import" data-slot="A">Import</button><div class="ok" id="enrollStatusA">Waiting</div></div><div class="packet-card"><strong>Participant B</strong><textarea id="enrollB" placeholder="Enrollment packet"></textarea><button class="secondary enroll-import" data-slot="B">Import</button><div class="ok" id="enrollStatusB">Waiting</div></div><div class="packet-card"><strong>Participant C</strong><textarea id="enrollC" placeholder="Enrollment packet"></textarea><button class="secondary enroll-import" data-slot="C">Import</button><div class="ok" id="enrollStatusC">Waiting</div></div></div></details>
+            <details class="handoff" id="invitationPanel"><summary>Encrypted invitation exchange</summary><h3>Send one invitation to each participant</h3><p>Each signed invitation discloses the exact purpose terms. Confirm this organizer fingerprint separately: <code id="organizerFingerprint"></code></p><div class="packet-grid" id="invitationGrid"></div><div class="response-row"><label>Encrypted participant response<textarea id="responsePacket" placeholder="Paste a response packet"></textarea></label><button class="secondary" id="importResponse">Import response</button></div><div class="response-status"><span id="responseA">A waiting</span><span id="responseB">B waiting</span><span id="responseC">C waiting</span></div></details>
+          </section>
 
-            <div class="handoff" id="enrollmentPanel">
-              <h3>Import participant enrollments</h3><p>Confirm each credential fingerprint with the intended person through an authenticated channel. VeilConsent does not establish legal identity.</p>
-              <div class="packet-grid">
-                <div class="packet-card"><strong>Participant A</strong><textarea id="enrollA" placeholder="Enrollment packet"></textarea><button class="secondary enroll-import" data-slot="A">Import</button><div class="ok" id="enrollStatusA">Waiting</div></div>
-                <div class="packet-card"><strong>Participant B</strong><textarea id="enrollB" placeholder="Enrollment packet"></textarea><button class="secondary enroll-import" data-slot="B">Import</button><div class="ok" id="enrollStatusB">Waiting</div></div>
-                <div class="packet-card"><strong>Participant C</strong><textarea id="enrollC" placeholder="Enrollment packet"></textarea><button class="secondary enroll-import" data-slot="C">Import</button><div class="ok" id="enrollStatusC">Waiting</div></div>
-              </div>
-            </div>
-
-            <div class="handoff" id="invitationPanel">
-              <h3>Send one invitation to each participant</h3><p>Each signed invitation discloses the exact purpose terms. Confirm this organizer fingerprint separately: <code id="organizerFingerprint"></code></p>
-              <div class="packet-grid" id="invitationGrid"></div>
-              <div class="response-row"><label>Encrypted participant response<textarea id="responsePacket" placeholder="Paste a response packet"></textarea></label><button class="secondary" id="importResponse">Import response</button></div>
-              <div class="response-status"><span id="responseA">A waiting</span><span id="responseB">B waiting</span><span id="responseC">C waiting</span></div>
-            </div>
-          </div>
-
-          <div class="access-notice"><svg class="notice-icon" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor"/><path d="M8 7.2v4M8 4.5v.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span><strong>Consent controls future access.</strong> Revocation or expiry cannot erase information already accessed or copies retained outside VeilConsent.</span></div>
+          <section class="wizard-page" id="wizardPage3" hidden>
+            <div class="section-head"><div><div class="eyebrow">Review request</div><h2>Confirm the authorization boundary</h2><p>These exact terms are bound into the request commitment.</p></div></div>
+            <dl class="request-summary"><dt>Document</dt><dd id="summaryDocument">Not provided</dd><dt>AI task</dt><dd id="summaryTask"></dd><dt>Model</dt><dd id="summaryModel"></dd><dt>Recipients</dt><dd id="summaryRecipients"></dd><dt>Retention</dt><dd id="summaryRetention"></dd><dt>Consent rule</dt><dd id="summaryThreshold"></dd><dt>Expires</dt><dd id="summaryExpiry"></dd><dt>Workflow</dt><dd id="summaryWorkflow"></dd></dl>
+            <div class="access-notice"><span aria-hidden="true">ⓘ</span><span><strong>Consent controls future access.</strong> Revocation or expiry cannot erase information already accessed or copies retained outside VeilConsent.</span></div>
+          </section>
           <div class="output" id="output"></div>
         </div>
-
-        <div class="action-bar">
-          <div class="action-copy"><div class="eyebrow">Protocol activity</div><div class="message" id="message">Ready. Your private document stays in this browser.</div></div>
-          <div class="actions"><button id="create">Create request</button><button id="issue" disabled>Prove consent</button><button id="process" disabled>Process once</button><button class="danger" id="revoke" disabled>Revoke</button></div>
-        </div>
+        <div class="action-bar"><div class="action-copy"><div class="eyebrow">Protocol activity</div><div class="message" id="message" aria-live="polite">Ready. Your private document stays in this browser.</div></div><div class="actions"><button class="secondary" id="wizardBack" hidden>Back</button><button id="wizardNext">Continue</button><button id="create" hidden>Create request</button><button id="issue" disabled hidden>Prove consent</button><button id="process" disabled hidden>Process once</button><button class="danger" id="revoke" disabled hidden>Revoke</button></div></div>
       </div>
 
       <aside class="panel sidebar">
-        <div class="status-head"><div><div class="eyebrow">Authorization</div><h2>Request status</h2></div><span class="status-chip" id="statusChip">Not started</span></div>
-        <div class="timeline">
-          <div class="stage" id="s1"><span class="dot">1</span><div><strong>Request committed</strong><small>Content and purpose bound</small></div><span class="badge">Pending</span></div>
-          <div class="stage" id="s2"><span class="dot">2</span><div><strong>Capability issued</strong><small>Private policy satisfied</small></div><span class="badge">Pending</span></div>
-          <div class="stage" id="s3"><span class="dot">3</span><div><strong>Capability consumed</strong><small>Replay permanently blocked</small></div><span class="badge">Pending</span></div>
-        </div>
+        <section class="wallet" aria-label="Optional wallet compatibility"><div class="wallet-copy"><span class="wallet-icon" aria-hidden="true">◫</span><div><div class="wallet-state" id="walletState">Checking wallets…</div><div class="wallet-detail" id="walletDetail">Optional compatibility check</div></div></div><div class="actions"><select class="wallet-provider" id="walletProvider" aria-label="Wallet provider" hidden></select><button class="secondary" id="refreshWallet">Refresh</button><button class="secondary" id="connectWallet">Check</button></div><details class="wallet-help"><summary>How do I add a wallet?</summary><ol><li>Install the Midnight build of Lace.</li><li>Create or restore a wallet.</li><li>Select Midnight Preprod.</li><li>Return here and choose Refresh.</li></ol><a href="https://midnight.network/blog/getting-mainnet-ready-a-developer-s-guide" target="_blank" rel="noreferrer">Open official setup guidance ↗</a><p>The interactive demo works without a wallet.</p></details></section>
         <div class="sidebar-divider"></div>
-        <div class="eyebrow">Circuit commitment</div><div class="commitment" id="commitment">Created after the document and exact purpose are bound.</div>
-        <div class="privacy"><div class="private">Enrollment credentials<b>PSEUDONYMOUS</b></div><div class="private">Individual decisions<b>OFF-CHAIN</b></div><div class="private">Policy threshold<b>HIDDEN</b></div><div class="private">Document + purpose<b>COMMITTED</b></div></div>
+        <div class="status-head"><div><div class="eyebrow">Authorization</div><h2>Request status</h2></div><span class="status-chip" id="statusChip" aria-live="polite">Not started</span></div>
+        <div class="timeline"><div class="stage" id="s1"><span class="dot">1</span><div><strong>Request committed</strong><small>Content and purpose bound</small></div><span class="badge">Pending</span></div><div class="stage" id="s2"><span class="dot">2</span><div><strong>Capability issued</strong><small>Private policy satisfied</small></div><span class="badge">Pending</span></div><div class="stage" id="s3"><span class="dot">3</span><div><strong>Capability consumed</strong><small>Replay permanently blocked</small></div><span class="badge">Pending</span></div></div>
+        <div class="sidebar-divider"></div><div class="eyebrow">Circuit commitment</div><div class="commitment" id="commitment">Created after the document and exact purpose are bound.</div><div class="privacy"><div class="private">Enrollment credentials<b>PSEUDONYMOUS</b></div><div class="private">Individual decisions<b>OFF-CHAIN</b></div><div class="private">Policy threshold<b>HIDDEN</b></div><div class="private">Document + purpose<b>COMMITTED</b></div></div>
       </aside>
     </section>
 
-    <section class="panel evidence" id="preprod-evidence">
-      <div><div class="eyebrow">Live network evidence</div><h2>Lifecycle finalized on Midnight Preprod</h2><p>The deployed contract completed create, issue, and consume. The interactive walkthrough above stays local and does not modify this deployment.</p></div>
-      <div class="evidence-data"><span>Contract</span><b><a href="https://preprod.midnightexplorer.com/contracts/0x6f995e8986feb2b107a7e65e650413ef150fe63bf88285a88c3da4c505d5ddcd" target="_blank" rel="noreferrer">6f995e89…ddcd ↗</a></b><span>Block</span><b>2702471</b><span>Status</span><b>4 · consumed</b></div>
-    </section>
-
+    <section class="panel evidence" id="preprod-evidence"><div><div class="eyebrow">Live network evidence</div><h2>Lifecycle finalized on Midnight Preprod</h2><p>The deployed contract completed create, issue, and consume. The interactive walkthrough above stays local and does not modify this deployment.</p></div><div class="evidence-data"><span>Contract</span><b><a href="https://preprod.midnightexplorer.com/contracts/0x6f995e8986feb2b107a7e65e650413ef150fe63bf88285a88c3da4c505d5ddcd" target="_blank" rel="noreferrer">6f995e89…ddcd ↗</a></b><span>Block</span><b>2702471</b><span>Status</span><b>4 · consumed</b></div></section>
     <footer class="foot"><span>Generated Compact circuits execute locally in this browser.</span><span id="contract" title="6f995e8986feb2b107a7e65e650413ef150fe63bf88285a88c3da4c505d5ddcd">Preprod contract · 6f995e89…ddcd</span></footer>
   </main>
   <script type="module" src="./organizer.bundle.js"></script>

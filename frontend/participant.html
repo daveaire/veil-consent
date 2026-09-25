@@ -1,64 +1,22 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'">
-  <meta name="description" content="Review and answer a VeilConsent request without disclosing your response publicly.">
-  <title>Participant · VeilConsent</title>
-  <link rel="stylesheet" href="./styles.css">
+  <meta name="description" content="Review and answer a VeilConsent request without disclosing your response publicly."><title>Participant · VeilConsent</title><link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <header class="site-header">
-    <nav class="nav" aria-label="Primary navigation"><a class="brand" href="./"><span class="mark" aria-hidden="true">V</span>VeilConsent</a><div class="nav-actions"><a class="nav-link" href="./">Organizer workspace</a><span class="network">Private response</span></div></nav>
-  </header>
-
+  <header class="site-header"><nav class="nav" aria-label="Primary navigation"><a class="brand" href="./"><span class="mark" aria-hidden="true">V</span>VeilConsent</a><div class="nav-actions"><a class="nav-link" href="./">Organizer workspace</a><span class="network">Private response</span></div></nav></header>
   <main class="app-shell participant-shell">
-    <section class="participant-hero">
-      <div><span class="kicker">Participant portal</span><h1>Your answer<br><span class="accent">belongs to you.</span></h1></div>
-      <p class="lede">Inspect the exact AI purpose and return an encrypted response. Your identity and decision never become public chain data.</p>
-    </section>
+    <section class="participant-hero"><div><span class="kicker">Participant portal</span><h1>Your answer<br><span class="accent">belongs to you.</span></h1></div><p class="lede">Check what the AI will do, who receives the result, and how long access lasts before you decide.</p></section>
+    <section class="mode-banner participant-banner"><span class="mode-icon" aria-hidden="true">◒</span><div><strong>Private browser session</strong><p>Credential secrets stay on this device. Clearing site data or changing browsers can make an unfinished response unrecoverable.</p></div><button class="text-button" id="clearLocal">Clear local data</button></section>
+    <div class="panel participant-progress" aria-label="Consent response steps"><div class="progress-item active" id="progress1"><span class="progress-number">1</span>Join request</div><div class="progress-item" id="progress2"><span class="progress-number">2</span>Review purpose</div><div class="progress-item" id="progress3"><span class="progress-number">3</span>Return response</div></div>
 
-    <div class="panel participant-progress" aria-label="Consent response steps">
-      <div class="progress-item"><span class="progress-number">1</span>Create credentials</div>
-      <div class="progress-item"><span class="progress-number">2</span>Review purpose</div>
-      <div class="progress-item"><span class="progress-number">3</span>Return response</div>
-    </div>
+    <section class="panel participant-panel"><div class="step"><span class="number">1</span><div class="content"><div class="eyebrow">One-time identity</div><h2>Join the consent request</h2><p class="hint">Choose the participant label given to you by the organizer. VeilConsent creates a random one-time credential; it does not reveal or verify your legal identity.</p><label>Assigned participant<select id="slot"><option>A</option><option>B</option><option>C</option></select></label><button id="enroll">Create private credential</button><details class="security-details" id="enrollmentDetails"><summary>Enrollment packet and security details</summary><p>Send this packet to the organizer. It contains commitments, never the private approval or withdrawal secrets.</p><label>Enrollment packet<textarea id="enrollment" readonly placeholder="Your enrollment packet will appear here."></textarea></label><button class="secondary" id="copyEnrollment" disabled>Copy enrollment packet</button></details><div class="message" id="enrollMessage" aria-live="polite">Approval and withdrawal secrets remain in this browser.</div></div></div></section>
 
-    <section class="panel participant-panel">
-      <div class="step"><span class="number">1</span><div class="content">
-        <div class="eyebrow">Local enrollment</div><h2>Create one-time credentials</h2>
-        <p class="hint">Choose the slot assigned by the organizer. Only random approval and withdrawal commitments leave this device; they do not establish your legal identity.</p>
-        <label>Participant slot<select id="slot"><option>A</option><option>B</option><option>C</option></select></label>
-        <button id="enroll">Create enrollment</button><button class="secondary" id="copyEnrollment" disabled>Copy packet</button>
-        <label>Enrollment packet<textarea id="enrollment" readonly placeholder="Your enrollment packet will appear here."></textarea></label>
-        <div class="message" id="enrollMessage">Approval and withdrawal secrets remain in this browser.</div>
-      </div></div>
-    </section>
+    <section class="panel participant-panel"><div class="step"><span class="number">2</span><div class="content"><div class="eyebrow">Consent terms</div><h2>Review what you are authorizing</h2><p class="hint">Paste the signed invitation received from the organizer. The human-readable request appears before you are asked to decide.</p><label>Invitation packet<textarea id="invitation" placeholder="veilconsent:…"></textarea></label><details class="security-details"><summary>Verify organizer identity</summary><p>For higher assurance, compare the signing fingerprint through a separate trusted channel.</p><label>Trusted organizer fingerprint<input id="organizerFingerprintInput" placeholder="Paste the independently confirmed fingerprint"></label></details><button id="review">Verify and show request</button><div class="review" id="reviewCard"><div class="consent-summary"><span class="summary-label">The AI may</span><strong id="reviewTask"></strong><span class="summary-label">Result visible to</span><strong id="reviewRecipients"></strong><div class="summary-pair"><span><small>Model</small><b id="reviewModel"></b></span><span><small>Retention</small><b id="reviewRetention"></b></span><span><small>Expires</small><b id="reviewExpiry"></b></span></div></div><details class="security-details compact"><summary>Technical verification</summary><dl><dt>Participant</dt><dd id="reviewSlot"></dd><dt>Request</dt><dd id="reviewRequest"></dd><dt>Organizer key</dt><dd id="reviewOrganizer"></dd></dl></details><div class="access-notice"><span aria-hidden="true">ⓘ</span><span><strong>Before you approve.</strong> Revocation or expiry blocks future access but cannot erase information already accessed or retained outside VeilConsent.</span></div><div class="choice"><button id="approve">Approve this use</button><button class="decline" id="decline">Decline</button></div></div><div class="message" id="reviewMessage" aria-live="polite">Nothing is sent automatically.</div></div></div></section>
 
-    <section class="panel participant-panel">
-      <div class="step"><span class="number">2</span><div class="content">
-        <div class="eyebrow">Signed invitation</div><h2>Review the exact request</h2>
-        <p class="hint">Paste the invitation supplied by the organizer. Verify their fingerprint through a separate trusted channel, then check every purpose field before answering.</p>
-        <label>Trusted organizer fingerprint<input id="organizerFingerprintInput" placeholder="Paste the independently confirmed fingerprint"></label>
-        <label>Invitation packet<textarea id="invitation" placeholder="veilconsent:…"></textarea></label>
-        <button id="review">Verify invitation</button>
-        <div class="review" id="reviewCard"><dl><dt>Participant slot</dt><dd id="reviewSlot"></dd><dt>AI task</dt><dd id="reviewTask"></dd><dt>Model</dt><dd id="reviewModel"></dd><dt>Recipients</dt><dd id="reviewRecipients"></dd><dt>Retention</dt><dd id="reviewRetention"></dd><dt>Expires</dt><dd id="reviewExpiry"></dd><dt>Request</dt><dd id="reviewRequest"></dd><dt>Organizer key</dt><dd id="reviewOrganizer"></dd></dl><div class="access-notice"><svg class="notice-icon" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor"/><path d="M8 7.2v4M8 4.5v.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span><strong>Before you approve.</strong> Revocation or expiry blocks future access but cannot erase information already accessed or retained outside VeilConsent.</span></div><div class="choice"><button id="approve">Approve request</button><button class="decline" id="decline">Decline</button></div></div>
-        <div class="message" id="reviewMessage">Nothing is sent automatically.</div>
-      </div></div>
-    </section>
-
-    <section class="panel participant-panel">
-      <div class="step"><span class="number">3</span><div class="content">
-        <div class="eyebrow">Encrypted handoff</div><h2>Return your response</h2>
-        <p class="hint">The response is encrypted to this request’s organizer and bound to its exact purpose. Copy it back through the channel you agreed to use.</p>
-        <label>Response packet<textarea id="response" readonly placeholder="Approve or decline a reviewed request first."></textarea></label>
-        <button id="copyResponse" disabled>Copy response</button>
-        <div class="privacy-note">Only the organizer can decrypt this packet. Public observers cannot see your identity or decision.</div>
-        <div class="message" id="responseMessage"></div>
-      </div></div>
-    </section>
-
+    <section class="panel participant-panel"><div class="step"><span class="number">3</span><div class="content"><div class="eyebrow">Encrypted handoff</div><h2>Return your decision</h2><p class="hint">Only the organizer can decrypt the response. It is bound to this request and cannot be reused elsewhere.</p><button id="copyResponse" disabled>Copy encrypted response</button><details class="security-details" id="responseDetails"><summary>View response packet</summary><label>Response packet<textarea id="response" readonly placeholder="Approve or decline a reviewed request first."></textarea></label></details><div class="privacy-note">Public observers cannot see your identity or decision.</div><div class="message" id="responseMessage" aria-live="polite"></div></div></div></section>
     <footer class="foot"><span>Credentials are generated locally in this browser.</span><span>Purpose-bound · one request · one response</span></footer>
   </main>
   <script type="module" src="./participant.bundle.js"></script>
