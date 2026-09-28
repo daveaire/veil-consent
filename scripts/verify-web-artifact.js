@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '..');
 const frontend = resolve(root, 'frontend');
 const pages = ['index.html', 'participant.html'];
-const assets = ['organizer.bundle.js', 'participant.bundle.js', 'styles.css'];
+const assets = ['organizer.bundle.js', 'participant.bundle.js', 'styles.css', 'favicon.svg'];
 
 function requireText(source, expected, file) {
   if (!source.includes(expected)) {
@@ -17,6 +17,7 @@ for (const page of pages) {
   const source = await readFile(resolve(frontend, page), 'utf8');
   requireText(source, 'Content-Security-Policy', page);
   requireText(source, 'class="skip-link"', page);
+  requireText(source, 'rel="icon"', page);
   requireText(source, 'aria-live="polite"', page);
   if (/<script(?![^>]+src=)/i.test(source)) {
     throw new Error(`${page} contains an inline script that violates the deployment CSP`);
