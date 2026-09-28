@@ -23,3 +23,4 @@ if(new URLSearchParams(location.search).get('demo')==='review'){
   await reviewInvitation();
   document.querySelector('.panel').style.display='none';
 }
+document.documentElement.dataset.veilReady='true';

@@ -141,7 +141,7 @@ The suite covers threshold and unanimous policies, expiry, revocation, replay pr
 
 ## CI/CD
 
-`.github/workflows/ci.yml` installs locked dependencies, compiles the Compact contract, runs the source and protocol checks, builds the browser interface, verifies the deployable artifact, and audits production dependencies on every push to `main` and every pull request. `.github/workflows/pages.yml` repeats the release checks before publishing the exact verified artifact to GitHub Pages. `.github/workflows/preprod.yml` tests the current release and queries the finalized contract every day and on demand.
+`.github/workflows/ci.yml` installs locked dependencies, compiles the Compact contract, runs the source and protocol checks, builds the browser interface, verifies the deployable artifact, exercises the organizer and participant journeys in Chromium, scans both entry points with axe, compares reviewed desktop and mobile screenshots, enforces Lighthouse budgets, and audits production dependencies on every push to `main` and every pull request. `.github/workflows/pages.yml` publishes the exact commit only after CI succeeds. `.github/workflows/preprod.yml` tests the current release and queries the finalized contract every day and on demand.
 
 Run the same release gate locally:
 
@@ -149,6 +149,7 @@ Run the same release gate locally:
 npm run check
 npm run build
 npm run verify:web
+npm run test:browser
 npm run audit
 ```
 

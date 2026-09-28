@@ -2,7 +2,7 @@ import { BrowserConsentSession, browserConsentInput } from './proof-client.js';
 import { createInvitation, createOrganizerEncryptionKey, hexToBytes, openResponse, readEnrollment } from './participant-exchange.js';
 import { canonicalPurpose, createPurposePolicy, assertExecutionAllowed } from '../src/purpose-policy.js';
 const $ = (id) => document.querySelector('#' + id);
-const session = await BrowserConsentSession.create();
+let session;
 const demoStep = new URLSearchParams(location.search).get('demo');
 const demoCapture = Boolean(demoStep);
 const sampleDocument = 'Project Aurora launches Tuesday. Keep the customer list private. Legal must review the announcement tomorrow.';
@@ -39,6 +39,7 @@ async function createRequest() {
   $('create').disabled=true; $('create').textContent='Encrypting…'; message('Encrypting the document and creating its purpose-bound commitment…');
   try {
     await paint();
+    session ??= await BrowserConsentSession.create();
     const now=Math.floor(Date.now()/1000), document=$('document').value.trim();
     if(!document) throw new Error('Add a private document or choose Use sample before creating the request');
     if(isIndependent() && enrollments.some(value=>!value)) throw new Error('Import all three participant enrollments before creating the request');
@@ -138,3 +139,4 @@ if (demoStep && demoStep !== 'initial') {
   }
 }
 if (demoStep) document.body.dataset.demoReady = demoStep;
+document.documentElement.dataset.veilReady = 'true';

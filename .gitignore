@@ -1,4 +1,8 @@
 node_modules/
+playwright-report/
+test-results/
+lighthouse-results/
+.lighthouseci/
 node_modules
 .midnight-state.json
 .midnight-wallet-state/

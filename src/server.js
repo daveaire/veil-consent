@@ -1,6 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'frontend');
@@ -10,6 +11,7 @@ const assets = new Map([
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
   ['/participant.html', ['participant.html', 'text/html; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
+  ['/favicon.svg', ['favicon.svg', 'image/svg+xml']],
   ['/organizer.bundle.js', ['organizer.bundle.js', 'text/javascript; charset=utf-8']],
   ['/participant.bundle.js', ['participant.bundle.js', 'text/javascript; charset=utf-8']],
   ['/midnight-runtime.wasm', ['midnight-runtime.wasm', 'application/wasm']],
@@ -21,12 +23,18 @@ http.createServer((request, response) => {
   const asset = assets.get(pathname);
   if (!asset) return response.writeHead(404).end('Not found');
   const [file, contentType] = asset;
+  const body = fs.readFileSync(path.join(root, file));
+  const acceptsGzip = /\bgzip\b/.test(request.headers['accept-encoding'] || '');
+  const compressible = /^(text\/|application\/(javascript|wasm)|image\/svg\+xml)/.test(contentType);
+  const encoded = acceptsGzip && compressible ? zlib.gzipSync(body, { level: 9 }) : body;
   response.writeHead(200, {
     'Content-Type': contentType,
-    'Cache-Control': 'no-store',
-    'Content-Security-Policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://indexer.preprod.midnight.network wss://indexer.preprod.midnight.network; object-src 'none'; base-uri 'none'",
+    'Cache-Control': 'no-cache',
+    'Content-Security-Policy': "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; connect-src 'self' https://indexer.preprod.midnight.network wss://indexer.preprod.midnight.network; object-src 'none'; base-uri 'none'",
+    'Vary': 'Accept-Encoding',
+    ...(encoded === body ? {} : { 'Content-Encoding': 'gzip' }),
   });
-  response.end(fs.readFileSync(path.join(root, file)));
+  response.end(encoded);
 }).listen(port, '127.0.0.1', () => {
   console.log(`VeilConsent dashboard: http://127.0.0.1:${port}`);
 });

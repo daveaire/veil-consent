@@ -9,6 +9,7 @@
     "build": "npm run build:web",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.js && node --import tsx --test tests/*.test.ts",
+    "test:browser": "playwright test",
     "check": "node --check src/*.js && node --check frontend/*.js && npm run typecheck && npm test",
     "audit": "npm audit --omit=dev --audit-level=high",
     "build:web": "node scripts/build-web.js",
@@ -46,6 +47,8 @@
     "ws": "^8.21.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^22.0.0",
     "@types/ws": "^8.18.1",
     "esbuild": "^0.25.10",
@@ -53,6 +56,10 @@
     "tsx": "^4.23.1",
     "typescript": "^6.0.3"
   },
-  "engines": { "node": ">=22.0.0" },
-  "overrides": { "@midnight-ntwrk/onchain-runtime-v3": "3.0.0" }
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "overrides": {
+    "@midnight-ntwrk/onchain-runtime-v3": "3.0.0"
+  }
 }

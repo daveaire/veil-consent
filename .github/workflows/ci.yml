@@ -38,5 +38,23 @@ jobs:
         run: npm run build
       - name: Verify deployment contract
         run: npm run verify:web
+      - name: Install browser test runtime
+        run: npx playwright install --with-deps chromium
+      - name: Verify browser journeys, accessibility, and visual baselines
+        run: npm run test:browser
+      - name: Enforce performance and quality budgets
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
       - name: Audit production dependencies
         run: npm run audit
+      - name: Preserve browser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-report
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
