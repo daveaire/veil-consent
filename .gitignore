@@ -18,4 +18,5 @@ frontend/proof-client.bundle.js
 frontend/participant-exchange.bundle.js
 frontend/organizer.bundle.js
 frontend/participant.bundle.js
+frontend/chunks/
 frontend/midnight-runtime.wasm
