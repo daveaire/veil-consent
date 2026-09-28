@@ -56,9 +56,9 @@ test('mobile layouts remain readable without horizontal overflow', async ({ page
   await gotoReady(page, '/?demo=initial');
   const organizerOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(organizerOverflow).toBeLessThanOrEqual(1);
-  await expect(page).toHaveScreenshot('organizer-mobile.png', { fullPage: true });
+  await expect(page).toHaveScreenshot('organizer-mobile.png');
   await gotoReady(page, '/participant.html');
   const participantOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(participantOverflow).toBeLessThanOrEqual(1);
-  await expect(page).toHaveScreenshot('participant-mobile.png', { fullPage: true });
+  await expect(page).toHaveScreenshot('participant-mobile.png');
 });
