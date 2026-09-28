@@ -9,15 +9,21 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <header class="site-header"><nav class="nav" aria-label="Primary navigation"><a class="brand" href="./"><span class="mark" aria-hidden="true">V</span>VeilConsent</a><div class="nav-actions"><a class="nav-link" href="participant.html">Participant portal</a><a class="nav-link" href="veil-consent-mvp.mp4">Product demo</a><span class="network">Midnight Preprod</span></div></nav></header>
+  <a class="skip-link" href="#workspace">Skip to request workspace</a>
+  <header class="site-header"><nav class="nav" aria-label="Primary navigation"><a class="brand" href="./"><span class="mark" aria-hidden="true">V</span><span>VeilConsent<small>Private AI authorization</small></span></a><div class="nav-actions"><a class="nav-link" href="#how-it-works">How it works</a><a class="nav-link" href="participant.html">Participant portal</a><a class="nav-link" href="veil-consent-mvp.mp4">Product demo</a><span class="network">Preprod verified</span></div></nav></header>
 
   <main class="app-shell">
     <section class="hero">
       <div><span class="kicker">Purpose-bound authorization</span><h1>Authorize AI work.<br><span class="accent">Keep consent private.</span></h1></div>
-      <div><p class="lede">Give an AI one narrowly scoped permission without publishing the document, participant decisions, or consent threshold.</p><div class="trust-row" aria-label="Privacy properties"><span class="trust-pill">✓ One-use capability</span><span class="trust-pill">✓ Private policy</span><span class="trust-pill">✓ Replay protection</span></div></div>
+      <div><p class="lede">Give an AI one narrowly scoped permission without publishing the document, participant decisions, or consent threshold.</p><div class="hero-actions"><a class="primary-link" href="#workspace">Create a private request</a><a class="quiet-link" href="participant.html">Open participant view <span aria-hidden="true">↗</span></a></div><div class="trust-row" aria-label="Privacy properties"><span class="trust-pill">✓ One-use capability</span><span class="trust-pill">✓ Private policy</span><span class="trust-pill">✓ Replay protection</span></div></div>
     </section>
 
-    <section class="mode-banner" aria-label="Demo environment"><span class="mode-icon" aria-hidden="true">D</span><div><strong>Interactive demo mode</strong><p>The workflow executes generated Compact circuits locally and does not submit a transaction. A separate finalized Preprod lifecycle is linked below.</p></div><a href="#preprod-evidence">View network evidence</a></section>
+    <section class="workflow-map" id="how-it-works" aria-labelledby="workflow-title">
+      <div class="workflow-intro"><div class="eyebrow">Protocol at a glance</div><h2 id="workflow-title">A clear boundary from request to execution.</h2></div>
+      <ol class="workflow-steps"><li><span>01</span><div><strong>Bind the purpose</strong><small>Commit the document, task, model, recipients, and retention.</small></div></li><li><span>02</span><div><strong>Prove the rule</strong><small>Participants respond privately; Midnight verifies the policy.</small></div></li><li><span>03</span><div><strong>Consume once</strong><small>The capability authorizes one execution and blocks replay.</small></div></li></ol>
+    </section>
+
+    <section class="mode-banner" id="workspace" aria-label="Demo environment"><span class="mode-icon" aria-hidden="true">D</span><div><strong>Interactive product walkthrough</strong><p>Generated Compact circuits execute locally. The finalized Preprod lifecycle remains independently verifiable below.</p></div><a href="#preprod-evidence">View network evidence</a></section>
 
     <section class="workspace-grid grid">
       <div class="panel workspace">
@@ -25,7 +31,7 @@
         <div class="workspace-body">
           <section class="wizard-page active" id="wizardPage1">
             <div class="section-head"><div><div class="eyebrow">AI access</div><h2>Define one exact use</h2><p>Describe the task in plain language. The document stays in this browser and is cleared after encryption.</p></div><button class="text-button" id="useSample">Use sample</button></div>
-            <label class="document-field">Private document<textarea id="document" placeholder="Paste the private text the AI may process"></textarea></label>
+            <label class="document-field">Private document<span class="field-meta" id="charCount">0 characters · never saved</span><textarea id="document" maxlength="12000" placeholder="Paste the private text the AI may process"></textarea></label>
             <div class="fields"><label>AI task<input id="task" value="Summarize decisions and action items"></label><label>Model<input id="model" value="veil-demo-v1"></label><label>Who may receive the result<input id="recipients" value="Project Aurora members"></label><label>Maximum retention<select id="retention"><option>24 hours</option><option>7 days</option><option>No retention</option></select></label></div>
             <p class="session-note">Request settings are restored in this tab. Private document content is never saved as a draft.</p>
           </section>
@@ -45,7 +51,7 @@
             <dl class="request-summary"><dt>Document</dt><dd id="summaryDocument">Not provided</dd><dt>AI task</dt><dd id="summaryTask"></dd><dt>Model</dt><dd id="summaryModel"></dd><dt>Recipients</dt><dd id="summaryRecipients"></dd><dt>Retention</dt><dd id="summaryRetention"></dd><dt>Consent rule</dt><dd id="summaryThreshold"></dd><dt>Expires</dt><dd id="summaryExpiry"></dd><dt>Workflow</dt><dd id="summaryWorkflow"></dd></dl>
             <div class="access-notice"><span aria-hidden="true">ⓘ</span><span><strong>Consent controls future access.</strong> Revocation or expiry cannot erase information already accessed or copies retained outside VeilConsent.</span></div>
           </section>
-          <div class="output" id="output"></div>
+          <div class="output" id="output" role="status"><span class="output-icon" aria-hidden="true">✓</span><div><strong>Authorized result</strong><p id="outputText"></p><small>The capability is now consumed. Replaying this authorization will fail.</small></div></div>
         </div>
         <div class="action-bar"><div class="action-copy"><div class="eyebrow">Protocol activity</div><div class="message" id="message" aria-live="polite">Ready. Your private document stays in this browser.</div></div><div class="actions"><button class="secondary" id="wizardBack" hidden>Back</button><button id="wizardNext">Continue</button><button id="create" hidden>Create request</button><button id="issue" disabled hidden>Prove consent</button><button id="process" disabled hidden>Process once</button><button class="danger" id="revoke" disabled hidden>Revoke</button></div></div>
       </div>
@@ -55,7 +61,7 @@
         <div class="sidebar-divider"></div>
         <div class="status-head"><div><div class="eyebrow">Authorization</div><h2>Request status</h2></div><span class="status-chip" id="statusChip" aria-live="polite">Not started</span></div>
         <div class="timeline"><div class="stage" id="s1"><span class="dot">1</span><div><strong>Request committed</strong><small>Content and purpose bound</small></div><span class="badge">Pending</span></div><div class="stage" id="s2"><span class="dot">2</span><div><strong>Capability issued</strong><small>Private policy satisfied</small></div><span class="badge">Pending</span></div><div class="stage" id="s3"><span class="dot">3</span><div><strong>Capability consumed</strong><small>Replay permanently blocked</small></div><span class="badge">Pending</span></div></div>
-        <div class="sidebar-divider"></div><div class="eyebrow">Circuit commitment</div><div class="commitment" id="commitment">Created after the document and exact purpose are bound.</div><div class="privacy"><div class="private">Enrollment credentials<b>PSEUDONYMOUS</b></div><div class="private">Individual decisions<b>OFF-CHAIN</b></div><div class="private">Policy threshold<b>HIDDEN</b></div><div class="private">Document + purpose<b>COMMITTED</b></div></div>
+        <div class="sidebar-divider"></div><div class="eyebrow">Circuit commitment</div><div class="commitment" id="commitment">Created after the document and exact purpose are bound.</div><div class="privacy"><div class="private"><span aria-hidden="true">◌</span>Enrollment credentials<b>PSEUDONYMOUS</b></div><div class="private"><span aria-hidden="true">◐</span>Individual decisions<b>OFF-CHAIN</b></div><div class="private"><span aria-hidden="true">◇</span>Policy threshold<b>HIDDEN</b></div><div class="private"><span aria-hidden="true">◆</span>Document + purpose<b>COMMITTED</b></div></div>
       </aside>
     </section>
 

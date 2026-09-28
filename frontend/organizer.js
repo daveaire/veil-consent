@@ -18,10 +18,17 @@ function purpose() { return canonicalPurpose(purposePolicy()); }
 function decisions() { return [$('p1').checked, $('p2').checked, $('p3').checked]; }
 function isIndependent() { return $('workflow').value === 'independent'; }
 function message(value, error=false) { $('message').textContent=value; $('message').classList.toggle('error', error); }
+function updateCharCount() {
+  const count=$('document').value.length;
+  $('charCount').textContent=`${count.toLocaleString()} character${count===1?'':'s'} · never saved`;
+}
 function stage(n, label) {
-  const el=$('s'+n);
-  el.classList.add('done');
-  el.querySelector('.badge').textContent=label;
+  for(let index=1;index<=3;index++){
+    const current=$('s'+index);
+    current.classList.toggle('done',index<=n);
+    current.setAttribute('aria-current',index===n?'step':'false');
+  }
+  $('s'+n).querySelector('.badge').textContent=label;
   $('statusChip').textContent=n === 1 ? 'Awaiting consent' : n === 2 ? 'Authorized' : 'Consumed';
 }
 function paint() { return demoCapture ? Promise.resolve() : new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))); }
@@ -51,7 +58,7 @@ async function createRequest() {
   } catch (error) { $('create').disabled=false; $('create').textContent='Create request'; message(error.message,true); throw error; }
 }
 async function issueCapability() { $('issue').disabled=true; $('issue').textContent='Proving…'; message('Checking the private responses against the committed consent policy…'); try { await paint(); if(!isIndependent())[input.decisionA,input.decisionB,input.decisionC]=decisions().map(x=>x?1n:0n); const result=session.issueCapability(input,Math.floor(Date.now()/1000)); $('commitment').textContent=result.capability; stage(2,'Issued'); $('issue').textContent='Consent proven'; $('process').hidden=false; $('process').disabled=false; message('Zero-knowledge circuit accepted the private consent witnesses. A one-use capability is ready.'); } catch(error){ $('issue').disabled=false; $('issue').textContent='Prove consent'; message(error.message,true); throw error; } }
-async function processOnce() { $('process').disabled=true; $('process').textContent='Processing…'; message('Validating the execution policy, then consuming the one-use capability before decryption…'); try { await paint(); assertExecutionAllowed(activePurpose,{task:activePurpose.task,model:activePurpose.model,recipient:activePurpose.recipients,retentionSeconds:activePurpose.retentionSeconds}); session.consumeCapability(input,Math.floor(Date.now()/1000)); const text=await decrypt(encrypted); const summary=text.split(/(?<=[.!?])\s+/).slice(0,2).join(' '); stage(3,'Consumed'); $('process').textContent='Processed once'; $('revoke').disabled=true; $('output').style.display='block'; $('output').textContent='AI adapter output: '+summary; message('Capability consumed under the committed task, model, recipient, and retention policy. A replay attempt will be rejected by contract state.'); } catch(error){ $('process').disabled=false; $('process').textContent='Process once'; message(error.message,true); throw error; } }
+async function processOnce() { $('process').disabled=true; $('process').textContent='Processing…'; message('Validating the execution policy, then consuming the one-use capability before decryption…'); try { await paint(); assertExecutionAllowed(activePurpose,{task:activePurpose.task,model:activePurpose.model,recipient:activePurpose.recipients,retentionSeconds:activePurpose.retentionSeconds}); session.consumeCapability(input,Math.floor(Date.now()/1000)); const text=await decrypt(encrypted); const summary=text.split(/(?<=[.!?])\s+/).slice(0,2).join(' '); stage(3,'Consumed'); $('process').textContent='Processed once'; $('revoke').disabled=true; $('output').style.display='grid'; $('outputText').textContent=summary; message('Capability consumed under the committed task, model, recipient, and retention policy. A replay attempt will be rejected by contract state.'); } catch(error){ $('process').disabled=false; $('process').textContent='Process once'; message(error.message,true); throw error; } }
 $('create').onclick = createRequest;
 $('issue').onclick = issueCapability;
 $('process').onclick = processOnce;
@@ -68,7 +75,8 @@ const draftFields=['task','model','recipients','retention','threshold','expiry']
 try { const draft=JSON.parse(sessionStorage.getItem(draftKey)||'null'); if(draft) for(const id of draftFields) if(draft[id]!==undefined) $(id).value=draft[id]; } catch {}
 function saveDraft(){sessionStorage.setItem(draftKey,JSON.stringify(Object.fromEntries(draftFields.map(id=>[id,$(id).value]))));}
 for(const id of draftFields) $(id).addEventListener('change',saveDraft);
-$('useSample').onclick=()=>{$('document').value=sampleDocument;message('Sample document loaded. Replace it with your own text or continue with the example.');};
+$('document').addEventListener('input',updateCharCount);
+$('useSample').onclick=()=>{$('document').value=sampleDocument;updateCharCount();message('Sample document loaded. Replace it with your own text or continue with the example.');};
 for(const radio of [$('modeLocal'),$('modeIndependent')]) radio.onchange=()=>{if(!radio.checked)return;$('workflow').value=radio.value;$('workflow').dispatchEvent(new Event('change'));};
 
 let wizardPage=1;
@@ -114,6 +122,7 @@ $('connectWallet').onclick=async()=>{ refresh(); const selected=$('walletProvide
 setTimeout(refresh,250);
 
 if (demoStep) $('document').value=sampleDocument;
+updateCharCount();
 if (demoStep && demoStep !== 'initial') {
   await createRequest();
   if (demoStep === 'issued' || demoStep === 'consumed' || demoStep === 'evidence') {
