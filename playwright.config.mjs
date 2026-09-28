@@ -13,7 +13,10 @@ export default defineConfig({
     toHaveScreenshot: {
       animations: 'disabled',
       caret: 'hide',
-      maxDiffPixelRatio: 0.02,
+      // Linux and macOS rasterize the same system-font stack differently.
+      // Keep enough tolerance for glyph antialiasing while still rejecting
+      // structural layout and component regressions.
+      maxDiffPixelRatio: 0.08,
     },
   },
   use: {
