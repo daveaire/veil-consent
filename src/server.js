@@ -14,14 +14,16 @@ const assets = new Map([
   ['/favicon.svg', ['favicon.svg', 'image/svg+xml']],
   ['/organizer.bundle.js', ['organizer.bundle.js', 'text/javascript; charset=utf-8']],
   ['/participant.bundle.js', ['participant.bundle.js', 'text/javascript; charset=utf-8']],
-  ['/midnight-runtime.wasm', ['midnight-runtime.wasm', 'application/wasm']],
   ['/veil-consent-mvp.mp4', ['veil-consent-mvp.mp4', 'video/mp4']],
 ]);
 
 http.createServer((request, response) => {
-  const pathname = new URL(request.url, 'http://127.0.0.1').pathname;
-  const chunk = /^\/chunks\/[A-Za-z0-9_-]+\.js$/.test(pathname)
-    ? [pathname.slice(1), 'text/javascript; charset=utf-8']
+  const requestedPath = new URL(request.url, 'http://127.0.0.1').pathname;
+  const pathname = requestedPath.startsWith('/veil-consent/')
+    ? requestedPath.slice('/veil-consent'.length)
+    : requestedPath;
+  const chunk = /^\/chunks\/[A-Za-z0-9_-]+\.(?:js|wasm)$/.test(pathname)
+    ? [pathname.slice(1), pathname.endsWith('.wasm') ? 'application/wasm' : 'text/javascript; charset=utf-8']
     : undefined;
   const asset = assets.get(pathname) || chunk;
   if (!asset) return response.writeHead(404).end('Not found');

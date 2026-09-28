@@ -39,4 +39,14 @@ for (const asset of assets) {
 const chunks = (await readdir(resolve(frontend, 'chunks'))).filter((file) => file.endsWith('.js'));
 if (chunks.length === 0) throw new Error('The deferred proof-runtime chunk is missing');
 
+const wasm = resolve(frontend, 'chunks', 'midnight-runtime.wasm');
+await access(wasm, constants.R_OK);
+if ((await stat(wasm)).size < 100_000) throw new Error('The Midnight runtime WebAssembly asset is unexpectedly small');
+for (const chunk of chunks) {
+  const source = await readFile(resolve(frontend, 'chunks', chunk), 'utf8');
+  if (source.includes('../midnight-runtime.wasm')) {
+    throw new Error(`${chunk} resolves WebAssembly outside its chunk directory and will fail under a deployment subpath`);
+  }
+}
+
 console.log(`Verified ${pages.length} pages and ${assets.length} release assets.`);

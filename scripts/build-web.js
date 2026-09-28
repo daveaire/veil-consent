@@ -3,6 +3,7 @@ import { wasmLoader } from 'esbuild-plugin-wasm';
 import { rm } from 'node:fs/promises';
 
 await rm('frontend/chunks', { recursive: true, force: true });
+await rm('frontend/midnight-runtime.wasm', { force: true });
 
 await esbuild.build({
   entryPoints: {
@@ -16,7 +17,7 @@ await esbuild.build({
   target: ['es2022'],
   minify: true,
   outdir: 'frontend',
-  assetNames: 'midnight-runtime',
+  assetNames: 'chunks/midnight-runtime',
   chunkNames: 'chunks/[name]-[hash]',
   plugins: [wasmLoader({ mode: 'deferred' })],
 });

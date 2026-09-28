@@ -1,5 +1,6 @@
 import { createInvitation, createOrganizerEncryptionKey, hexToBytes, openResponse, readEnrollment } from './participant-exchange.js';
 import { canonicalPurpose, createPurposePolicy, assertExecutionAllowed } from '../src/purpose-policy.js';
+import { consentProgress } from './consent-progress.js';
 const $ = (id) => document.querySelector('#' + id);
 let session;
 let proofClient;
@@ -17,10 +18,16 @@ function purposePolicy() { return createPurposePolicy({task:$('task').value,mode
 function purpose() { return canonicalPurpose(purposePolicy()); }
 function decisions() { return [$('p1').checked, $('p2').checked, $('p3').checked]; }
 function isIndependent() { return $('workflow').value === 'independent'; }
+function updateIndependentIssueState() {
+  const progress=consentProgress(independentResponses,Number(input.threshold));
+  $('issue').disabled=!progress.ready;
+  return progress;
+}
 function message(value, error=false) { $('message').textContent=value; $('message').classList.toggle('error', error); }
 function updateCharCount() {
   const count=$('document').value.length;
   $('charCount').textContent=`${count.toLocaleString()} character${count===1?'':'s'} · never saved`;
+  $('useSample').textContent=count?'Replace with example':'Load example';
 }
 function stage(n, label) {
   for(let index=1;index<=3;index++){
@@ -56,7 +63,7 @@ async function createRequest() {
     $('commitment').textContent=result.request; stage(1,'Active');
     $('create').textContent='Request created'; $('create').hidden=true; $('issue').hidden=false; $('revoke').hidden=false; $('issue').disabled=isIndependent(); $('revoke').disabled=false;
     $('workflow').disabled=true;
-    if(isIndependent()) await renderInvitations(result.request,expiry);
+    if(isIndependent()) { await renderInvitations(result.request,expiry); showWizard(2); }
     message(`Encrypted ${encrypted.data.length} bytes. The circuit exposed no identity, vote, threshold, purpose, or plaintext.`);
   } catch (error) { $('create').disabled=false; $('create').textContent='Create request'; message(error.message,true); throw error; }
 }
@@ -71,7 +78,7 @@ $('workflow').onchange=()=>{const independent=isIndependent();$('localResponses'
 document.querySelectorAll('.enroll-import').forEach(button=>button.onclick=()=>{try{const slot=button.dataset.slot,index=['A','B','C'].indexOf(slot),packet=readEnrollment($('enroll'+slot).value);if(packet.slot!==slot)throw new Error(`This enrollment is for participant ${packet.slot}`);if(enrollments.some((item,itemIndex)=>itemIndex!==index&&item?.credential===packet.credential))throw new Error('Each participant must use a distinct credential');enrollments[index]=packet;$('enrollStatus'+slot).textContent='Credential ready';$('create').disabled=enrollments.some(value=>!value);message(`Participant ${slot} enrollment imported. The private credential was not disclosed.`);}catch(error){message(error.message,true);}});
 async function copyPacket(value){try{await navigator.clipboard.writeText(value);message('Invitation copied. Send it to the assigned participant.');}catch{message('Copy was blocked. Select the invitation packet and copy it manually.',true);}}
 async function renderInvitations(request,expiry){const grid=$('invitationGrid');grid.replaceChildren();for(const [index,enrollment] of enrollments.entries()){const slot=['A','B','C'][index],packet=await createInvitation({slot,credential:enrollment.credential,request,purpose:activePurpose,expiry,organizerPublicKey:organizerEncryption.publicKey,organizerSigningPublicKey:organizerEncryption.signingPublicKey,organizerSigningPrivateKey:organizerEncryption.signingKeyPair.privateKey});const card=document.createElement('div');card.className='packet-card';const title=document.createElement('strong');title.textContent=`Participant ${slot}`;const area=document.createElement('textarea');area.readOnly=true;area.value=packet;const button=document.createElement('button');button.className='secondary';button.textContent='Copy invitation';button.onclick=()=>copyPacket(packet);card.append(title,area,button);grid.append(card);}$('organizerFingerprint').textContent=organizerEncryption.signingFingerprint;$('invitationPanel').classList.add('visible');$('invitationPanel').open=true;}
-$('importResponse').onclick=async()=>{try{if(!organizerEncryption||!activeRequest)throw new Error('Create an independent request first');const response=await openResponse($('responsePacket').value,organizerEncryption.keyPair.privateKey,activeRequest,enrollments.map(item=>item.credential),activePurpose);const index=['A','B','C'].indexOf(response.slot);if(independentResponses[index])throw new Error(`Participant ${response.slot} has already responded`);independentResponses[index]=response;if(response.approved)input[['approvalSecretA','approvalSecretB','approvalSecretC'][index]]=hexToBytes(response.approvalSecret);input[['decisionA','decisionB','decisionC'][index]]=response.approved?1n:0n;$('response'+response.slot).textContent=`${response.slot} received`;$('response'+response.slot).classList.add('done');$('responsePacket').value='';$('issue').disabled=independentResponses.some(value=>!value);message(`Participant ${response.slot} response authenticated and decrypted locally. The decision is hidden from the public ledger; the organizer can see it.`);}catch(error){message(error.message,true);}};
+$('importResponse').onclick=async()=>{try{if(!organizerEncryption||!activeRequest)throw new Error('Create an independent request first');const response=await openResponse($('responsePacket').value,organizerEncryption.keyPair.privateKey,activeRequest,enrollments.map(item=>item.credential),activePurpose);const index=['A','B','C'].indexOf(response.slot);if(independentResponses[index])throw new Error(`Participant ${response.slot} has already responded`);independentResponses[index]=response;if(response.approved)input[['approvalSecretA','approvalSecretB','approvalSecretC'][index]]=hexToBytes(response.approvalSecret);input[['decisionA','decisionB','decisionC'][index]]=response.approved?1n:0n;$('response'+response.slot).textContent=`${response.slot} received`;$('response'+response.slot).classList.add('done');$('responsePacket').value='';const progress=updateIndependentIssueState();const status=progress.ready?` The required ${progress.required} approval${progress.required===1?' has':'s have'} been received; consent can now be proven.`:progress.impossible?' The policy can no longer be satisfied; create a new request to continue.':` ${progress.approved} of ${progress.required} required approvals are ready.`;message(`Participant ${response.slot} response authenticated and decrypted locally.${status}`);}catch(error){message(error.message,true);}};
 
 const draftKey='veilconsent:organizer-draft:v1';
 const draftFields=['task','model','recipients','retention','threshold','expiry'];
@@ -79,10 +86,11 @@ try { const draft=JSON.parse(sessionStorage.getItem(draftKey)||'null'); if(draft
 function saveDraft(){sessionStorage.setItem(draftKey,JSON.stringify(Object.fromEntries(draftFields.map(id=>[id,$(id).value]))));}
 for(const id of draftFields) $(id).addEventListener('change',saveDraft);
 $('document').addEventListener('input',updateCharCount);
+window.addEventListener('pageshow',updateCharCount);
 $('useSample').onclick=()=>{$('document').value=sampleDocument;updateCharCount();message('Sample document loaded. Replace it with your own text or continue with the example.');};
 for(const radio of [$('modeLocal'),$('modeIndependent')]) radio.onchange=()=>{if(!radio.checked)return;$('workflow').value=radio.value;$('workflow').dispatchEvent(new Event('change'));};
 
-let wizardPage=1;
+let wizardPage=1,furthestWizardPage=1;
 function renderSummary(){
   $('summaryDocument').textContent=`${$('document').value.trim().length} characters · encrypted locally`;
   $('summaryTask').textContent=$('task').value;
@@ -95,11 +103,13 @@ function renderSummary(){
 }
 function showWizard(page){
   wizardPage=page;
+  furthestWizardPage=Math.max(furthestWizardPage,page);
   for(let i=1;i<=3;i++){
     $('wizardPage'+i).hidden=i!==page;
     $('wizardPage'+i).classList.toggle('active',i===page);
     $('wizardTab'+i).classList.toggle('active',i===page);
     $('wizardTab'+i).toggleAttribute('aria-current',i===page);
+    $('wizardTab'+i).disabled=i>furthestWizardPage;
   }
   $('wizardBack').hidden=page===1;
   $('wizardNext').hidden=page===3;
@@ -115,11 +125,11 @@ function validatePage(page){
 }
 $('wizardNext').onclick=()=>{try{validatePage(wizardPage);showWizard(Math.min(3,wizardPage+1));message(wizardPage===2?'Choose a consent workflow and policy.':'Review the exact authorization boundary before creating it.');}catch(error){message(error.message,true);}};
 $('wizardBack').onclick=()=>showWizard(Math.max(1,wizardPage-1));
-for(let i=1;i<=3;i++)$('wizardTab'+i).onclick=()=>{if(i<=wizardPage)showWizard(i);};
+for(let i=1;i<=3;i++)$('wizardTab'+i).onclick=()=>{if(i<=furthestWizardPage)showWizard(i);};
 
 let walletApi=null, walletProviders=[];
 function compatibleWallets(){ return Object.entries(window.midnight??{}).filter(([,wallet])=>wallet&&typeof wallet.connect==='function'); }
-function refresh(){ walletProviders=compatibleWallets(); const selector=$('walletProvider'); selector.replaceChildren(...walletProviders.map(([key,wallet])=>{const option=document.createElement('option'); option.value=key; option.textContent=wallet.name||key; return option;})); selector.hidden=walletProviders.length<2; $('walletState').textContent=walletProviders.length?`${walletProviders.length} compatible wallet${walletProviders.length===1?'':'s'} detected`:'No compatible wallet detected'; $('walletDetail').textContent=walletProviders.length?'Check a provider on Midnight Preprod. Local request actions remain browser-only.':'Wallet detection is optional; the walkthrough remains local.'; }
+function refresh(){ walletProviders=compatibleWallets(); const selector=$('walletProvider'); selector.replaceChildren(...walletProviders.map(([key,wallet])=>{const option=document.createElement('option'); option.value=key; option.textContent=wallet.name||key; return option;})); selector.hidden=walletProviders.length<2; $('walletState').textContent=walletProviders.length?`${walletProviders.length} compatible wallet${walletProviders.length===1?'':'s'} detected`:'No compatible wallet detected'; $('walletDetail').textContent=walletProviders.length?'Check a provider on Midnight Preprod. Local request actions remain browser-only.':'Wallet detection is optional; the walkthrough remains local.'; $('connectWallet').disabled=walletProviders.length===0; }
 $('refreshWallet').onclick=refresh;
 $('connectWallet').onclick=async()=>{ refresh(); const selected=$('walletProvider').value||walletProviders[0]?.[0]; const found=walletProviders.find(([key])=>key===selected); if(!found)return; $('connectWallet').disabled=true; $('connectWallet').textContent='Checking…'; $('walletState').textContent=`Waiting for ${found[1].name||found[0]}`; $('walletDetail').textContent='Approve the Preprod compatibility check in your wallet. No transaction will be submitted.'; try{ walletApi=await found[1].connect('preprod'); const state=await walletApi.getConnectionStatus(); if(state.status!=='connected'||state.networkId.toLowerCase()!=='preprod')throw new Error('Switch the selected wallet to Midnight Preprod.'); const {unshieldedAddress}=await walletApi.getUnshieldedAddress(); $('walletState').textContent=`${found[1].name||found[0]} checked · Preprod`; $('walletDetail').textContent=`${unshieldedAddress} · Local walkthrough only`; $('walletProvider').disabled=true; $('connectWallet').textContent='Checked'; }catch(error){ $('walletState').textContent='Compatibility check failed'; $('walletDetail').textContent=error.message; $('connectWallet').disabled=false; $('connectWallet').textContent='Check wallet'; } };
 setTimeout(refresh,250);
