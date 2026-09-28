@@ -15,19 +15,26 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  release:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run build
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Verify source and protocol behavior
+        run: npm run check
+      - name: Build deployable web artifact
+        run: npm run build
+      - name: Verify deployment contract
+        run: npm run verify:web
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

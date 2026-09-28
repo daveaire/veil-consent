@@ -12,11 +12,20 @@ jobs:
   verify-preprod:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    concurrency:
+      group: preprod-verification
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run network:verify -- --network preprod
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Verify current release source
+        run: npm run check
+      - name: Build and inspect web artifact
+        run: npm run build && npm run verify:web
+      - name: Verify finalized Preprod deployment
+        run: npm run network:verify -- --network preprod

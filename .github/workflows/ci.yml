@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -18,7 +22,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
       - name: Setup Compact compiler
         uses: midnightntwrk/setup-compact-action@v1
         with:
@@ -27,6 +32,11 @@ jobs:
         run: |
           npm run compile
           git diff --exit-code -- managed
-      - run: npm run check
-      - run: npm run build
-      - run: npm run audit
+      - name: Verify source and protocol behavior
+        run: npm run check
+      - name: Build deployable web artifact
+        run: npm run build
+      - name: Verify deployment contract
+        run: npm run verify:web
+      - name: Audit production dependencies
+        run: npm run audit
