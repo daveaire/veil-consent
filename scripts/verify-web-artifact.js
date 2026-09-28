@@ -1,4 +1,4 @@
-import { access, readFile, stat } from 'node:fs/promises';
+import { access, readFile, readdir, stat } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -35,5 +35,8 @@ for (const asset of assets) {
   const { size } = await stat(file);
   if (size < 256) throw new Error(`${asset} is unexpectedly small (${size} bytes)`);
 }
+
+const chunks = (await readdir(resolve(frontend, 'chunks'))).filter((file) => file.endsWith('.js'));
+if (chunks.length === 0) throw new Error('The deferred proof-runtime chunk is missing');
 
 console.log(`Verified ${pages.length} pages and ${assets.length} release assets.`);

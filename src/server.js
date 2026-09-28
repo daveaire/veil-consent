@@ -20,7 +20,10 @@ const assets = new Map([
 
 http.createServer((request, response) => {
   const pathname = new URL(request.url, 'http://127.0.0.1').pathname;
-  const asset = assets.get(pathname);
+  const chunk = /^\/chunks\/[A-Za-z0-9_-]+\.js$/.test(pathname)
+    ? [pathname.slice(1), 'text/javascript; charset=utf-8']
+    : undefined;
+  const asset = assets.get(pathname) || chunk;
   if (!asset) return response.writeHead(404).end('Not found');
   const [file, contentType] = asset;
   const body = fs.readFileSync(path.join(root, file));

@@ -1,8 +1,8 @@
-import { BrowserConsentSession, browserConsentInput } from './proof-client.js';
 import { createInvitation, createOrganizerEncryptionKey, hexToBytes, openResponse, readEnrollment } from './participant-exchange.js';
 import { canonicalPurpose, createPurposePolicy, assertExecutionAllowed } from '../src/purpose-policy.js';
 const $ = (id) => document.querySelector('#' + id);
 let session;
+let proofClient;
 const demoStep = new URLSearchParams(location.search).get('demo');
 const demoCapture = Boolean(demoStep);
 const sampleDocument = 'Project Aurora launches Tuesday. Keep the customer list private. Legal must review the announcement tomorrow.';
@@ -32,6 +32,7 @@ function stage(n, label) {
   $('statusChip').textContent=n === 1 ? 'Awaiting consent' : n === 2 ? 'Authorized' : 'Consumed';
 }
 function paint() { return demoCapture ? Promise.resolve() : new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))); }
+function loadProofClient() { return proofClient ??= import('./proof-client.js'); }
 async function encrypt(text, secret) { const iv=crypto.getRandomValues(new Uint8Array(12)); const key=await crypto.subtle.importKey('raw',secret,'AES-GCM',false,['encrypt','decrypt']); return {iv,data:new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(text))),key}; }
 async function decrypt(envelope) { return new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:envelope.iv},envelope.key,envelope.data)); }
 
@@ -39,6 +40,7 @@ async function createRequest() {
   $('create').disabled=true; $('create').textContent='Encrypting…'; message('Encrypting the document and creating its purpose-bound commitment…');
   try {
     await paint();
+    const { BrowserConsentSession, browserConsentInput } = await loadProofClient();
     session ??= await BrowserConsentSession.create();
     const now=Math.floor(Date.now()/1000), document=$('document').value.trim();
     if(!document) throw new Error('Add a private document or choose Use sample before creating the request');
