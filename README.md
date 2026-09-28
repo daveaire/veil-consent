@@ -166,6 +166,10 @@ The renderer captures the real organizer and participant interfaces, generates t
 
 See [docs/USAGE.md](docs/USAGE.md).
 
+## Production Roadmap
+
+The Level 4 deployment is a Preprod MVP for non-sensitive test data. The reviewed architecture, infrastructure sourcing register, launch gates, and implementation brief for the post-Level 4 product are maintained in [docs/PRODUCTION-ROADMAP.md](docs/PRODUCTION-ROADMAP.md). It is the source of truth for production planning; credentials and private account details must never be added to it.
+
 ## Product X Profile
 
 [Follow VeilConsent on X](https://x.com/VeilConsent). Product copy and publishing notes are maintained in [PRODUCT-PROFILE.md](PRODUCT-PROFILE.md).
