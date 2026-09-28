@@ -29,6 +29,16 @@ test('organizer completes the one-use authorization lifecycle', async ({ page })
   await expect(page.getByText(/replay attempt will be rejected/i)).toBeVisible();
 });
 
+test('deployment subpath loads the organizer runtime', async ({ page }) => {
+  await gotoReady(page, '/veil-consent/');
+  await page.getByRole('button', { name: 'Load example' }).click();
+  await expect(page.locator('#document')).toHaveValue(/Project Aurora launches Tuesday/);
+  await page.locator('#wizardNext').click();
+  await page.locator('#wizardNext').click();
+  await page.locator('#create').click();
+  await expect(page.locator('#statusChip')).toHaveText('Awaiting consent');
+});
+
 test('organizer controls expose clear, working states', async ({ page }) => {
   await gotoReady(page, '/');
   await expect(page.locator('#wizardTab2')).toBeDisabled();
