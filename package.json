@@ -22,6 +22,7 @@
     "dashboard": "node src/server.js",
     "demo:video": "python3 scripts/build-demo-video.py",
     "network:address": "tsx network/address.ts",
+    "network:init-live-wallet": "tsx network/initialize-live-wallet.ts",
     "network:select": "tsx network/network.ts",
     "network:deploy": "tsx network/deploy.ts",
     "network:prove": "tsx network/prove.ts",

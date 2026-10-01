@@ -23,6 +23,17 @@ The Midnight state must identify `preprod`, the existing deployed contract, and
 the funded operations wallet. The OpenAI key must belong to a dedicated project
 with a conservative spend limit.
 
+Initialize a dedicated VPS-only Preprod wallet and attach the repository's
+published deployment record without synchronizing or exposing recovery material:
+
+```sh
+docker compose run --rm --no-deps worker \
+  /app/node_modules/.bin/tsx /app/network/initialize-live-wallet.ts
+```
+
+Fund only the printed public address with Preprod test tokens, register that
+tNIGHT for DUST generation, and keep `.midnight-state.json` owner-readable only.
+
 ## Safe deployment sequence
 
 1. Back up the current VPS Caddyfile and record existing container health.

@@ -58,6 +58,13 @@ function deriveKeys(seed: string) {
   return result.keys;
 }
 
+/** Derive the public unshielded address without starting network synchronization. */
+export function deriveUnshieldedAddress(network: NetworkId, seed: string): string {
+  setNetworkId(network);
+  const keys = deriveKeys(seed);
+  return createKeystore(keys[Roles.NightExternal], getNetworkId()).getBech32Address().toString();
+}
+
 export interface WalletContext {
   wallet: Awaited<ReturnType<typeof WalletFacade.init>>;
   shieldedSecretKeys: ReturnType<typeof ledger.ZswapSecretKeys.fromSeed>;

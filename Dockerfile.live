@@ -6,6 +6,7 @@ COPY managed ./managed
 COPY frontend ./frontend
 COPY live ./live
 COPY network ./network
+COPY deployments ./deployments
 COPY scripts ./scripts
 COPY src ./src
 COPY tsconfig.json ./
