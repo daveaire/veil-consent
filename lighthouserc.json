@@ -4,7 +4,7 @@
       "startServerCommand": "node src/server.js",
       "startServerReadyPattern": "VeilConsent dashboard",
       "url": ["http://127.0.0.1:4210/", "http://127.0.0.1:4210/participant.html"],
-      "numberOfRuns": 1,
+      "numberOfRuns": 3,
       "settings": { "chromeFlags": "--no-sandbox --headless" }
     },
     "assert": {
