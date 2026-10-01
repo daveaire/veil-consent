@@ -3,6 +3,7 @@ import { rm, writeFile } from 'node:fs/promises';
 import { decryptJson, encryptJson } from './crypto.js';
 import { applyDecisions, createPrivateState, deserializePrivateState, serializePrivateState } from './private-state.js';
 import { runAuthorizedTask } from './ai.js';
+import { maintainExpiredData } from './maintenance.js';
 import { LiveContractClient } from '../network/live-contract.ts';
 
 const pollMs = Number(process.env.WORKER_POLL_MS || 2000);
@@ -129,37 +130,6 @@ async function recoverInterruptedJobs() {
   });
 }
 
-async function purgeExpiredResults() {
-  const result = await pool.query(
-    'UPDATE consent_requests SET result = NULL WHERE result IS NOT NULL AND result_expires_at <= now()',
-  );
-  if (result.rowCount) console.log(`Purged ${result.rowCount} expired result(s)`);
-}
-
-async function expireStaleRequests() {
-  await withTransaction(async (client) => {
-    const expired = await client.query(
-      `UPDATE consent_requests SET status = 'failed', error = 'Consent request expired',
-       encrypted_document = $1, private_state = NULL, updated_at = now()
-       WHERE expires_at <= now() AND status NOT IN ('completed', 'declined', 'failed')
-       RETURNING id`,
-      [JSON.stringify(encryptJson({ deleted: true }))],
-    );
-    for (const row of expired.rows) {
-      await client.query(
-        `UPDATE jobs SET status = 'failed', error = 'Consent request expired', finished_at = now()
-         WHERE request_id = $1 AND status = 'queued'`,
-        [row.id],
-      );
-      await client.query(
-        'UPDATE participants SET approval_secret_ciphertext = NULL WHERE request_id = $1',
-        [row.id],
-      );
-      await audit(client, row.id, 'request.expired');
-    }
-  });
-}
-
 async function execute(job) {
   const { request, participants } = await loadRequest(job.request_id);
   if (job.kind === 'commit') await commit(request, participants);
@@ -193,8 +163,7 @@ async function main() {
   await serviceStatus('starting');
   chain = await LiveContractClient.connect();
   await recoverInterruptedJobs();
-  await purgeExpiredResults();
-  await expireStaleRequests();
+  await maintainExpiredData();
   await writeFile(readyFile, `${new Date().toISOString()}\n`, { mode: 0o600 });
   await serviceStatus('ready', { network: 'preprod' });
   lastHeartbeat = Date.now();
@@ -202,8 +171,7 @@ async function main() {
   while (!stopping) {
     if (Date.now() - lastHeartbeat >= 15_000) {
       await serviceStatus('ready', { network: 'preprod' });
-      await purgeExpiredResults();
-      await expireStaleRequests();
+      await maintainExpiredData();
       lastHeartbeat = Date.now();
     }
     const job = await nextJob();

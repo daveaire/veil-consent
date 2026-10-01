@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { audit, migrate, pool, withTransaction } from './db.js';
 import { decryptJson, encryptJson, randomToken, tokenHash } from './crypto.js';
 import { validateCreateRequest, validateDecision, validateEnrollment } from './validation.js';
+import { maintainExpiredData } from './maintenance.js';
 
 const port = Number(process.env.PORT || 4210);
 const host = process.env.HOST || '0.0.0.0';
@@ -265,6 +266,11 @@ async function serveAsset(response, pathname) {
 }
 
 await migrate();
+await maintainExpiredData();
+const maintenanceTimer = setInterval(() => {
+  maintainExpiredData().catch((error) => console.error(`Maintenance failed: ${error.message}`));
+}, 60_000);
+maintenanceTimer.unref();
 const server = http.createServer(async (request, response) => {
   try {
     const url = new URL(request.url, 'http://localhost');
@@ -305,6 +311,7 @@ const server = http.createServer(async (request, response) => {
 server.listen(port, host, () => console.log(`VeilConsent API listening on http://${host}:${port}`));
 
 async function shutdown() {
+  clearInterval(maintenanceTimer);
   server.close();
   await pool.end();
 }

@@ -4,7 +4,8 @@ import crypto from 'node:crypto';
 
 import pg from 'pg';
 
-import { encryptJson, randomToken, tokenHash } from '../live/crypto.js';
+import { decryptJson, encryptJson, randomToken, tokenHash } from '../live/crypto.js';
+import { maintainExpiredData } from '../live/maintenance.js';
 
 const required = ['DATABASE_URL', 'VEIL_MASTER_KEY', 'VEIL_ADMIN_TOKEN'];
 for (const name of required) {
@@ -20,6 +21,7 @@ const child = spawn(process.execPath, ['live/api.js'], {
 });
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const requestId = crypto.randomUUID();
+const expiredRequestId = crypto.randomUUID();
 const evidenceToken = randomToken();
 
 async function waitForApi() {
@@ -75,9 +77,28 @@ try {
   });
   assert.equal((await response.json()).result, null, 'expired results must not be disclosed');
 
-  console.log('Live API smoke test passed: auth, encrypted result, retention, and public evidence');
+  await pool.query(
+    `INSERT INTO consent_requests
+      (id, title, purpose, threshold, expires_at, status, encrypted_document)
+     VALUES ($1, 'Expired request', $2, 2, now() - interval '1 second', 'enrolling', $3)`,
+    [expiredRequestId,
+      JSON.stringify({ version: 1, task: 'summarize', model: 'gpt-5-mini', recipients: 'private', retentionSeconds: 86400 }),
+      JSON.stringify(encryptJson({ document: 'must be deleted' }))],
+  );
+  const maintenance = await maintainExpiredData();
+  assert.equal(maintenance.purgedResults, 1);
+  assert.equal(maintenance.expiredRequests, 1);
+  const cleaned = await pool.query(
+    'SELECT status, result, encrypted_document FROM consent_requests WHERE id = $1',
+    [expiredRequestId],
+  );
+  assert.equal(cleaned.rows[0].status, 'failed');
+  assert.equal(cleaned.rows[0].result, null);
+  assert.deepEqual(decryptJson(cleaned.rows[0].encrypted_document), { deleted: true });
+
+  console.log('Live API smoke test passed: auth, encrypted result, retention cleanup, and public evidence');
 } finally {
-  await pool.query('DELETE FROM consent_requests WHERE id = $1', [requestId]).catch(() => {});
+  await pool.query('DELETE FROM consent_requests WHERE id = ANY($1::uuid[])', [[requestId, expiredRequestId]]).catch(() => {});
   await pool.end();
   if (child.exitCode === null) {
     child.kill('SIGTERM');
