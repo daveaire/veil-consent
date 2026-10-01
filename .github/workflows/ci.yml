@@ -55,7 +55,7 @@ jobs:
         run: npm run verify:live-api
         env:
           DATABASE_URL: postgresql://veilconsent_ci:veilconsent_ci@127.0.0.1:5432/veilconsent_ci
-          VEIL_MASTER_KEY: 1111111111111111111111111111111111111111111111111111111111111111
+          VEIL_MASTER_KEY: '1111111111111111111111111111111111111111111111111111111111111111'
           VEIL_ADMIN_TOKEN: ci-only-administrator-token-123456
       - name: Validate and build live deployment containers
         run: |
