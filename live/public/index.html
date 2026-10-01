@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Purpose-bound private authorization for real AI processing on Midnight Preprod.">
+  <title>VeilConsent Live</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header><a class="brand" href="/">VeilConsent</a><span class="network">Midnight Preprod</span></header>
+  <main>
+    <section class="hero"><p class="eyebrow">Verifiable AI authorization</p><h1>Consent first.<br>Processing second.</h1><p>Three people independently review one exact use. VeilConsent processes the encrypted document only after the required approvals are finalized on Midnight Preprod.</p></section>
+
+    <section id="organizer" class="card">
+      <div class="section-title"><div><p class="eyebrow">Organizer</p><h2>Create a live request</h2></div><span class="status">Real transactions</span></div>
+      <div class="notice">Use non-sensitive test data. This pilot submits real Preprod transactions and sends authorized content to the configured AI provider.</div>
+      <label>Administrator token<input id="adminToken" type="password" autocomplete="off"></label>
+      <label>Request title<input id="title" value="Project Aurora review" maxlength="120"></label>
+      <label>Test document<textarea id="document" maxlength="20000">Project Aurora launches Tuesday. Keep the customer list private. Legal must review the announcement tomorrow.</textarea></label>
+      <div class="grid">
+        <label>Operation<select id="task"><option value="summarize">Summarize</option></select></label>
+        <label>Model<select id="model"><option value="gpt-5-mini">GPT-5 mini</option></select></label>
+        <label>Result recipients<input id="recipients" value="Project Aurora members"></label>
+        <label>Approval policy<select id="threshold"><option value="3">All 3 participants</option><option value="2" selected>Any 2 of 3</option><option value="1">Any 1 of 3</option></select></label>
+        <label>Retention<select id="retention"><option value="0">No retention</option><option value="86400" selected>24 hours</option><option value="604800">7 days</option></select></label>
+        <label>Request expires<select id="expiry"><option value="3600">1 hour</option><option value="86400" selected>24 hours</option><option value="604800">7 days</option></select></label>
+      </div>
+      <button id="create">Create request</button>
+      <p class="message" id="message" aria-live="polite"></p>
+      <div id="invitations" hidden><h3>Participant links</h3><p>Send one private link to each intended participant.</p><div id="inviteList"></div></div>
+      <div id="requestStatus" hidden></div>
+    </section>
+
+    <section id="participant" class="card" hidden>
+      <p class="eyebrow">Participant decision</p><h2 id="participantTitle">Review request</h2>
+      <div id="participantTerms"></div>
+      <div id="enrollmentStep">
+        <p>Create a one-time private credential for this request. Its approval secret remains in this browser unless you approve.</p>
+        <button id="enroll">Create private credential</button>
+      </div>
+      <div id="decisionStep" hidden>
+        <div class="notice">Approval releases a one-time witness to the VeilConsent proof service. Your decision is not published on-chain.</div>
+        <div class="actions"><button id="approve">Approve this use</button><button id="decline" class="secondary">Decline</button></div>
+      </div>
+      <p class="message" id="participantMessage" aria-live="polite"></p>
+    </section>
+  </main>
+  <footer>VeilConsent live pilot · encrypted storage · purpose-bound execution · one-use capability</footer>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
+

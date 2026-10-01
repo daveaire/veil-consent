@@ -11,6 +11,6 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["network/**/*.ts"],
+  "include": ["network/**/*.ts", "live/**/*.ts"],
   "exclude": ["node_modules", "dist", "managed"]
 }
