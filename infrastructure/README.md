@@ -15,6 +15,10 @@ Create these files on the VPS; never commit them:
 - `infrastructure/state/.midnight-private-state-password` with mode `0600`
 - `infrastructure/state/.midnight-wallet-state/`
 
+`PRIVATE_STATE_PASSWORD` must be at least 16 characters and contain at least
+three of these classes: uppercase letters, lowercase letters, digits, and
+special characters. A hexadecimal-only value is rejected by Midnight.js.
+
 The Midnight state must identify `preprod`, the existing deployed contract, and
 the funded operations wallet. The OpenAI key must belong to a dedicated project
 with a conservative spend limit.
