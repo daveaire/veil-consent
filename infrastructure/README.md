@@ -42,6 +42,15 @@ docker compose run --rm worker \
   /app/node_modules/.bin/tsx /app/network/register-live-dust.ts
 ```
 
+Add the dedicated OpenAI project key to `.env.production`, then activate only
+the worker. The command validates configuration, waits for worker health and
+API readiness, and stops the worker again on failure without touching the API,
+database, proof server, proxy, or unrelated VPS services:
+
+```sh
+sh activate-worker.sh
+```
+
 ## Safe deployment sequence
 
 1. Back up the current VPS Caddyfile and record existing container health.
