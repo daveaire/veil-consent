@@ -46,11 +46,14 @@ async function commit(request, participants) {
   const state = createPrivateState({ document, purpose: request.purpose, threshold: request.threshold, participants });
   await pool.query("UPDATE consent_requests SET status = 'committing', updated_at = now() WHERE id = $1", [request.id]);
   const transaction = await chain.create(state, BigInt(Math.floor(new Date(request.expires_at).getTime() / 1000)));
+  const { network, contractAddress } = chain.evidence;
   await withTransaction(async (client) => {
     await client.query(
       `UPDATE consent_requests SET status = 'awaiting_consent', private_state = $1,
-       request_commitment = $2, create_tx = $3, updated_at = now() WHERE id = $4`,
-      [JSON.stringify(encryptJson(serializePrivateState(state))), transaction.requestCommitment, transaction.txId, request.id],
+       request_commitment = $2, create_tx = $3, network = $4, contract_address = $5,
+       updated_at = now() WHERE id = $6`,
+      [JSON.stringify(encryptJson(serializePrivateState(state))), transaction.requestCommitment,
+        transaction.txId, network, contractAddress, request.id],
     );
     await audit(client, request.id, 'midnight.request_finalized', transaction);
   });
@@ -83,14 +86,77 @@ async function processAuthorized(request) {
   const transaction = await chain.consume(state);
   const document = decryptJson(request.encrypted_document).document;
   const result = await runAuthorizedTask({ document, purpose: request.purpose });
+  const retentionSeconds = Number(request.purpose.retentionSeconds || 0);
+  const resultExpiresAt = retentionSeconds > 0 ? new Date(Date.now() + retentionSeconds * 1000) : new Date();
+  const encryptedResult = retentionSeconds > 0 ? encryptJson(result) : null;
   await withTransaction(async (client) => {
     await client.query(
       `UPDATE consent_requests SET status = 'completed', consume_tx = $1, result = $2,
-       encrypted_document = $3, private_state = NULL, updated_at = now() WHERE id = $4`,
-      [transaction.txId, JSON.stringify(result), JSON.stringify(encryptJson({ deleted: true })), request.id],
+       result_expires_at = $3, encrypted_document = $4, private_state = NULL,
+       updated_at = now() WHERE id = $5`,
+      [transaction.txId, encryptedResult ? JSON.stringify(encryptedResult) : null, resultExpiresAt,
+        JSON.stringify(encryptJson({ deleted: true })), request.id],
+    );
+    await client.query(
+      'UPDATE participants SET approval_secret_ciphertext = NULL WHERE request_id = $1',
+      [request.id],
     );
     await audit(client, request.id, 'midnight.capability_consumed', transaction);
     await audit(client, request.id, 'ai.completed', { provider: result.provider, model: result.model, responseId: result.responseId });
+  });
+}
+
+async function recoverInterruptedJobs() {
+  await withTransaction(async (client) => {
+    const interrupted = await client.query("SELECT id, request_id, kind FROM jobs WHERE status = 'running' FOR UPDATE");
+    for (const job of interrupted.rows) {
+      const message = 'Worker stopped while this chain operation was in progress; manual reconciliation is required';
+      await client.query(
+        "UPDATE jobs SET status = 'failed', error = $1, finished_at = now() WHERE id = $2",
+        [message, job.id],
+      );
+      await client.query(
+        `UPDATE consent_requests SET status = 'failed', error = $1, encrypted_document = $2,
+         private_state = NULL, updated_at = now() WHERE id = $3`,
+        [message, JSON.stringify(encryptJson({ deleted: true })), job.request_id],
+      );
+      await client.query(
+        'UPDATE participants SET approval_secret_ciphertext = NULL WHERE request_id = $1',
+        [job.request_id],
+      );
+      await audit(client, job.request_id, 'job.interrupted', { kind: job.kind });
+    }
+  });
+}
+
+async function purgeExpiredResults() {
+  const result = await pool.query(
+    'UPDATE consent_requests SET result = NULL WHERE result IS NOT NULL AND result_expires_at <= now()',
+  );
+  if (result.rowCount) console.log(`Purged ${result.rowCount} expired result(s)`);
+}
+
+async function expireStaleRequests() {
+  await withTransaction(async (client) => {
+    const expired = await client.query(
+      `UPDATE consent_requests SET status = 'failed', error = 'Consent request expired',
+       encrypted_document = $1, private_state = NULL, updated_at = now()
+       WHERE expires_at <= now() AND status NOT IN ('completed', 'declined', 'failed')
+       RETURNING id`,
+      [JSON.stringify(encryptJson({ deleted: true }))],
+    );
+    for (const row of expired.rows) {
+      await client.query(
+        `UPDATE jobs SET status = 'failed', error = 'Consent request expired', finished_at = now()
+         WHERE request_id = $1 AND status = 'queued'`,
+        [row.id],
+      );
+      await client.query(
+        'UPDATE participants SET approval_secret_ciphertext = NULL WHERE request_id = $1',
+        [row.id],
+      );
+      await audit(client, row.id, 'request.expired');
+    }
   });
 }
 
@@ -108,7 +174,15 @@ async function fail(job, error) {
   console.error(`Job ${job.id} (${job.kind}) failed: ${message}`);
   await withTransaction(async (client) => {
     await client.query("UPDATE jobs SET status = 'failed', error = $1, finished_at = now() WHERE id = $2", [message, job.id]);
-    await client.query("UPDATE consent_requests SET status = 'failed', error = $1, updated_at = now() WHERE id = $2", [message, job.request_id]);
+    await client.query(
+      `UPDATE consent_requests SET status = 'failed', error = $1, encrypted_document = $2,
+       private_state = NULL, updated_at = now() WHERE id = $3`,
+      [message, JSON.stringify(encryptJson({ deleted: true })), job.request_id],
+    );
+    await client.query(
+      'UPDATE participants SET approval_secret_ciphertext = NULL WHERE request_id = $1',
+      [job.request_id],
+    );
     await audit(client, job.request_id, 'job.failed', { kind: job.kind, error: message });
   });
 }
@@ -118,6 +192,9 @@ async function main() {
   await migrate();
   await serviceStatus('starting');
   chain = await LiveContractClient.connect();
+  await recoverInterruptedJobs();
+  await purgeExpiredResults();
+  await expireStaleRequests();
   await writeFile(readyFile, `${new Date().toISOString()}\n`, { mode: 0o600 });
   await serviceStatus('ready', { network: 'preprod' });
   lastHeartbeat = Date.now();
@@ -125,6 +202,8 @@ async function main() {
   while (!stopping) {
     if (Date.now() - lastHeartbeat >= 15_000) {
       await serviceStatus('ready', { network: 'preprod' });
+      await purgeExpiredResults();
+      await expireStaleRequests();
       lastHeartbeat = Date.now();
     }
     const job = await nextJob();

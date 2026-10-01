@@ -26,6 +26,10 @@ export class LiveContractClient {
     private readonly address: string,
   ) {}
 
+  get evidence() {
+    return { network: this.network, contractAddress: this.address };
+  }
+
   static async connect(): Promise<LiveContractClient> {
     const { network, config } = resolveNetwork();
     if (network !== 'preprod') throw new Error('The live pilot requires the preprod network');

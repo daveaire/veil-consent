@@ -17,6 +17,10 @@ CREATE TABLE IF NOT EXISTS consent_requests (
   consume_tx text,
   result jsonb,
   error text,
+  evidence_token_hash text,
+  network text,
+  contract_address text,
+  result_expires_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
@@ -57,6 +61,12 @@ CREATE TABLE IF NOT EXISTS audit_events (
 
 CREATE INDEX IF NOT EXISTS jobs_queue_idx ON jobs(status, id);
 CREATE INDEX IF NOT EXISTS participants_request_idx ON participants(request_id);
+ALTER TABLE consent_requests ADD COLUMN IF NOT EXISTS evidence_token_hash text;
+ALTER TABLE consent_requests ADD COLUMN IF NOT EXISTS network text;
+ALTER TABLE consent_requests ADD COLUMN IF NOT EXISTS contract_address text;
+ALTER TABLE consent_requests ADD COLUMN IF NOT EXISTS result_expires_at timestamptz;
+CREATE UNIQUE INDEX IF NOT EXISTS consent_requests_evidence_token_idx
+  ON consent_requests(evidence_token_hash) WHERE evidence_token_hash IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS service_status (
   service text PRIMARY KEY,

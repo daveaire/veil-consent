@@ -13,15 +13,21 @@ function setMessage(id, value, error = false) {
   $(id).classList.toggle('error', error);
 }
 
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/gu, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;',
+  })[character]);
+}
+
 function renderStatus(record) {
   $('requestStatus').hidden = false;
   $('requestStatus').innerHTML = `<h3>Live status</h3><dl>
-    <dt>State</dt><dd>${record.status.replaceAll('_', ' ')}</dd>
-    <dt>Request</dt><dd>${record.requestCommitment || 'Waiting for participant enrollment'}</dd>
-    <dt>Create transaction</dt><dd>${record.transactions.create || 'Pending'}</dd>
-    <dt>Issue transaction</dt><dd>${record.transactions.issue || 'Pending'}</dd>
-    <dt>Consume transaction</dt><dd>${record.transactions.consume || 'Pending'}</dd>
-  </dl>${record.result ? `<div class="result"><strong>Authorized result</strong><p>${record.result.output}</p></div>` : ''}`;
+    <dt>State</dt><dd>${escapeHtml(record.status.replaceAll('_', ' '))}</dd>
+    <dt>Request</dt><dd>${escapeHtml(record.requestCommitment || 'Waiting for participant enrollment')}</dd>
+    <dt>Create transaction</dt><dd>${escapeHtml(record.transactions.create || 'Pending')}</dd>
+    <dt>Issue transaction</dt><dd>${escapeHtml(record.transactions.issue || 'Pending')}</dd>
+    <dt>Consume transaction</dt><dd>${escapeHtml(record.transactions.consume || 'Pending')}</dd>
+  </dl>${record.result ? `<div class="result"><strong>Authorized result</strong><p>${escapeHtml(record.result.output)}</p></div>` : ''}`;
 }
 
 async function organizer() {
@@ -55,6 +61,10 @@ async function organizer() {
       $('document').value = '';
       $('document').placeholder = 'Encrypted and removed from this form';
       $('invitations').hidden = false;
+      const evidenceUrl = new URL(value.evidence.path, location.origin).toString();
+      $('evidenceUrl').value = evidenceUrl;
+      $('copyEvidence').onclick = () => navigator.clipboard.writeText(evidenceUrl);
+      $('evidence').hidden = false;
       $('inviteList').replaceChildren(...value.invitations.map((invitation) => {
         const row = document.createElement('div'); row.className = 'invite';
         const label = document.createElement('strong'); label.textContent = `Participant ${invitation.slot}`;
@@ -66,7 +76,13 @@ async function organizer() {
       renderStatus(value.request);
       setMessage('message', 'Request created. Enrollment begins when participants open their links.');
       const timer = setInterval(async () => {
-        try { const record = await api(`/api/requests/${value.request.id}`); renderStatus(record); if (['completed', 'declined', 'failed'].includes(record.status)) clearInterval(timer); }
+        try {
+          const record = await api(`/api/requests/${value.request.id}`, {
+            headers: { authorization: `Bearer ${$('adminToken').value}` },
+          });
+          renderStatus(record);
+          if (['completed', 'declined', 'failed'].includes(record.status)) clearInterval(timer);
+        }
         catch { /* retain the last verified status during a transient refresh error */ }
       }, 5000);
     } catch (error) { $('create').disabled = false; setMessage('message', error.message, true); }
@@ -78,7 +94,7 @@ async function participant() {
   try {
     const invite = await api(`/api/invitations/${token}`);
     $('participantTitle').textContent = invite.title;
-    $('participantTerms').innerHTML = `<dl><dt>Operation</dt><dd>${invite.purpose.task}</dd><dt>Model</dt><dd>${invite.purpose.model}</dd><dt>Recipients</dt><dd>${invite.purpose.recipients}</dd><dt>Retention</dt><dd>${invite.purpose.retentionSeconds / 3600} hours</dd><dt>Policy</dt><dd>${invite.threshold} of 3 approvals</dd><dt>Expires</dt><dd>${new Date(invite.expires_at).toLocaleString()}</dd></dl>`;
+    $('participantTerms').innerHTML = `<dl><dt>Operation</dt><dd>${escapeHtml(invite.purpose.task)}</dd><dt>Model</dt><dd>${escapeHtml(invite.purpose.model)}</dd><dt>Recipients</dt><dd>${escapeHtml(invite.purpose.recipients)}</dd><dt>Retention</dt><dd>${escapeHtml(invite.purpose.retentionSeconds / 3600)} hours</dd><dt>Policy</dt><dd>${escapeHtml(invite.threshold)} of 3 approvals</dd><dt>Expires</dt><dd>${escapeHtml(new Date(invite.expires_at).toLocaleString())}</dd></dl>`;
     const storageKey = `veilconsent:${token}`;
     let secret = localStorage.getItem(storageKey);
     async function waitForCommit() {

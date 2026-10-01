@@ -16,6 +16,20 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16.4-alpine
+        env:
+          POSTGRES_DB: veilconsent_ci
+          POSTGRES_USER: veilconsent_ci
+          POSTGRES_PASSWORD: veilconsent_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U veilconsent_ci -d veilconsent_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -38,6 +52,12 @@ jobs:
         run: npm run build
       - name: Build network-backed pilot artifact
         run: npm run build:live
+      - name: Verify live API persistence and disclosure boundaries
+        run: npm run verify:live-api
+        env:
+          DATABASE_URL: postgresql://veilconsent_ci:veilconsent_ci@127.0.0.1:5432/veilconsent_ci
+          VEIL_MASTER_KEY: 1111111111111111111111111111111111111111111111111111111111111111
+          VEIL_ADMIN_TOKEN: ci-only-administrator-token-123456
       - name: Validate and build live deployment containers
         run: |
           mkdir -p infrastructure/secrets infrastructure/state
