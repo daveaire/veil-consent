@@ -38,6 +38,13 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
       - name: Setup Compact compiler
+        id: compact_primary
+        continue-on-error: true
+        uses: midnightntwrk/setup-compact-action@v1
+        with:
+          compact-version: '0.31.1'
+      - name: Retry Compact compiler setup
+        if: steps.compact_primary.outcome == 'failure'
         uses: midnightntwrk/setup-compact-action@v1
         with:
           compact-version: '0.31.1'
