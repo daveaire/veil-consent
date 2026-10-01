@@ -39,8 +39,16 @@ export class LiveContractClient {
     console.log('Midnight worker: restoring Preprod wallet');
     const walletCtx = await createWallet({ network, networkConfig: config, seed: walletRecord.seed });
     console.log('Midnight worker: synchronizing wallet with Preprod');
-    await waitForCoreWalletState(walletCtx.wallet);
+    const walletState = await waitForCoreWalletState(walletCtx.wallet);
     await persistWalletState(network, walletCtx);
+    const registeredDustSources = walletState.unshielded.availableCoins.filter(
+      (coin: any) => coin.meta?.registeredForDustGeneration,
+    ).length;
+    const dustBalance = walletState.dust.balance(new Date());
+    if (registeredDustSources === 0 || dustBalance <= 0n) {
+      await walletCtx.wallet.stop();
+      throw new Error('Preprod operations wallet requires registered tNIGHT and a positive DUST balance');
+    }
     console.log('Midnight worker: wallet synchronized');
     const walletProvider = {
       getCoinPublicKey: () => walletCtx.shieldedSecretKeys.coinPublicKey,
