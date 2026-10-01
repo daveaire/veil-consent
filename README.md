@@ -12,6 +12,47 @@
 
 [Watch the narrated, captioned product walkthrough](https://daveaire.github.io/veil-consent/veil-consent-mvp.mp4).
 
+The GitHub Pages interface is the archived Level 4 protocol walkthrough. It
+executes generated Compact circuits locally and does not submit its interactive
+steps to Preprod. The VPS pilot under `live/` is the network-backed product path:
+it persists separate participant sessions, queues proof work, finalizes create,
+issue, and consume transactions on Preprod, and releases plaintext to the
+configured AI provider only after consumption succeeds.
+
+## Network-backed pilot
+
+The pilot contains a separate Node API, PostgreSQL workflow store, private
+Midnight proof server, and single-concurrency worker. Run the local application
+and database with:
+
+```sh
+npm run build:live
+docker compose -f infrastructure/compose.yaml up -d postgres api
+```
+
+The worker requires an owner-only Preprod wallet state directory, a dedicated
+AI project key, and the private deployment variables documented in
+[`infrastructure/README.md`](infrastructure/README.md). It must never be started
+with production or sensitive documents while using test infrastructure.
+
+```mermaid
+flowchart LR
+  O[Organizer] --> API[VeilConsent API]
+  P[Three participant sessions] --> API
+  API --> DB[(PostgreSQL)]
+  API --> Q[Durable job queue]
+  Q --> W[Single-concurrency worker]
+  W --> PS[Private proof server]
+  W --> M[Midnight Preprod]
+  W --> AI[Configured AI provider]
+```
+
+The worker enforces this order: finalize request commitment, collect the private
+approval threshold, finalize capability issuance, finalize one-use consumption,
+decrypt, then invoke the allowlisted model operation. Transaction identifiers
+and commitments are stored with the public request status for independent
+verification.
+
 ## Contract Address
 
 | Network | Address |

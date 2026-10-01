@@ -1,0 +1,15 @@
+.git
+.github
+.midnight-state.json
+.midnight-wallet-state
+.midnight-private-state-password
+.veil-consent-private.json
+infrastructure/.env.production
+infrastructure/secrets
+infrastructure/state
+node_modules
+playwright-report
+test-results
+demo-output
+frontend/*.mp4
+*.log

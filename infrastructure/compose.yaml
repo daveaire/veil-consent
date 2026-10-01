@@ -1,0 +1,98 @@
+name: veil-consent
+
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: veilconsent
+      POSTGRES_USER: veilconsent
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    volumes:
+      - veil-postgres:/var/lib/postgresql/data
+    networks: [veil-internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U veilconsent -d veilconsent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  proof-server:
+    image: midnightntwrk/proof-server:8.1.0
+    restart: unless-stopped
+    command: ["midnight-proof-server -v"]
+    environment:
+      RUST_BACKTRACE: "full"
+    volumes:
+      - veil-proof-cache:/.cache/midnight
+    networks: [veil-internal, veil-egress]
+    healthcheck:
+      test: ["CMD-SHELL", "echo > /dev/tcp/127.0.0.1/6300"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  api:
+    build:
+      context: ..
+      dockerfile: Dockerfile.live
+    image: veil-consent-live:0.2.0
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4210
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      veil-internal: {}
+      reward-proxy:
+        aliases: [veil-api]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4210/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  worker:
+    image: veil-consent-live:0.2.0
+    restart: unless-stopped
+    command: ["/app/node_modules/.bin/tsx", "/app/live/worker.js"]
+    working_dir: /state
+    env_file: .env.production
+    environment:
+      MIDNIGHT_PROOF_SERVER_URL: http://proof-server:6300
+    volumes:
+      - ./state:/state
+    depends_on:
+      postgres:
+        condition: service_healthy
+      proof-server:
+        condition: service_healthy
+    networks: [veil-internal, veil-egress]
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /state/worker-ready"]
+      interval: 15s
+      timeout: 3s
+      retries: 40
+      start_period: 30s
+
+networks:
+  veil-internal:
+    internal: true
+  veil-egress: {}
+  reward-proxy:
+    external: true
+    name: deploy_reward-net
+
+volumes:
+  veil-postgres:
+  veil-proof-cache:
+
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password

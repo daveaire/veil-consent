@@ -13,6 +13,9 @@ demo-output/
 dist/
 .DS_Store
 *.log
+infrastructure/.env.production
+infrastructure/secrets/
+infrastructure/state/
 __pycache__/
 frontend/proof-client.bundle.js
 frontend/participant-exchange.bundle.js
