@@ -34,6 +34,14 @@ docker compose run --rm --no-deps worker \
 Fund only the printed public address with Preprod test tokens, register that
 tNIGHT for DUST generation, and keep `.midnight-state.json` owner-readable only.
 
+After faucet funding is visible, register it and wait for a positive DUST
+balance through the isolated proof server:
+
+```sh
+docker compose run --rm worker \
+  /app/node_modules/.bin/tsx /app/network/register-live-dust.ts
+```
+
 ## Safe deployment sequence
 
 1. Back up the current VPS Caddyfile and record existing container health.
