@@ -21,6 +21,11 @@ configured AI provider only after consumption succeeds.
 
 ## Network-backed pilot
 
+[Open the HTTPS network-backed pilot](https://veilconsent-144-91-97-140.sslip.io/).
+The interface fails closed: it disables new requests unless PostgreSQL, the
+Preprod worker, and the configured AI provider are all ready. Use only
+non-sensitive test data on this shared Preprod environment.
+
 The pilot contains a separate Node API, PostgreSQL workflow store, private
 Midnight proof server, and single-concurrency worker. Run the local application
 and database with:
@@ -50,8 +55,10 @@ flowchart LR
 The worker enforces this order: finalize request commitment, collect the private
 approval threshold, finalize capability issuance, finalize one-use consumption,
 decrypt, then invoke the allowlisted model operation. Transaction identifiers
-and commitments are stored with the public request status for independent
-verification.
+and commitments are stored for independent verification. Each organizer gets an
+unlisted evidence URL that reveals the network, explorer, contract address,
+commitments, transaction identifiers, status, and timestamps while omitting the
+title, purpose, participant state, errors, document, and AI result.
 
 ## Contract Address
 
@@ -182,7 +189,7 @@ The suite covers threshold and unanimous policies, expiry, revocation, replay pr
 
 ## CI/CD
 
-`.github/workflows/ci.yml` installs locked dependencies, compiles the Compact contract, runs the source and protocol checks, builds the browser interface, verifies the deployable artifact, exercises the organizer and participant journeys in Chromium, scans both entry points with axe, compares reviewed desktop and mobile screenshots, enforces Lighthouse budgets, and audits production dependencies on every push to `main` and every pull request. `.github/workflows/pages.yml` publishes the exact commit only after CI succeeds. `.github/workflows/preprod.yml` tests the current release and queries the finalized contract every day and on demand.
+`.github/workflows/ci.yml` installs locked dependencies, compiles the Compact contract, runs the source and protocol checks, builds the browser and live artifacts, exercises the live API against PostgreSQL, builds the deployment image, verifies the deployable web artifact, exercises the organizer and participant journeys in Chromium, scans both entry points with axe, compares reviewed desktop and mobile screenshots, enforces Lighthouse budgets, and audits production dependencies on every pushed branch and every pull request. `.github/workflows/pages.yml` publishes the exact commit only after CI succeeds. `.github/workflows/preprod.yml` tests the current release and queries the finalized contract every day and on demand.
 
 Run the same release gate locally:
 
