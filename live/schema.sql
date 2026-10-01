@@ -58,3 +58,9 @@ CREATE TABLE IF NOT EXISTS audit_events (
 CREATE INDEX IF NOT EXISTS jobs_queue_idx ON jobs(status, id);
 CREATE INDEX IF NOT EXISTS participants_request_idx ON participants(request_id);
 
+CREATE TABLE IF NOT EXISTS service_status (
+  service text PRIMARY KEY,
+  status text NOT NULL,
+  details jsonb NOT NULL DEFAULT '{}'::jsonb,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);

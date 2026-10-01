@@ -9,6 +9,17 @@ const pollMs = Number(process.env.WORKER_POLL_MS || 2000);
 const readyFile = '/state/worker-ready';
 let stopping = false;
 let chain;
+let lastHeartbeat = 0;
+
+async function serviceStatus(status, details = {}) {
+  await pool.query(
+    `INSERT INTO service_status (service, status, details, updated_at)
+     VALUES ('worker', $1, $2, now())
+     ON CONFLICT (service) DO UPDATE SET status = excluded.status,
+       details = excluded.details, updated_at = excluded.updated_at`,
+    [status, JSON.stringify(details)],
+  );
+}
 
 async function nextJob() {
   return withTransaction(async (client) => {
@@ -105,10 +116,17 @@ async function fail(job, error) {
 async function main() {
   await rm(readyFile, { force: true });
   await migrate();
+  await serviceStatus('starting');
   chain = await LiveContractClient.connect();
   await writeFile(readyFile, `${new Date().toISOString()}\n`, { mode: 0o600 });
+  await serviceStatus('ready', { network: 'preprod' });
+  lastHeartbeat = Date.now();
   console.log('VeilConsent worker connected to Midnight Preprod');
   while (!stopping) {
+    if (Date.now() - lastHeartbeat >= 15_000) {
+      await serviceStatus('ready', { network: 'preprod' });
+      lastHeartbeat = Date.now();
+    }
     const job = await nextJob();
     if (job) {
       try { await execute(job); } catch (error) { await fail(job, error); }
@@ -121,6 +139,7 @@ async function main() {
 async function shutdown() {
   stopping = true;
   await rm(readyFile, { force: true });
+  try { await serviceStatus('stopped'); } catch { /* the database may already be unavailable */ }
   if (chain) await chain.close();
   await pool.end();
 }

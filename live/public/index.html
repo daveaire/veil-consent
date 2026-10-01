@@ -13,7 +13,7 @@
     <section class="hero"><p class="eyebrow">Verifiable AI authorization</p><h1>Consent first.<br>Processing second.</h1><p>Three people independently review one exact use. VeilConsent processes the encrypted document only after the required approvals are finalized on Midnight Preprod.</p></section>
 
     <section id="organizer" class="card">
-      <div class="section-title"><div><p class="eyebrow">Organizer</p><h2>Create a live request</h2></div><span class="status">Real transactions</span></div>
+      <div class="section-title"><div><p class="eyebrow">Organizer</p><h2>Create a live request</h2></div><span id="liveStatus" class="status pending">Checking service</span></div>
       <div class="notice">Use non-sensitive test data. This pilot submits real Preprod transactions and sends authorized content to the configured AI provider.</div>
       <label>Administrator token<input id="adminToken" type="password" autocomplete="off"></label>
       <label>Request title<input id="title" value="Project Aurora review" maxlength="120"></label>
@@ -50,4 +50,3 @@
   <script type="module" src="/app.js"></script>
 </body>
 </html>
-

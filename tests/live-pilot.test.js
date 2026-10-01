@@ -6,6 +6,7 @@ import { decryptJson, encryptJson, tokenHash } from '../live/crypto.js';
 import { applyDecisions, createPrivateState, serializePrivateState, deserializePrivateState } from '../live/private-state.js';
 import { validateCreateRequest, validateDecision, validateEnrollment } from '../live/validation.js';
 import { pureCircuits } from '../managed/contract/index.js';
+import { runAuthorizedTask } from '../live/ai.js';
 
 process.env.VEIL_MASTER_KEY = '11'.repeat(32);
 const hex = (value) => Buffer.from(value).toString('hex');
@@ -49,4 +50,35 @@ test('participant witnesses survive encrypted persistence and match enrolled cre
   assert.equal(decided.decisionB, 1n);
   assert.equal(decided.decisionC, 0n);
   assert.equal(hex(pureCircuits.participantCredential(decided.approvalSecretA)), participants[0].credential);
+});
+
+test('authorized AI adapter invokes a real Responses-compatible endpoint with storage disabled', async () => {
+  let observed;
+  const fetchImpl = async (url, request) => {
+    observed = {
+      url,
+      authorization: request.headers.authorization,
+      body: JSON.parse(request.body),
+    };
+    return new Response(JSON.stringify({ id: 'resp_test', output_text: '- Approved summary' }), {
+      status: 200, headers: { 'content-type': 'application/json' },
+    });
+  };
+  const previous = { key: process.env.OPENAI_API_KEY, base: process.env.OPENAI_BASE_URL };
+  process.env.OPENAI_API_KEY = 'test-project-key';
+  try {
+    const result = await runAuthorizedTask({
+      document: 'Confidential project launch is Tuesday.',
+      purpose: { task: 'summarize', model: 'gpt-5-mini' },
+    }, { baseUrl: 'https://provider.test/v1', fetchImpl });
+    assert.equal(result.output, '- Approved summary');
+    assert.equal(result.responseId, 'resp_test');
+    assert.equal(observed.url, 'https://provider.test/v1/responses');
+    assert.equal(observed.authorization, 'Bearer test-project-key');
+    assert.equal(observed.body.store, false);
+    assert.equal(observed.body.input, 'Confidential project launch is Tuesday.');
+  } finally {
+    if (previous.key === undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY = previous.key;
+    if (previous.base === undefined) delete process.env.OPENAI_BASE_URL; else process.env.OPENAI_BASE_URL = previous.base;
+  }
 });

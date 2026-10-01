@@ -1,8 +1,10 @@
-export async function runAuthorizedTask({ document, purpose }) {
+export async function runAuthorizedTask({ document, purpose }, options = {}) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error('OPENAI_API_KEY is not configured');
   if (purpose.task !== 'summarize') throw new Error('Only the allowlisted summarize operation can run');
-  const response = await fetch('https://api.openai.com/v1/responses', {
+  const baseUrl = (options.baseUrl || process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/u, '');
+  const fetchImpl = options.fetchImpl || fetch;
+  const response = await fetchImpl(`${baseUrl}/responses`, {
     method: 'POST',
     headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
     body: JSON.stringify({
@@ -20,4 +22,3 @@ export async function runAuthorizedTask({ document, purpose }) {
   if (!output) throw new Error('AI provider returned no text result');
   return { output, provider: 'openai', model: purpose.model, responseId: value.id };
 }
-

@@ -87,8 +87,28 @@ async function requestRecord(id) {
   return publicRequest(requestResult.rows[0], participants.rows);
 }
 
+async function readiness() {
+  const result = await pool.query("SELECT status, details, updated_at FROM service_status WHERE service = 'worker'");
+  const worker = result.rows[0] || null;
+  const heartbeatFresh = worker && Date.now() - new Date(worker.updated_at).getTime() < 45_000;
+  const aiConfigured = Boolean(process.env.OPENAI_API_KEY?.trim());
+  return {
+    ready: Boolean(worker?.status === 'ready' && heartbeatFresh && aiConfigured),
+    database: 'ready',
+    worker: worker?.status || 'unavailable',
+    workerHeartbeat: worker?.updated_at || null,
+    ai: aiConfigured ? 'configured' : 'unconfigured',
+  };
+}
+
 async function createRequest(request, response) {
   requireAdmin(request);
+  const ready = await readiness();
+  if (!ready.ready) {
+    const error = new Error('Live processing is unavailable until the Preprod worker and AI provider are ready');
+    error.status = 503;
+    throw error;
+  }
   const input = validateCreateRequest(await body(request));
   const id = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + input.expirySeconds * 1000);
@@ -208,6 +228,10 @@ const server = http.createServer(async (request, response) => {
   try {
     const url = new URL(request.url, 'http://localhost');
     if (request.method === 'GET' && url.pathname === '/healthz') return json(response, 200, { status: 'ok' });
+    if (request.method === 'GET' && url.pathname === '/readyz') {
+      const status = await readiness();
+      return json(response, status.ready ? 200 : 503, status);
+    }
     if (request.method === 'POST' && url.pathname === '/api/requests') return await createRequest(request, response);
     const statusMatch = url.pathname.match(/^\/api\/requests\/([0-9a-f-]+)$/iu);
     if (request.method === 'GET' && statusMatch) {

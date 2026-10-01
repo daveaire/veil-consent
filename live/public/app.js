@@ -25,6 +25,19 @@ function renderStatus(record) {
 }
 
 async function organizer() {
+  const createButton = $('create');
+  createButton.disabled = true;
+  try {
+    const response = await fetch('/readyz');
+    const readiness = await response.json();
+    if (!response.ok || !readiness.ready) throw new Error('Live execution is being activated. New requests are temporarily paused.');
+    $('liveStatus').textContent = 'Live execution ready';
+    $('liveStatus').classList.remove('pending');
+    createButton.disabled = false;
+  } catch (error) {
+    $('liveStatus').textContent = 'Activation pending';
+    setMessage('message', error.message, true);
+  }
   $('create').onclick = async () => {
     $('create').disabled = true;
     setMessage('message', 'Creating encrypted request…');

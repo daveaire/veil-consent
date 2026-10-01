@@ -36,6 +36,15 @@ jobs:
         run: npm run check
       - name: Build deployable web artifact
         run: npm run build
+      - name: Build network-backed pilot artifact
+        run: npm run build:live
+      - name: Validate and build live deployment containers
+        run: |
+          mkdir -p infrastructure/secrets infrastructure/state
+          cp infrastructure/.env.production.example infrastructure/.env.production
+          printf '%s\n' 'ci-only-postgres-password' > infrastructure/secrets/postgres_password
+          docker compose -f infrastructure/compose.yaml config --quiet
+          docker build -f Dockerfile.live -t veil-consent-live:${{ github.sha }} .
       - name: Verify deployment contract
         run: npm run verify:web
       - name: Install browser test runtime
