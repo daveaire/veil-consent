@@ -1,5 +1,11 @@
 name: veil-consent
 
+x-logging: &veil-logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "3"
+
 services:
   postgres:
     image: postgres:16.4-alpine
@@ -13,6 +19,9 @@ services:
     volumes:
       - veil-postgres:/var/lib/postgresql/data
     networks: [veil-internal]
+    cpus: 0.50
+    mem_limit: 512m
+    logging: *veil-logging
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U veilconsent -d veilconsent"]
       interval: 5s
@@ -28,6 +37,9 @@ services:
     volumes:
       - veil-proof-cache:/.cache/midnight
     networks: [veil-internal, veil-egress]
+    cpus: 1.25
+    mem_limit: 3g
+    logging: *veil-logging
     healthcheck:
       test: ["CMD-SHELL", "echo > /dev/tcp/127.0.0.1/6300"]
       interval: 10s
@@ -52,6 +64,9 @@ services:
       veil-internal: {}
       reward-proxy:
         aliases: [veil-api]
+    cpus: 0.50
+    mem_limit: 384m
+    logging: *veil-logging
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4210/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 10s
@@ -74,6 +89,9 @@ services:
       proof-server:
         condition: service_healthy
     networks: [veil-internal, veil-egress]
+    cpus: 1.00
+    mem_limit: 2g
+    logging: *veil-logging
     healthcheck:
       test: ["CMD-SHELL", "test -f /state/worker-ready"]
       interval: 15s
