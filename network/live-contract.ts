@@ -38,18 +38,26 @@ export class LiveContractClient {
     const walletRecord = getOrCreateWallet(network);
     console.log('Midnight worker: restoring Preprod wallet');
     const walletCtx = await createWallet({ network, networkConfig: config, seed: walletRecord.seed });
-    console.log('Midnight worker: synchronizing wallet with Preprod');
-    const walletState = await waitForCoreWalletState(walletCtx.wallet);
-    await persistWalletState(network, walletCtx);
-    const registeredDustSources = walletState.unshielded.availableCoins.filter(
-      (coin: any) => coin.meta?.registeredForDustGeneration,
-    ).length;
-    const dustBalance = walletState.dust.balance(new Date());
-    if (registeredDustSources === 0 || dustBalance <= 0n) {
+    try {
+      console.log('Midnight worker: synchronizing wallet with Preprod');
+      const configuredTimeout = Number(process.env.MIDNIGHT_SYNC_TIMEOUT_MS);
+      const timeoutMs = Number.isFinite(configuredTimeout) && configuredTimeout > 0
+        ? configuredTimeout
+        : 15 * 60 * 1000;
+      const walletState = await waitForCoreWalletState(walletCtx.wallet, timeoutMs);
+      await persistWalletState(network, walletCtx);
+      const registeredDustSources = walletState.unshielded.availableCoins.filter(
+        (coin: any) => coin.meta?.registeredForDustGeneration,
+      ).length;
+      const dustBalance = walletState.dust.balance(new Date());
+      if (registeredDustSources === 0 || dustBalance <= 0n) {
+        throw new Error('Preprod operations wallet requires registered tNIGHT and a positive DUST balance');
+      }
+      console.log('Midnight worker: wallet synchronized');
+    } catch (error) {
       await walletCtx.wallet.stop();
-      throw new Error('Preprod operations wallet requires registered tNIGHT and a positive DUST balance');
+      throw error;
     }
-    console.log('Midnight worker: wallet synchronized');
     const walletProvider = {
       getCoinPublicKey: () => walletCtx.shieldedSecretKeys.coinPublicKey,
       getEncryptionPublicKey: () => walletCtx.shieldedSecretKeys.encryptionPublicKey,

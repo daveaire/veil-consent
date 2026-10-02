@@ -193,8 +193,24 @@ export function coreWalletReady(state: WalletState): boolean {
     && Boolean(state.dust.state.progress.isConnected);
 }
 
-export async function waitForCoreWalletState(wallet: WalletContext['wallet']): Promise<WalletState> {
-  return Rx.firstValueFrom(wallet.state().pipe(Rx.filter(coreWalletReady)));
+function boundedDuration(timeoutMs: number): string {
+  return timeoutMs < 1000 ? `${timeoutMs} milliseconds` : `${Math.round(timeoutMs / 1000)} seconds`;
+}
+
+export async function waitForCoreWalletState(
+  wallet: WalletContext['wallet'],
+  timeoutMs?: number,
+): Promise<WalletState> {
+  const ready = wallet.state().pipe(Rx.filter(coreWalletReady));
+  if (!timeoutMs) return Rx.firstValueFrom(ready);
+  try {
+    return await Rx.firstValueFrom(ready.pipe(Rx.timeout({ first: timeoutMs })));
+  } catch (error) {
+    if (error instanceof Rx.TimeoutError) {
+      throw new Error(`Wallet synchronization did not complete within ${boundedDuration(timeoutMs)}`);
+    }
+    throw error;
+  }
 }
 
 /**
@@ -206,13 +222,25 @@ export async function persistWalletState(
   network: NetworkId,
   ctx: WalletContext,
   cwd?: string,
+  persistenceTimeoutMs?: number,
 ): Promise<void> {
   const next: PersistedWalletState = {};
+  const configuredTimeout = Number(process.env.MIDNIGHT_PERSIST_TIMEOUT_MS);
+  const timeoutMs = persistenceTimeoutMs
+    ?? (Number.isFinite(configuredTimeout) && configuredTimeout > 0 ? configuredTimeout : 15_000);
 
   for (const kind of CHILD_KINDS) {
     try {
       const child = (ctx.wallet as unknown as Record<ChildKind, { serializeState: () => Promise<unknown> }>)[kind];
-      const serialized = await child.serializeState();
+      let timer: NodeJS.Timeout | undefined;
+      const timeout = new Promise<never>((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error(`${kind} wallet-state serialization timed out after ${boundedDuration(timeoutMs)}`)),
+          timeoutMs,
+        );
+      });
+      const serialized = await Promise.race([child.serializeState(), timeout])
+        .finally(() => { if (timer) clearTimeout(timer); });
       if (kind === 'dust') {
         next.dust = serialized as string;
       } else {

@@ -16,7 +16,7 @@ async function main() {
     const address = walletCtx.unshieldedKeystore.getBech32Address().toString();
     console.log(`Address: ${address}`);
     console.log('Synchronizing the Preprod operations wallet...');
-    const state = await waitForCoreWalletState(walletCtx.wallet);
+    const state = await waitForCoreWalletState(walletCtx.wallet, timeoutMs);
     const unregistered = state.unshielded.availableCoins.filter(
       (coin: any) => !coin.meta?.registeredForDustGeneration,
     );
